@@ -370,3 +370,10 @@ kubectl exec -it pod-a -- ip addr
 kubectl exec -it pod-a -- ip route
 kubectl exec -it pod-a -- cat /etc/resolv.conf
 ```
+
+
+---
+
+## Related
+
+[[05 - AWS Networking]]  [[07 - Custom Protocols]]  [[Kubernetes Deep Dive]]

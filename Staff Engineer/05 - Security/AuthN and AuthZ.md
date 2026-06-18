@@ -206,3 +206,10 @@ SELECT * FROM orders;  -- Only returns orders where user_id = 123
 ```
 
 Prevents bugs where application code fails to filter by user — the DB enforces it.
+
+
+---
+
+## Related
+
+[[API Security & OWASP]]

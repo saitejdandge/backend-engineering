@@ -155,3 +155,10 @@ fun incrementWithWindow(redis: RedisCache, key: String, windowSec: Long): Long {
     return count
 }
 ```
+
+
+---
+
+## Related
+
+[[02 - Redis Deep Dive]]  [[04 - Distributed Cache Internals]]

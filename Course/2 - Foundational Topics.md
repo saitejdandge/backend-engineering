@@ -93,3 +93,10 @@ Amazon RDS by default uses proxy SQL, Postgres uses PG Bouncer. Proxy can mainta
 
 
 
+
+
+---
+
+## Related
+
+[[1 - Foundational Topics]]  [[3 - Intro to Message queues]]

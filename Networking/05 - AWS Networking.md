@@ -286,3 +286,10 @@ VPC Endpoint → S3 (no internet)
 4. Security Groups: per-instance firewall
 5. NACLs: per-subnet firewall (broad rules)
 6. VPC private subnets: no internet exposure for backends/DBs
+
+
+---
+
+## Related
+
+[[04 - Proxies and Load Balancers]]  [[06 - Kubernetes Networking]]

@@ -205,3 +205,10 @@ Replication Factor = 3: Can survive 2 broker failures (standard production)
 ```
 
 More replicas = more storage overhead but stronger durability. Choose based on your data criticality.
+
+
+---
+
+## Related
+
+[[03 - When to Use Kafka]]  [[05 - Fault Tolerance and Durability]]

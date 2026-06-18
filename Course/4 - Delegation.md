@@ -72,3 +72,9 @@ Kafka is a message stream that holds the messages. Internally kafka has topic,
 #### Kafka commit
 
 Consumer commit after processing the message.
+
+---
+
+## Related
+
+[[3 - Intro to Message queues]]

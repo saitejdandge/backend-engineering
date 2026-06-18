@@ -145,3 +145,10 @@ The distinction is minor at the infrastructure level — both use offset commits
 | Throughput | Very high (1M+ msg/sec) | Moderate |
 | Built-in retry | No (must implement) | Yes (SQS DLQ built-in) |
 | Best for | Streams, event sourcing, high throughput | Simple async queues, built-in retry |
+
+
+---
+
+## Related
+
+[[02 - How Kafka Works]]  [[3 - Intro to Message queues]]

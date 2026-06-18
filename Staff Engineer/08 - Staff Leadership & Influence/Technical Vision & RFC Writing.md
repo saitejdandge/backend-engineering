@@ -193,3 +193,10 @@ A technical vision only has value if people follow it. Alignment comes from:
 - **Connecting to business outcomes:** Frame technical debt and refactoring in terms of developer velocity, reliability, and business agility
 - **Maintaining it:** A vision document that's 18 months out of date is worse than none
 - **Revisiting regularly:** Quarterly review of the vision against current priorities
+
+
+---
+
+## Related
+
+[[Scope Amplification & Influence]]  [[Navigating Ambiguity]]

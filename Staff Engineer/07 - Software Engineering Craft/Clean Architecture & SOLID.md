@@ -333,3 +333,10 @@ price = Money(29.99, "USD")
 tax = Money(2.40, "USD")
 total = price.add(tax)  # Returns new Money object, original unchanged
 ```
+
+
+---
+
+## Related
+
+[[Testing Strategy]]

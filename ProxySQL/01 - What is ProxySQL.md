@@ -197,3 +197,10 @@ SAVE MYSQL SERVERS TO DISK;
 SAVE MYSQL USERS TO DISK;
 SAVE MYSQL QUERY RULES TO DISK;
 ```
+
+
+---
+
+## Related
+
+[[02 - Connection Pooling]]

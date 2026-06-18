@@ -182,3 +182,10 @@ Physical clocks drift. You cannot rely on wall clock time for ordering events ac
 - How do you handle split-brain in a leader election system?
 - What happens to your system during a network partition?
 - How do you ensure exactly-once delivery in a message queue?
+
+
+---
+
+## Related
+
+[[Database Internals]]  [[Event-Driven Architecture]]

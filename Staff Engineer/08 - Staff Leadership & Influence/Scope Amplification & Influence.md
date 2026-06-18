@@ -178,3 +178,10 @@ One of the highest-leverage decisions a staff engineer makes.
 - Your team can understand and debug the internals when needed
 
 **The staff engineer's role:** Make these decisions explicitly and early, rather than letting teams default to "build it ourselves" out of habit or "buy it" without understanding the lock-in.
+
+
+---
+
+## Related
+
+[[Technical Vision & RFC Writing]]  [[Navigating Ambiguity]]

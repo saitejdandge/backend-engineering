@@ -273,3 +273,10 @@ When making breaking changes, version the API or use a deprecation period with w
 - **Never expose internal IDs** — Use UUIDs or opaque tokens, not auto-increment IDs (enumeration attacks)
 - **Implement CORS properly** — Whitelist specific origins, don't use `*` for authenticated endpoints
 - **Audit logging** — Log who did what and when. Required for compliance.
+
+
+---
+
+## Related
+
+[[Caching Strategies]]  [[Microservices vs Monolith]]

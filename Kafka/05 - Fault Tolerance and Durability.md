@@ -236,3 +236,10 @@ kafka-consumer-groups \
 - `UnderReplicatedPartitions > 0` → broker health issue
 - `Consumer lag > threshold` → consumer too slow or crashing
 - `OfflinePartitionsCount > 0` → critical — partitions unavailable
+
+
+---
+
+## Related
+
+[[04 - Scalability and Partitioning]]  [[06 - Retries, Errors, and Performance]]  [[2. Kafka replication & durability]]

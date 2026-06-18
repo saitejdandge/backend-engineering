@@ -365,3 +365,10 @@ When removing a backend from a load balancer (deployment), you don't want to kil
 AWS ALB does this automatically when deregistering a target (`deregistration_delay.timeout_seconds = 300` default).
 
 Kubernetes does this via `preStop` hook + `terminationGracePeriodSeconds`.
+
+
+---
+
+## Related
+
+[[03 - File Descriptors epoll and Linux Networking]]  [[05 - AWS Networking]]

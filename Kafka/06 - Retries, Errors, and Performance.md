@@ -308,3 +308,10 @@ Storage (7-day retention):
   250 MB/sec × 3 replicas × 86400 sec/day × 7 days = ~450 TB
   Per broker (10 brokers): 45 TB each
 ```
+
+
+---
+
+## Related
+
+[[05 - Fault Tolerance and Durability]]  [[07 - Kafka for System Design Interviews]]

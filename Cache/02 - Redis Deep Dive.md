@@ -611,3 +611,10 @@ appendfsync everysec   # fsync every second (balance of perf/safety)
 
 ### Recommendation
 Use both: RDB for fast restarts, AOF for durability. Redis 7+ has RDB+AOF hybrid mode.
+
+
+---
+
+## Related
+
+[[01 - Caching Fundamentals]]  [[03 - Interview Cheatsheet]]  [[04 - Distributed Cache Internals]]

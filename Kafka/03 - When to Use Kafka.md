@@ -177,3 +177,10 @@ Kafka is optimized for small messages (< 1MB). Large payloads kill throughput an
 | FB Live Comments | Pub/sub for comment fanout — multiple consumer groups |
 | Web Crawler | Queue for crawl jobs (but SQS may be preferred for built-in retry) |
 | Uber | Stream of driver location events — real-time geospatial processing |
+
+
+---
+
+## Related
+
+[[02 - How Kafka Works]]  [[04 - Scalability and Partitioning]]

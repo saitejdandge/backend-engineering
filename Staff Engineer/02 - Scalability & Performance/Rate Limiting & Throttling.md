@@ -179,3 +179,10 @@ Key metrics:
 - **Throttle queue depth:** If using throttling, watch for queue growth
 - **Top rate-limited clients:** Identify heavy consumers for outreach or block
 - **Redis latency:** Rate limiting adds to request latency — watch Redis p99
+
+
+---
+
+## Related
+
+[[Performance Profiling & Bottlenecks]]

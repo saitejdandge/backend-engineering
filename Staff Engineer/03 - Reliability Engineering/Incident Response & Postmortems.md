@@ -211,3 +211,10 @@ A runbook is a documented procedure for handling a specific alert or scenario. G
 - **Compensation:** On-call shifts should be compensated (time off or financial)
 - **Follow the sun:** Distribute on-call across time zones to avoid overnight shifts
 - **Rotation size:** Minimum 5-6 people in a rotation to avoid burnout
+
+
+---
+
+## Related
+
+[[Fault Tolerance Patterns]]  [[SLOs SLIs and SLAs]]

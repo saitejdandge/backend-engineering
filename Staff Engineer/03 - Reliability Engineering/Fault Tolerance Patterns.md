@@ -252,3 +252,10 @@ Order of operations:
 Without coordination, these can interact badly (e.g., retry amplifies load on a circuit that should be open).
 
 Configure them as a stack, not independently.
+
+
+---
+
+## Related
+
+[[Incident Response & Postmortems]]  [[SLOs SLIs and SLAs]]

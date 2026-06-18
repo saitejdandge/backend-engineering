@@ -174,3 +174,10 @@ Split when you see:
 - Specific compliance or security isolation requirements
 
 **Red flag:** Splitting too early is a common mistake. Premature decomposition leads to a distributed monolith — you get all the pain with none of the gains.
+
+
+---
+
+## Related
+
+[[Event-Driven Architecture]]  [[API Design]]

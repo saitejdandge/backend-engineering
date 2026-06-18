@@ -307,3 +307,10 @@ In the presence of a network partition, a distributed system must choose between
 | Redis | Primary–Replica | Async replication + Sentinel for failover |
 | CockroachDB | Multi-Primary (Raft) | Strong consistency via distributed Raft |
 | DynamoDB | Leaderless | Quorum reads/writes, eventual consistency by default |
+
+
+---
+
+## Related
+
+[[Database Sharding]]

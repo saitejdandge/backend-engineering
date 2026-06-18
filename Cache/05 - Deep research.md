@@ -246,3 +246,9 @@ First, topological design forms the immutable baseline of system performance. Hy
 Second, architects must relentlessly modernize eviction policies and stampede protections. Static TTLs and pure LRU algorithms are categorically insufficient for ensuring planetary-scale stability. The mandatory adoption of probabilistic logic—specifically utilizing the XFetch algorithm for early expiration to prevent thundering herds , and Bloom filters to immediately halt cache penetration attacks —is essential to shielding primary database engines from catastrophic failure. Furthermore, transitioning toward ARC or ML-assisted predictive prefetching extracts significantly higher utility from finite memory pools, radically improving hit ratios.
 
 Ultimately, system design must rigorously respect the dictates of the PACELC theorem. Caching is fundamentally a latency optimization strategy that inherently degrades consistency (the `EL` node of PACELC). Resolving the consequent dual write problem requires completely abandoning flawed dual-synchronous writes at the application layer in favor of robust, event-driven synchronization pipelines, such as Transactional Outboxes and log-based Change Data Capture. By synthesizing advanced mathematical heuristics with network-aware topologies and immutable event streams, architects can successfully construct distributed caching tiers capable of shielding underlying persistent stores from immense, volatile loads while consistently delivering the sub-millisecond latencies demanded by modern digital infrastructure.
+
+---
+
+## Related
+
+[[04 - Distributed Cache Internals]]

@@ -482,3 +482,10 @@ class OrderRepository(private val jdbcTemplate: JdbcTemplate) {
 | Hosted option | No | No | No | Yes (AWS) |
 | Ops complexity | Medium | Low | High | Low |
 | Best for | MySQL at scale | Postgres pool | Sharded MySQL | AWS-native |
+
+
+---
+
+## Related
+
+[[03 - Query Routing]]  [[05 - Scaling and Load Balancing]]

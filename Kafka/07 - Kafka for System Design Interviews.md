@@ -221,3 +221,10 @@ Commands ──▶ Command Handler ──▶ Kafka (events, log compaction) ─�
 **Kafka vs SQS one-liner:** "Kafka for high throughput, replay, and multiple consumers. SQS for simple async queues with built-in retry and DLQ."
 
 **Consumer failure one-liner:** "At-least-once delivery via offset commits. Make consumers idempotent."
+
+
+---
+
+## Related
+
+[[06 - Retries, Errors, and Performance]]  [[01 - What is Kafka]]

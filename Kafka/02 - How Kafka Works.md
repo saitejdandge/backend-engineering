@@ -258,3 +258,10 @@ Consumer (in Consumer Group)
   │  11. Commit offset back to Kafka
   └──▶ Repeat from step 9
 ```
+
+
+---
+
+## Related
+
+[[01 - What is Kafka]]  [[03 - When to Use Kafka]]

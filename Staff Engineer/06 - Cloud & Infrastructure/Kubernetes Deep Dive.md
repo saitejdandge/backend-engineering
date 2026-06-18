@@ -297,3 +297,10 @@ lifecycle:
     exec:
       command: ["sleep", "5"]
 ```
+
+
+---
+
+## Related
+
+[[CI CD & Deployment Strategies]]  [[Observability]]

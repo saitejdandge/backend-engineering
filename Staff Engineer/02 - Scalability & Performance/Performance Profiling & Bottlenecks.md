@@ -245,3 +245,10 @@ Never go to production without load testing. Know your system's limits before yo
 - **Soak test:** Sustained load over hours/days. Reveals memory leaks, connection pool exhaustion, disk fill.
 
 **Always test with production-like data volume.** A test with 100 rows performs nothing like a test with 100 million rows.
+
+
+---
+
+## Related
+
+[[Horizontal vs Vertical Scaling]]  [[Rate Limiting & Throttling]]

@@ -405,3 +405,10 @@ done
 | Max label length | 63 characters |
 | Max hostname length | 253 characters |
 | Max UDP DNS packet | 512 bytes (EDNS0 extends to 4096) |
+
+
+---
+
+## Related
+
+[[07 - Custom Protocols]]

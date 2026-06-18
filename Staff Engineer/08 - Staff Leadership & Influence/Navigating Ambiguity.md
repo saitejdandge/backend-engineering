@@ -147,3 +147,10 @@ The most underrated staff skill: when everyone is confused and stressed, being t
 **During design debates:** "We've been discussing this for 45 minutes. Here's where I think we agree, here's where we disagree, and here's the specific question we need to answer to resolve it."
 
 This clarity is worth more than any line of code you could write.
+
+
+---
+
+## Related
+
+[[Technical Vision & RFC Writing]]  [[Scope Amplification & Influence]]

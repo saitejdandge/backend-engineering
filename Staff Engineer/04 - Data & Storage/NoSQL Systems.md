@@ -288,3 +288,10 @@ GET /orders/_search
 - Geospatial queries
 
 **Not a primary database.** Data durability is lower than PostgreSQL. Use as a secondary store synced from your primary DB.
+
+
+---
+
+## Related
+
+[[PostgreSQL Internals & Optimization]]

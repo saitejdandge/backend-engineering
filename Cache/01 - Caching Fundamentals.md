@@ -435,3 +435,10 @@ Request → L1 (in-process, ~0.1ms) → miss
 | Media / images | CDN (Read-Through) | Days to weeks | Purge on update |
 | Analytics events | Write-Behind | N/A (no cache reads) | N/A |
 | Bank balance | Write-Through or no cache | Short or none | Invalidate on txn |
+
+
+---
+
+## Related
+
+[[02 - Redis Deep Dive]]  [[Caching Strategies]]

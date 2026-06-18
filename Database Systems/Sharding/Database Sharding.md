@@ -223,3 +223,10 @@ The challenge is choosing a sharding strategy (key-range vs hash) that achieves 
 - Hash the partition key before assigning to a shard
 - Prefix hot keys with a random prefix (trades some range-scan ability for distribution)
 - Use composite keys that spread writes across shards
+
+
+---
+
+## Related
+
+[[Database Replication]]

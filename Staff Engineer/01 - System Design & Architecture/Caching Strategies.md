@@ -208,3 +208,10 @@ Key metrics:
 - **Memory usage:** Approaching limit triggers eviction
 - **Latency:** Redis p99 should be < 1ms for most use cases
 - **Connection count:** Exhausted connection pool kills throughput
+
+
+---
+
+## Related
+
+[[API Design]]  [[Database Internals]]

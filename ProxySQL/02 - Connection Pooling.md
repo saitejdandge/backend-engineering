@@ -289,3 +289,10 @@ SELECT * FROM orders WHERE user_id = @current_user;
 -- GOOD: Pass value directly
 SELECT * FROM orders WHERE user_id = 123;
 ```
+
+
+---
+
+## Related
+
+[[01 - What is ProxySQL]]  [[03 - Query Routing]]

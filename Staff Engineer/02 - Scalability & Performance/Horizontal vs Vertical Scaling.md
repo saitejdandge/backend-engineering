@@ -183,3 +183,10 @@ This seems low, but databases are I/O bound. More connections = more context swi
 **Signs of over-provisioning:**
 - DB CPU high despite low application throughput
 - `max_connections` exhausted on the DB side
+
+
+---
+
+## Related
+
+[[Performance Profiling & Bottlenecks]]

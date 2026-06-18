@@ -344,3 +344,10 @@ WHERE variable_name = 'mysql-eventslog_format';
 SELECT * FROM stats_mysql_query_rules WHERE rule_id = 5;
 -- hits: how many times this rule was triggered
 ```
+
+
+---
+
+## Related
+
+[[02 - Connection Pooling]]  [[04 - Best Practices Pitfalls and Operations]]

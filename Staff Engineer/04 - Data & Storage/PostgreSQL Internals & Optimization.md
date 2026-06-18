@@ -284,3 +284,10 @@ FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY pg_total_relation_size(tablename::regclass) DESC;
 ```
+
+
+---
+
+## Related
+
+[[NoSQL Systems]]  [[1. Intro]]

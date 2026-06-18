@@ -232,3 +232,10 @@ WAL is also the mechanism for:
 - Change Data Capture (CDC) tools like Debezium read WAL
 
 **WAL archiving:** Ship WAL segments to S3/GCS for backup and PITR. Essential for disaster recovery.
+
+
+---
+
+## Related
+
+[[Caching Strategies]]  [[Distributed Systems Fundamentals]]

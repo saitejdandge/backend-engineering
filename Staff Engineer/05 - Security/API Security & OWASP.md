@@ -265,3 +265,10 @@ Used for:
 - Zero-trust network access
 
 Implementation with a service mesh (Istio) handles mTLS automatically between services — no application code changes.
+
+
+---
+
+## Related
+
+[[AuthN and AuthZ]]

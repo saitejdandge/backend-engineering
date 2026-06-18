@@ -207,3 +207,10 @@ Events are immutable once published, but schemas evolve. Use a Schema Registry (
 - Only add optional fields
 - Version your event types: `OrderPlacedV1`, `OrderPlacedV2`
 - Use Avro or Protobuf — both support schema evolution natively
+
+
+---
+
+## Related
+
+[[Distributed Systems Fundamentals]]  [[Microservices vs Monolith]]

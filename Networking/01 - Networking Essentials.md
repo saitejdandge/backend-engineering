@@ -282,3 +282,10 @@ stateDiagram-v2
 | TLS handshake (additional) | ~1 RTT |
 | HTTP/1.1 request (local) | ~2ms |
 | HTTP/3 vs HTTP/1.1 on lossy network | 30% faster |
+
+
+---
+
+## Related
+
+[[02 - Tomcat Threads and Connection Pools]]

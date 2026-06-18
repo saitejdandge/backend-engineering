@@ -429,3 +429,10 @@ fun benchmarkEncodings() {
     // Custom: 21MB/s bandwidth, ~10ns/serialize
 }
 ```
+
+
+---
+
+## Related
+
+[[06 - Kubernetes Networking]]  [[08 - DNS Deep Dive]]

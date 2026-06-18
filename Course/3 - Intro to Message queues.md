@@ -169,3 +169,10 @@ Modern queues have replicas, They also store these messages to ==disk==, Kafka d
 * Rabbit MQ
 	* Complex message broker
 	* Complex routing
+
+
+---
+
+## Related
+
+[[2 - Foundational Topics]]  [[4 - Delegation]]

@@ -458,3 +458,10 @@ redis-cli slowlog get 10  # last 10 slow commands
 **Forgetting connection pool limits** — too many connections exhausts Redis's `maxclients` (default 10,000). Each connection uses ~2KB of memory.
 
 **Ignoring replication lag** — if you write to master and immediately read from replica, you may read stale data. Either read from master for critical reads, or implement read-your-writes (read from master for N seconds after a write by that user).
+
+
+---
+
+## Related
+
+[[02 - Redis Deep Dive]]  [[05 - Deep research]]

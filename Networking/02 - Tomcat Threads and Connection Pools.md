@@ -285,3 +285,10 @@ SELECT count(*) FROM pg_stat_activity WHERE datname = 'mydb';
 ```
 
 This thread is waiting for a DB connection from HikariCP. If you see 50+ threads in this state, your pool is too small or queries are too slow.
+
+
+---
+
+## Related
+
+[[01 - Networking Essentials]]  [[03 - File Descriptors epoll and Linux Networking]]

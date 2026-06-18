@@ -206,3 +206,10 @@ GitOps is a deployment model where the desired state of infrastructure and appli
 - **Terraform Cloud:** GitOps for infrastructure.
 
 **Benefits:** Full audit trail (git history), easy rollback, consistent environments, peer review for infrastructure changes.
+
+
+---
+
+## Related
+
+[[Kubernetes Deep Dive]]  [[Observability]]

@@ -247,3 +247,10 @@ Alert on error budget burn rate (as described in the SLOs note). This is the gol
 - You alert when users are actually being affected at a meaningful rate
 - Fast burn (page): 14.4x burn rate over 1 hour
 - Slow burn (ticket): 1x burn rate over 3 days
+
+
+---
+
+## Related
+
+[[Kubernetes Deep Dive]]  [[CI CD & Deployment Strategies]]

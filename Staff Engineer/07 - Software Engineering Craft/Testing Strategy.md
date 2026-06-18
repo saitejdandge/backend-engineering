@@ -279,3 +279,10 @@ Test techniques that run against real production traffic:
 - **A/B testing:** Compare business metrics between two versions with real users
 - **Chaos engineering:** Intentionally break things (see Reliability Engineering notes)
 - **Synthetic monitoring:** Run real transactions against production on a schedule (check that checkout actually works every 5 minutes)
+
+
+---
+
+## Related
+
+[[Clean Architecture & SOLID]]

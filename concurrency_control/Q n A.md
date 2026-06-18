@@ -786,3 +786,10 @@ Time | Txn A                | Txn B
 **Question:** Txn A already holds FOR SHARE on row 1 and now tries to acquire FOR UPDATE on the same row (within the same transaction). Txn B also holds FOR SHARE. What happens?
 
 **Answer:** Txn A **deadlocks with Txn B**. Upgrading from a shared lock to an exclusive lock requires that no other transaction holds a conflicting lock. Txn B's FOR SHARE conflicts with Txn A's FOR UPDATE request. So Txn A waits for Txn B's share lock. But if Txn B tries the same upgrade (or holds any other lock Txn A needs), a cycle forms and Postgres detects a deadlock. The fix is to acquire the strongest lock you will need upfront — start with FOR UPDATE if you know you will write.
+
+
+---
+
+## Related
+
+[[5. Best Practices]]  [[3. Transactions]]
