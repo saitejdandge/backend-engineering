@@ -4,12 +4,12 @@
 
 Kafka can operate in two modes. The infrastructure is the same — the difference is in how you consume and retain data.
 
-| | Message Queue | Event Stream |
-|---|---|---|
-| **Pattern** | Each message processed by one consumer group, then "done" | Log retained, multiple groups, replayable |
-| **Delivery** | At-least-once to one consumer | Broadcast to all subscribed consumer groups |
-| **Retention** | Until offset committed (logically consumed) | Time-based or size-based (default 7 days) |
-| **Use case** | Async job processing | Real-time analytics, event sourcing, fanout |
+|               | Message Queue                                             | Event Stream                                |
+| ------------- | --------------------------------------------------------- | ------------------------------------------- |
+| **Pattern**   | Each message processed by one consumer group, then "done" | Log retained, multiple groups, replayable   |
+| **Delivery**  | At-least-once to one consumer                             | Broadcast to all subscribed consumer groups |
+| **Retention** | Until offset committed (logically consumed)               | Time-based or size-based (default 7 days)   |
+| **Use case**  | Async job processing                                      | Real-time analytics, event sourcing, fanout |
 
 ---
 

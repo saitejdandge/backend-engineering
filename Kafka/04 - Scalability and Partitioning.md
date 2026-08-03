@@ -4,13 +4,13 @@
 
 Before scaling out, know what one broker can handle:
 
-| Resource | Limit | Notes |
-|---|---|---|
-| Storage | ~1TB per broker | Depends on disk configuration |
-| Throughput | ~1M messages/sec | Very hand-wavy; depends on msg size + hardware |
-| Frontend connections | ~100,000 | |
-| Added latency | ~0.1–0.5ms | Per-query overhead |
-| Recommended message size | < 1MB | Configurable via `message.max.bytes` |
+| Resource                 | Limit            | Notes                                          |
+| ------------------------ | ---------------- | ---------------------------------------------- |
+| Storage                  | ~1TB per broker  | Depends on disk configuration                  |
+| Throughput               | ~1M messages/sec | Very hand-wavy; depends on msg size + hardware |
+| Frontend connections     | ~100,000         |                                                |
+| Added latency            | ~0.1–0.5ms       | Per-query overhead                             |
+| Recommended message size | < 1MB            | Configurable via `message.max.bytes`           |
 
 > If your system doesn't exceed these limits, scaling is not a relevant conversation in your interview.
 
