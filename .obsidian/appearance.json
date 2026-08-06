@@ -1,0 +1,10 @@
+{
+  "textFontFamily": "PT Serif",
+  "monospaceFontFamily": "JetBrains Mono",
+  "cssTheme": "",
+  "enabledCssSnippets": [
+    "tdd-newspaper"
+  ],
+  "baseFontSize": 16,
+  "theme": "moonstone"
+}

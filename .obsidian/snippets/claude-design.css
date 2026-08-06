@@ -1,9 +1,9 @@
-/* Claude design system — from DESIGN.md
+/* Claude design system — from DESIGN.md (getdesign claude)
    Light: warm cream canvas | Dark: navy product surfaces
-   Coral accent + serif display headings in both */
+   Coral accent + serif display headings */
 
-/* Free stand-ins for StyreneB / Copernicus / JetBrains Mono */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap");
+/* Web substitutes; local Copernicus / StyreneB take priority when installed */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=EB+Garamond:wght@400;500&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap");
 
 :root,
 .theme-light,
@@ -17,13 +17,16 @@
   --claude-warning: #d4a017;
   --claude-error: #c64545;
 
-  --claude-font-display: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --claude-font-body: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
-  --claude-font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  /* Copernicus + StyreneB are Anthropic-licensed; add locally for the real look */
+  --claude-font-display: "Copernicus", "Tiempos Headline", "Cormorant Garamond", "EB Garamond", Garamond, "Times New Roman", serif;
+  --claude-font-body: "StyreneB", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --claude-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
+  --radius-xs: 4px;
   --radius-s: 6px;
   --radius-m: 8px;
   --radius-l: 12px;
+  --radius-xl: 16px;
 }
 
 /* ——— Light: cream canvas ——— */
@@ -32,6 +35,9 @@
   --claude-surface-soft: #f5f0e8;
   --claude-surface-card: #efe9de;
   --claude-surface-strong: #e8e0d2;
+  --claude-surface-dark: #181715;
+  --claude-surface-dark-elevated: #252320;
+  --claude-surface-dark-soft: #1f1e1b;
   --claude-ink: #141413;
   --claude-body: #3d3d3a;
   --claude-body-strong: #252523;
@@ -40,15 +46,17 @@
   --claude-hairline: #e6dfd8;
   --claude-hairline-soft: #ebe6df;
   --claude-primary-disabled: #e6dfd8;
+  --claude-on-dark: #faf9f5;
+  --claude-on-dark-soft: #a09d96;
   --claude-hover: rgba(20, 20, 19, 0.04);
-  --claude-shadow: rgba(20, 20, 19, 0.12);
-  --claude-code-bg: #f5f0e8;
+  --claude-shadow: rgba(20, 20, 19, 0.08);
+  --claude-code-bg: #1f1e1b;
   --claude-code-inline: #efe9de;
-  --claude-code-text: #141413;
-  --claude-code-comment: #6c6a64;
-  --claude-code-keyword: #3d8a7a;
-  --claude-code-string: #8a5a3c;
-  --claude-code-fn: #a9583e;
+  --claude-code-text: #faf9f5;
+  --claude-code-comment: #a09d96;
+  --claude-code-keyword: #5db8a6;
+  --claude-code-string: #e8a55a;
+  --claude-code-fn: #cc785c;
 }
 
 /* ——— Dark: navy product surfaces ——— */
@@ -57,6 +65,9 @@
   --claude-surface-soft: #1f1e1b;
   --claude-surface-card: #252320;
   --claude-surface-strong: #2e2c28;
+  --claude-surface-dark: #181715;
+  --claude-surface-dark-elevated: #252320;
+  --claude-surface-dark-soft: #1f1e1b;
   --claude-ink: #faf9f5;
   --claude-body: #d8d5ce;
   --claude-body-strong: #faf9f5;
@@ -65,6 +76,8 @@
   --claude-hairline: #3a3732;
   --claude-hairline-soft: #2e2c28;
   --claude-primary-disabled: #3a3732;
+  --claude-on-dark: #faf9f5;
+  --claude-on-dark-soft: #a09d96;
   --claude-hover: rgba(250, 249, 245, 0.05);
   --claude-shadow: rgba(0, 0, 0, 0.45);
   --claude-code-bg: #1f1e1b;
@@ -125,6 +138,8 @@
   --tab-container-background: var(--claude-canvas);
   --tab-background-active: var(--claude-canvas);
   --divider-color: var(--claude-hairline);
+  --status-bar-background: var(--claude-surface-soft);
+  --status-bar-text-color: var(--claude-muted);
 
   --font-interface: var(--claude-font-body);
   --font-text: var(--claude-font-body);
@@ -183,12 +198,13 @@
   background-color: var(--claude-canvas);
 }
 
-/* Sidebars */
+/* Sidebars — surface-soft band */
 .workspace-ribbon,
 .workspace-tabs .workspace-tab-header-container,
 .workspace-sidedock-vault-profile,
 .nav-header,
-.side-dock-settings {
+.side-dock-settings,
+.status-bar {
   background-color: var(--claude-surface-soft);
 }
 
@@ -205,6 +221,8 @@
 .nav-file-title {
   color: var(--claude-body);
   border-radius: var(--radius-m);
+  font-weight: 500;
+  font-size: 14px;
 }
 
 .nav-file-title.is-active,
@@ -220,9 +238,10 @@
   background-color: var(--claude-surface-strong);
 }
 
-/* Tabs */
+/* Tabs — category-tab pattern */
 .workspace-tab-header {
   border-radius: var(--radius-m) var(--radius-m) 0 0;
+  color: var(--claude-muted);
 }
 
 .workspace-tab-header.is-active {
@@ -233,9 +252,10 @@
 .workspace-tab-header-inner-title {
   font-family: var(--claude-font-body);
   font-weight: 500;
+  font-size: 14px;
 }
 
-/* Editorial headings */
+/* Editorial headings — Copernicus display at weight 400 */
 .markdown-preview-view h1,
 .markdown-source-view.mod-cm6 .cm-header-1,
 .HyperMD-header-1,
@@ -270,6 +290,7 @@
 
 .markdown-preview-view,
 .markdown-source-view.mod-cm6 .cm-content {
+  font-family: var(--claude-font-body);
   font-size: 16px;
   line-height: 1.55;
   color: var(--claude-body);
@@ -280,7 +301,7 @@
   color: var(--claude-body-strong);
 }
 
-/* Links */
+/* Links — coral text-link */
 .markdown-preview-view a.internal-link,
 .markdown-preview-view a.external-link,
 .cm-link,
@@ -294,7 +315,14 @@
   color: var(--claude-primary-active) !important;
 }
 
-/* Blockquotes */
+/* Horizontal rules */
+.markdown-preview-view hr {
+  border: none;
+  border-top: 1px solid var(--claude-hairline);
+  margin: 2em 0;
+}
+
+/* Blockquotes — feature-card cream surface */
 .markdown-preview-view blockquote {
   background: var(--claude-surface-card);
   border-left: 3px solid var(--claude-primary);
@@ -303,15 +331,20 @@
   padding: 0.9em 1.1em;
 }
 
-/* Code — elevated surface, not forced dark-on-light */
+/* Code — code-window-card dark surface */
 .markdown-preview-view code,
 .markdown-source-view.mod-cm6 .cm-inline-code {
   font-family: var(--claude-font-mono) !important;
   background: var(--claude-code-inline) !important;
-  color: var(--claude-code-text) !important;
-  border-radius: 4px;
+  color: var(--claude-ink) !important;
+  border-radius: var(--radius-xs);
   padding: 0.15em 0.4em;
-  font-size: 0.9em;
+  font-size: 0.875em;
+}
+
+.theme-dark .markdown-preview-view code,
+.theme-dark .markdown-source-view.mod-cm6 .cm-inline-code {
+  color: var(--claude-code-text) !important;
 }
 
 .markdown-preview-view pre {
@@ -325,6 +358,8 @@
   background: transparent !important;
   color: var(--claude-code-text) !important;
   padding: 0;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 /* Tables */
@@ -352,7 +387,7 @@
   border-bottom: none;
 }
 
-/* Callouts */
+/* Callouts — feature-card / callout-card-coral variants */
 .markdown-preview-view .callout {
   background: var(--claude-surface-card);
   border: 1px solid var(--claude-hairline);
@@ -381,34 +416,38 @@
   --callout-color: 93, 184, 114;
 }
 
-/* Tags as pills */
+/* Tags — badge-pill */
 .markdown-preview-view a.tag,
 .cm-hashtag {
   background: var(--claude-surface-card) !important;
   color: var(--claude-ink) !important;
   border-radius: 9999px !important;
   border: none;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-/* Buttons / modals */
+/* Buttons — button-primary coral CTA */
 button.mod-cta {
   background-color: var(--claude-primary) !important;
   color: #fff !important;
   border-radius: var(--radius-m) !important;
   font-weight: 500;
+  font-size: 14px;
 }
 
 button.mod-cta:hover {
   background-color: var(--claude-primary-active) !important;
 }
 
+/* Modals & inputs — text-input pattern */
 .modal,
 .prompt,
 .suggestion-container {
   background: var(--claude-canvas) !important;
   border: 1px solid var(--claude-hairline);
   border-radius: var(--radius-l);
-  box-shadow: 0 12px 40px var(--claude-shadow);
+  box-shadow: 0 1px 3px var(--claude-shadow);
 }
 
 .prompt-input,
@@ -425,7 +464,7 @@ input[type="search"] {
 .prompt-input:focus,
 .modal input:focus {
   border-color: var(--claude-primary) !important;
-  box-shadow: 0 0 0 2px rgba(204, 120, 92, 0.25);
+  box-shadow: 0 0 0 3px rgba(204, 120, 92, 0.15);
 }
 
 /* Graph */

@@ -1,0 +1,390 @@
+/* The Daily Diff (tdd.cat) — newspaper typography & palette
+   Display: Lora | Body: PT Serif | Accent: burgundy / gold */
+
+@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap");
+
+:root,
+.theme-light,
+.theme-dark {
+  --tdd-font-display: "Lora", Georgia, "Times New Roman", serif;
+  --tdd-font-body: "PT Serif", Georgia, "Times New Roman", serif;
+  --tdd-font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+.theme-light {
+  --tdd-page: #e7e1d1;
+  --tdd-canvas: #f8f4e8;
+  --tdd-surface-soft: #efe8d4;
+  --tdd-well: #ffffff;
+  --tdd-ink: #1b1a17;
+  --tdd-body: #45423a;
+  --tdd-muted: #7c7563;
+  --tdd-rule: #201e19;
+  --tdd-rule-soft: rgba(32, 30, 25, 0.28);
+  --tdd-rule-hair: rgba(32, 30, 25, 0.16);
+  --tdd-accent: #8a1f11;
+  --tdd-accent-soft: rgba(138, 31, 17, 0.08);
+  --tdd-shadow: rgba(27, 26, 23, 0.12);
+  --tdd-code-bg: #efe8d4;
+  --tdd-code-block: #1b1a17;
+  --tdd-code-text: #f8f4e8;
+}
+
+.theme-dark {
+  --tdd-page: #17150f;
+  --tdd-canvas: #221f19;
+  --tdd-surface-soft: #2a2520;
+  --tdd-well: #1c1913;
+  --tdd-ink: #d9d0bd;
+  --tdd-body: #b0a790;
+  --tdd-muted: #7f7663;
+  --tdd-rule: #b0a790;
+  --tdd-rule-soft: rgba(217, 208, 189, 0.22);
+  --tdd-rule-hair: rgba(217, 208, 189, 0.12);
+  --tdd-accent: #cc9a56;
+  --tdd-accent-soft: rgba(204, 154, 86, 0.12);
+  --tdd-shadow: rgba(0, 0, 0, 0.45);
+  --tdd-code-bg: #2a2520;
+  --tdd-code-block: #1c1913;
+  --tdd-code-text: #d9d0bd;
+}
+
+.theme-light,
+.theme-dark {
+  --background-primary: var(--tdd-canvas);
+  --background-primary-alt: var(--tdd-surface-soft);
+  --background-secondary: var(--tdd-surface-soft);
+  --background-secondary-alt: var(--tdd-well);
+  --background-modifier-hover: var(--tdd-accent-soft);
+  --background-modifier-active-hover: var(--tdd-accent-soft);
+  --background-modifier-border: var(--tdd-rule-hair);
+  --background-modifier-border-hover: var(--tdd-rule-soft);
+  --background-modifier-border-focus: var(--tdd-accent);
+  --background-modifier-form-field: var(--tdd-well);
+
+  --text-normal: var(--tdd-body);
+  --text-muted: var(--tdd-muted);
+  --text-faint: var(--tdd-muted);
+  --text-accent: var(--tdd-accent);
+  --text-accent-hover: var(--tdd-accent);
+  --text-selection: rgba(138, 31, 17, 0.16);
+
+  --interactive-accent: var(--tdd-accent);
+  --interactive-accent-hover: var(--tdd-accent);
+  --color-accent: var(--tdd-accent);
+
+  --titlebar-background: var(--tdd-page);
+  --titlebar-background-focused: var(--tdd-page);
+  --ribbon-background: var(--tdd-surface-soft);
+  --tab-container-background: var(--tdd-page);
+  --tab-background-active: var(--tdd-canvas);
+  --divider-color: var(--tdd-rule-hair);
+  --status-bar-background: var(--tdd-surface-soft);
+  --status-bar-text-color: var(--tdd-muted);
+
+  --font-interface: var(--tdd-font-body);
+  --font-text: var(--tdd-font-body);
+  --font-monospace: var(--tdd-font-mono);
+
+  --link-color: var(--tdd-accent);
+  --link-color-hover: var(--tdd-accent);
+  --link-external-color: var(--tdd-accent);
+  --checkbox-color: var(--tdd-accent);
+  --tag-background: var(--tdd-surface-soft);
+  --tag-color: var(--tdd-ink);
+  --tag-radius: 2px;
+
+  --code-background: var(--tdd-code-bg);
+  --code-normal: var(--tdd-ink);
+  --code-block-background: var(--tdd-code-block);
+
+  background-color: var(--tdd-canvas);
+}
+
+.theme-light { color-scheme: light; }
+.theme-dark { color-scheme: dark; }
+
+/* Page frame — outer margin like tdd.cat */
+.workspace-split.mod-root {
+  background-color: var(--tdd-page);
+}
+
+.workspace-leaf-content,
+.markdown-source-view.mod-cm6 .cm-scroller,
+.markdown-preview-view,
+.view-content {
+  background-color: var(--tdd-canvas) !important;
+}
+
+.workspace-ribbon,
+.workspace-tabs .workspace-tab-header-container,
+.nav-header,
+.side-dock-settings,
+.status-bar {
+  background-color: var(--tdd-surface-soft);
+}
+
+.workspace-leaf-content[data-type="file-explorer"],
+.workspace-leaf-content[data-type="search"],
+.workspace-leaf-content[data-type="bookmarks"],
+.workspace-leaf-content[data-type="outline"],
+.workspace-leaf-content[data-type="backlink"],
+.workspace-leaf-content[data-type="tag"] {
+  background-color: var(--tdd-surface-soft) !important;
+}
+
+.nav-folder-title,
+.nav-file-title,
+.nav-folder-title-content,
+.nav-file-title-content {
+  font-family: var(--tdd-font-body);
+  font-size: 14px;
+  color: var(--tdd-body);
+  border-radius: 2px;
+}
+
+.nav-file-title.is-active,
+.nav-folder-title.is-active,
+.tree-item-self.is-active {
+  background-color: var(--tdd-accent-soft) !important;
+  color: var(--tdd-ink) !important;
+}
+
+.workspace-tab-header-inner-title {
+  font-family: var(--tdd-font-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Headings — shared typography, no double underline */
+.inline-title,
+.markdown-preview-view h1,
+.markdown-preview-view h2,
+.markdown-preview-view h3,
+.markdown-preview-view h4,
+.markdown-source-view.mod-cm6 .cm-header-1,
+.markdown-source-view.mod-cm6 .cm-header-2,
+.markdown-source-view.mod-cm6 .cm-header-3,
+.markdown-source-view.mod-cm6 .cm-header-4,
+.markdown-source-view.mod-cm6 .HyperMD-header-1,
+.markdown-source-view.mod-cm6 .HyperMD-header-2,
+.markdown-source-view.mod-cm6 .HyperMD-header-3,
+.markdown-source-view.mod-cm6 .HyperMD-header-4,
+.HyperMD-header-1,
+.HyperMD-header-2,
+.HyperMD-header-3,
+.HyperMD-header-4 {
+  text-decoration: none !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.inline-title,
+.markdown-preview-view h1,
+.markdown-source-view.mod-cm6 .cm-header-1,
+.HyperMD-header-1 {
+  font-family: var(--tdd-font-display) !important;
+  font-weight: 700 !important;
+  color: var(--tdd-ink) !important;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  border-bottom: 2px solid var(--tdd-rule);
+  padding-bottom: 0.35em;
+}
+
+.markdown-preview-view h2,
+.markdown-source-view.mod-cm6 .cm-header-2,
+.HyperMD-header-2 {
+  font-family: var(--tdd-font-display) !important;
+  font-weight: 700 !important;
+  color: var(--tdd-ink) !important;
+  line-height: 1.25;
+  border-bottom: 1px solid var(--tdd-rule-soft);
+  padding-bottom: 0.25em;
+}
+
+.markdown-preview-view h3,
+.markdown-preview-view h4,
+.markdown-source-view.mod-cm6 .cm-header-3,
+.markdown-source-view.mod-cm6 .cm-header-4,
+.HyperMD-header-3,
+.HyperMD-header-4 {
+  font-family: var(--tdd-font-display) !important;
+  font-weight: 600 !important;
+  color: var(--tdd-ink) !important;
+  border-bottom: none;
+}
+
+/* Edit mode: underline the line, not inline tokens — prevents double rule */
+.markdown-source-view.mod-cm6 .HyperMD-header-1 {
+  border-bottom: 2px solid var(--tdd-rule) !important;
+}
+
+.markdown-source-view.mod-cm6 .HyperMD-header-2 {
+  border-bottom: 1px solid var(--tdd-rule-soft) !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-header-1,
+.markdown-source-view.mod-cm6 .cm-header-2,
+.markdown-source-view.mod-cm6 .cm-header-3,
+.markdown-source-view.mod-cm6 .cm-header-4 {
+  border-bottom: none !important;
+}
+
+.markdown-source-view.mod-cm6 .inline-title {
+  border-bottom: 2px solid var(--tdd-rule);
+  padding-bottom: 0.35em;
+}
+
+/* Body — all serif, like the newspaper */
+.markdown-preview-view,
+.markdown-source-view.mod-cm6 .cm-content {
+  font-family: var(--tdd-font-body) !important;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--tdd-body);
+}
+
+.markdown-preview-view strong,
+.cm-strong {
+  color: var(--tdd-ink);
+  font-weight: 700;
+}
+
+.markdown-preview-view a.internal-link,
+.markdown-preview-view a.external-link,
+.cm-link,
+.cm-hmd-internal-link {
+  color: var(--tdd-accent) !important;
+  text-decoration: none;
+}
+
+.markdown-preview-view a.internal-link:hover,
+.markdown-preview-view a.external-link:hover {
+  text-decoration: underline;
+}
+
+.markdown-preview-view hr {
+  border: none;
+  border-top: 1px solid var(--tdd-rule-soft);
+  margin: 2em 0;
+}
+
+.markdown-preview-view blockquote {
+  background: var(--tdd-surface-soft);
+  border-left: 3px solid var(--tdd-accent);
+  border-radius: 0;
+  color: var(--tdd-body);
+  font-style: italic;
+  padding: 0.75em 1em;
+}
+
+.markdown-preview-view code,
+.markdown-source-view.mod-cm6 .cm-inline-code {
+  font-family: var(--tdd-font-mono) !important;
+  background: var(--tdd-code-bg) !important;
+  color: var(--tdd-ink) !important;
+  border-radius: 2px;
+  padding: 0.1em 0.35em;
+  font-size: 0.875em;
+}
+
+.markdown-preview-view pre {
+  background: var(--tdd-code-block) !important;
+  border: 1px solid var(--tdd-rule-hair);
+  border-radius: 4px;
+  padding: 1em 1.15em;
+}
+
+.markdown-preview-view pre code {
+  background: transparent !important;
+  color: var(--tdd-code-text) !important;
+}
+
+/* Fenced code blocks — dark in edit mode too */
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock,
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-begin,
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-end {
+  background: var(--tdd-code-block) !important;
+  color: var(--tdd-code-text) !important;
+  font-family: var(--tdd-font-mono) !important;
+}
+
+.markdown-source-view.mod-cm6 .HyperMD-codeblock .cm-inline-code,
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock .cm-inline-code {
+  background: transparent !important;
+  color: var(--tdd-code-text) !important;
+  padding: 0;
+}
+
+.markdown-preview-view table {
+  border-collapse: collapse;
+  border: 1px solid var(--tdd-rule-soft);
+}
+
+.markdown-preview-view th {
+  font-family: var(--tdd-font-display);
+  background: var(--tdd-surface-soft);
+  color: var(--tdd-ink);
+  font-weight: 700;
+  border-bottom: 1px solid var(--tdd-rule-soft);
+}
+
+.markdown-preview-view td {
+  border-bottom: 1px solid var(--tdd-rule-hair);
+  color: var(--tdd-body);
+}
+
+.markdown-preview-view .callout {
+  background: var(--tdd-surface-soft);
+  border: 1px solid var(--tdd-rule-soft);
+  border-radius: 4px;
+}
+
+.markdown-preview-view .callout[data-callout="info"],
+.markdown-preview-view .callout[data-callout="note"],
+.markdown-preview-view .callout[data-callout="tip"] {
+  --callout-color: 138, 31, 17;
+}
+
+.theme-dark .markdown-preview-view .callout[data-callout="info"],
+.theme-dark .markdown-preview-view .callout[data-callout="note"],
+.theme-dark .markdown-preview-view .callout[data-callout="tip"] {
+  --callout-color: 204, 154, 86;
+}
+
+.markdown-preview-view a.tag,
+.cm-hashtag {
+  background: var(--tdd-surface-soft) !important;
+  color: var(--tdd-ink) !important;
+  border-radius: 2px !important;
+  font-family: var(--tdd-font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+button.mod-cta {
+  background-color: var(--tdd-accent) !important;
+  color: var(--tdd-canvas) !important;
+  border-radius: 2px !important;
+  font-family: var(--tdd-font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.modal,
+.prompt {
+  background: var(--tdd-canvas) !important;
+  border: 1px solid var(--tdd-rule-soft);
+  border-radius: 4px;
+}
+
+::selection {
+  background: rgba(138, 31, 17, 0.16);
+}
+
+.theme-dark ::selection {
+  background: rgba(204, 154, 86, 0.25);
+}
