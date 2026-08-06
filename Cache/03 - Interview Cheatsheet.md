@@ -11,8 +11,6 @@
 | CDN edge response | 5–40ms |
 | Cross-region DB query | 100–300ms |
 
----
-
 ## Pattern Decision Tree
 
 ```
@@ -37,8 +35,6 @@ Need caching?
     → In-process cache (Guava, ConcurrentHashMap)
 ```
 
----
-
 ## Common Redis Use Cases
 
 | Use Case | Data Structure | Key Pattern |
@@ -54,21 +50,19 @@ Need caching?
 | Pub/Sub | Streams or Pub/Sub | `events:{channel}` |
 | Job queue | List (LPUSH+BRPOP) | `queue:{jobType}` |
 
----
-
 ## Cache Key Design
 
 Good keys are:
+
 - **Namespaced:** `user:123:profile` not `profile123`
 - **Descriptive:** makes intent clear
 - **Versioned when needed:** `user:v2:123:profile` to handle schema changes without stale reads
 
 Avoid:
+
 - Keys over 1KB
 - Spaces or special chars
 - Sequential numeric IDs without namespace (collision risk)
-
----
 
 ## Invalidation Strategies
 
@@ -81,27 +75,26 @@ Avoid:
 
 **Most common in practice:** Delete on write + TTL as backup.
 
----
-
 ## Handling Failures
 
 **Redis goes down:**
+
 - Fall through to DB (ensure DB can handle the spike)
 - Circuit breaker to prevent DB overload
 - In-process fallback for hottest keys
 - Consider Redis Sentinel/Cluster for HA
 
 **Cache stampede:**
+
 - Single-flight / mutex on first miss
 - Cache warming before TTL expires
 - Jitter on TTL values
 
 **Hot key:**
+
 - Replicate value across multiple shards
 - In-process local cache as L1
 - Key hashing with suffix: `user:123:profile:shard{0-9}`
-
----
 
 ## Redis Cluster vs Sentinel
 
@@ -112,8 +105,6 @@ Avoid:
 | Failover | Automatic | Automatic |
 | Multi-key commands | Supported | Keys must be on same node |
 | Use when | Need HA, dataset fits one node | Dataset too large, need sharding |
-
----
 
 ## Quick Kotlin Snippets
 
@@ -155,9 +146,6 @@ fun incrementWithWindow(redis: RedisCache, key: String, windowSec: Long): Long {
     return count
 }
 ```
-
-
----
 
 ## Related
 

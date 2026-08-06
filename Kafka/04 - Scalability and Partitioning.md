@@ -14,8 +14,6 @@ Before scaling out, know what one broker can handle:
 
 > If your system doesn't exceed these limits, scaling is not a relevant conversation in your interview.
 
----
-
 ## Scaling Strategies
 
 ### Strategy 1: Add More Brokers (Horizontal Scaling)
@@ -57,8 +55,6 @@ Good key: user_id (evenly distributed hash space)
   P1 ← ~33% of traffic
   P2 ← ~33% of traffic
 ```
-
----
 
 ## Hot Partitions — The Classic Interview Question
 
@@ -142,8 +138,6 @@ If lag > threshold → slow down / throttle production to that partition
 | Compound key | Per compound key | Low-Medium | Natural sub-dimensions exist |
 | Back pressure | Yes | Low | Can tolerate lower throughput |
 
----
-
 ## Partition Count — How Many?
 
 **Rule of thumb:** num_partitions >= target_throughput / single_partition_throughput
@@ -164,8 +158,6 @@ Minimum partitions: 100 / 10 = 10 partitions
 
 **Increasing partitions:** You can add partitions later, but this changes the partition assignment for existing keys — breaking ordering for keys that get remapped.
 
----
-
 ## Topic-Level vs Cluster-Level Scaling
 
 Different topics have different requirements. Don't think of scaling as all-or-nothing.
@@ -177,8 +169,6 @@ Topic: "admin-notifications" → 3 partitions   (low volume)
 ```
 
 Each topic can be tuned independently.
-
----
 
 ## Managed Kafka Services
 
@@ -192,8 +182,6 @@ In production (and often in interviews), managed services handle much of this:
 
 > In interviews, mention managed services as a practical choice, but demonstrate you understand the underlying partitioning concepts.
 
----
-
 ## Replication Factor and Scaling
 
 Replication protects against broker failures and is separate from partition scaling:
@@ -205,9 +193,6 @@ Replication Factor = 3: Can survive 2 broker failures (standard production)
 ```
 
 More replicas = more storage overhead but stronger durability. Choose based on your data criticality.
-
-
----
 
 ## Related
 

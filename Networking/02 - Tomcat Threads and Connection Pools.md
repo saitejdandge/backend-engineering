@@ -12,8 +12,6 @@ Browser → TCP connection → Tomcat → DispatcherServlet → Your Controller
 
 Other Java servers: Jetty (lighter), Undertow (non-blocking), Netty (async, not a servlet container).
 
----
-
 ## Thread-Per-Request Model (Classic Tomcat)
 
 The simplest and most common model: **one thread handles one request, end to end**.
@@ -54,8 +52,6 @@ Each thread spends most of its time *waiting* — waiting for the database, wait
 
 With slow DB queries (500ms), the same 200 threads only handle 400 req/sec.
 
----
-
 ## NIO Connector (Tomcat's Non-Blocking I/O)
 
 Tomcat 8+ uses the **NIO connector** by default. It uses Java NIO's `Selector` + epoll under the hood:
@@ -71,8 +67,6 @@ Worker → reads data, runs servlet, writes response
 ```
 
 **Key:** The Poller can watch thousands of connections with just a few threads (via epoll). Worker threads only get work when there's actual data to process.
-
----
 
 ## Virtual Threads (Java 21+ — Project Loom)
 
@@ -96,13 +90,12 @@ fun getUser(id: String): User {
 **Before Loom:** Had to use reactive programming (WebFlux, coroutines) for high concurrency.
 **After Loom:** Write normal blocking code, get async performance. Reactive is now mostly unnecessary for throughput.
 
----
-
 ## Connection Pools (JDBC / Database)
 
 ### Why Connection Pools Exist
 
 Opening a TCP connection to a database is expensive:
+
 1. TCP handshake (~1ms)
 2. TLS handshake (~1ms)
 3. Database authentication (~5ms)
@@ -136,11 +129,13 @@ spring:
 **Common mistake:** Setting pool size = thread count. This is wrong.
 
 **Formula (HikariCP recommendation):**
+
 ```
 pool_size = (cpu_cores * 2) + effective_spindle_count
 ```
 
 For a 4-core server with SSD:
+
 ```
 pool_size = (4 * 2) + 1 = 9 connections
 ```
@@ -156,6 +151,7 @@ Request 11 times out → HikariCP throws SQLException
 ```
 
 Metrics to watch:
+
 - `hikaricp.connections.pending` — threads waiting for a connection
 - `hikaricp.connections.timeout` — connection wait timeouts
 
@@ -172,8 +168,6 @@ PostgreSQL: max_connections = 200 (handles both pools + headroom)
 If you have 20 service instances × 10 pool size = 200 connections. Stay within Postgres `max_connections` (default 100, usually bumped to 200-500).
 
 Use **PgBouncer** (connection pooler in front of Postgres) to handle many app instances without exhausting DB connections.
-
----
 
 ## Redis Connection Pool (Lettuce vs Jedis)
 
@@ -210,8 +204,6 @@ pool.resource.use { jedis ->
 
 **Recommendation:** Use Lettuce. It's default in Spring Data Redis and requires no pool configuration for standard use cases.
 
----
-
 ## HTTP Client Connection Pool (OkHttp / WebClient)
 
 When your app calls another service, it also needs a connection pool.
@@ -245,8 +237,6 @@ val webClient = WebClient.builder()
     ))
     .build()
 ```
-
----
 
 ## Diagnosing Thread/Connection Issues
 
@@ -285,9 +275,6 @@ SELECT count(*) FROM pg_stat_activity WHERE datname = 'mydb';
 ```
 
 This thread is waiting for a DB connection from HikariCP. If you see 50+ threads in this state, your pool is too small or queries are too slow.
-
-
----
 
 ## Related
 

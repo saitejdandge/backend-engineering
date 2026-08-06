@@ -6,8 +6,6 @@ This is a common saying in the Kafka world. Kafka is designed to be **always ava
 
 > In an interview, if asked "what happens if Kafka goes down?" — gently push back. The more realistic question is "what happens if a consumer fails?"
 
----
-
 ## Durability — How Kafka Protects Your Data
 
 ### Replication
@@ -63,8 +61,6 @@ const producer = kafka.producer({
 | `acks=0` | Can lose messages | Lowest |
 | `acks=1` | Loses messages if leader crashes pre-replication | Low |
 | `acks=all` | No data loss (unless entire ISR fails) | Higher |
-
----
 
 ## What Happens When a Consumer Goes Down
 
@@ -130,8 +126,6 @@ During rebalancing: consumption pauses briefly
 After rebalancing: all partitions are being consumed again
 ```
 
----
-
 ## The Offset Commit Timing Trade-off
 
 **When to commit offsets** is a critical design decision. Too early = data loss. Too late = redundant work.
@@ -162,8 +156,6 @@ Stage 3 Consumer: Deduplicate links → enqueue new URLs → commit offset
 
 Each stage is fast, and failures only force a retry of that one small stage.
 
----
-
 ## Configuring Replication Factor
 
 ```sql
@@ -181,11 +173,10 @@ kafka-topics --describe \
 ```
 
 Production recommendations:
+
 - **Critical data** (payments, orders): replication factor = 3, `acks=all`
 - **Analytics / logs**: replication factor = 2, `acks=1` (some loss acceptable)
 - **Dev/test**: replication factor = 1 (no redundancy needed)
-
----
 
 ## Broker Failure Recovery
 
@@ -211,8 +202,6 @@ Broker 1 recovers:
 
 **Recovery time:** Typically 5–30 seconds depending on detection timeout settings.
 
----
-
 ## Monitoring Fault Tolerance Health
 
 ```sql
@@ -233,12 +222,10 @@ kafka-consumer-groups \
 ```
 
 **Key alerts to set:**
+
 - `UnderReplicatedPartitions > 0` → broker health issue
 - `Consumer lag > threshold` → consumer too slow or crashing
 - `OfflinePartitionsCount > 0` → critical — partitions unavailable
-
-
----
 
 ## Related
 

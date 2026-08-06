@@ -5,16 +5,16 @@
 Redis (Remote Dictionary Server) is an in-memory data structure store used as a cache, database, and message broker. It keeps all data in RAM, making reads and writes extremely fast (sub-millisecond).
 
 **Key properties:**
+
 - Single-threaded command execution (no race conditions on individual commands)
 - Persistent: optional RDB snapshots and AOF (Append-Only File) logging
 - Replication: master-replica with automatic failover (Sentinel / Cluster)
 - Rich data structures: not just key-value
 
----
-
 ## Redis Data Structures
 
 ### String
+
 The simplest type. Value can be a plain string, integer, or serialized JSON.
 
 ```
@@ -31,6 +31,7 @@ SET session:abc "token_data" EX 3600   # expires in 1 hour
 Use for: simple key-value, counters, serialized objects, session tokens, distributed locks.
 
 ### Hash
+
 A map of field-value pairs stored under a single key. Efficient for objects with multiple fields — you can read/write individual fields without deserializing the whole object.
 
 ```
@@ -43,6 +44,7 @@ HINCRBY user:123 login_count 1
 Use for: user profiles, session data, product details, config objects.
 
 ### List
+
 Ordered sequence. Can push/pop from both ends. O(1) for push/pop.
 
 ```
@@ -56,6 +58,7 @@ LLEN notifications:123                  # length
 Use for: activity feeds, job queues (LPUSH + BRPOP for blocking pop), recent items list.
 
 ### Set
+
 Unordered collection of unique strings. O(1) for add/remove/check.
 
 ```
@@ -72,6 +75,7 @@ SUNION followers:123 followers:456     # all followers
 Use for: unique visitors, tags, deduplication, mutual follows, online users.
 
 ### Sorted Set (ZSet)
+
 Like a Set but every member has a score. Ordered by score. O(log N) for most operations.
 
 ```
@@ -86,6 +90,7 @@ ZINCRBY leaderboard 100 "alice"        # add 100 to score
 Use for: leaderboards, rate limiting windows, priority queues, time-sorted events.
 
 ### Streams
+
 Append-only log with consumer groups. Like Kafka but simpler.
 
 ```
@@ -97,8 +102,6 @@ XACK events consumers <message-id>         # acknowledge processed
 ```
 
 Use for: event sourcing, audit logs, message queues with consumer groups.
-
----
 
 ## Redis Setup — Local Development
 
@@ -151,8 +154,6 @@ requirepass yourpassword     # authentication
 bind 127.0.0.1               # only local connections
 ```
 
----
-
 ## Redis Kotlin Setup
 
 ### Gradle Dependencies
@@ -162,22 +163,20 @@ bind 127.0.0.1               # only local connections
 dependencies {
     // Lettuce (async Redis client, recommended)
     implementation("io.lettuce:lettuce-core:6.3.2.RELEASE")
-    
+
     // OR Jedis (simple blocking client)
     implementation("redis.clients:jedis:5.1.0")
-    
+
     // Spring Boot Redis (if using Spring)
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    
+
     // Kotlin coroutines (for async)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    
+
     // Serialization
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
 }
 ```
-
----
 
 ## Kotlin Redis Prototypes
 
@@ -282,7 +281,7 @@ class UserProfileCache(
 
 ```kotlin
 class RateLimiter(private val cache: RedisCache) {
-    
+
     /**
      * Sliding window rate limiter using Redis Sorted Set.
      * Stores request timestamps as scores.
@@ -389,7 +388,7 @@ fun main() {
 import java.util.UUID
 
 class DistributedLock(private val cache: RedisCache) {
-    
+
     /**
      * Try to acquire a lock. Returns lock token if successful, null if not.
      * Uses SET NX EX — atomic set-if-not-exists with expiry.
@@ -397,13 +396,13 @@ class DistributedLock(private val cache: RedisCache) {
     fun tryAcquire(resource: String, ttlSeconds: Long = 30): String? {
         val key = "lock:$resource"
         val token = UUID.randomUUID().toString()
-        
+
         // SET key token NX EX ttl — atomic, only sets if key doesn't exist
         val result = cache.commands.set(
             key, token,
             io.lettuce.core.SetArgs.Builder.nx().ex(ttlSeconds)
         )
-        
+
         return if (result == "OK") token else null
     }
 
@@ -542,8 +541,6 @@ class UserService(
 }
 ```
 
----
-
 ## Redis CLI Quick Reference
 
 ```bash
@@ -586,11 +583,10 @@ FLUSHDB              # clear current DB (careful!)
 MONITOR              # real-time commands (dev only)
 ```
 
----
-
 ## Redis Persistence Options
 
 ### RDB (Snapshots)
+
 Periodic point-in-time snapshots to disk. Fast to load on restart. Can lose data between snapshots.
 
 ```conf
@@ -600,6 +596,7 @@ save 60 10000   # snapshot if 10000 keys changed in 60s
 ```
 
 ### AOF (Append-Only File)
+
 Logs every write operation. More durable — can replay to any point. Slower than RDB.
 
 ```conf
@@ -610,10 +607,8 @@ appendfsync everysec   # fsync every second (balance of perf/safety)
 ```
 
 ### Recommendation
+
 Use both: RDB for fast restarts, AOF for durability. Redis 7+ has RDB+AOF hybrid mode.
-
-
----
 
 ## Related
 

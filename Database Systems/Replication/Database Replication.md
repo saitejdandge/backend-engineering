@@ -2,8 +2,6 @@
 
 Copying and synchronising data from a **primary** (leader) to one or more **replicas** (followers) to ensure consistency, high availability, and fault tolerance.
 
----
-
 ## Why Replicate
 
 - **Reduce access latency** — serve reads from replicas closer to users
@@ -11,11 +9,7 @@ Copying and synchronising data from a **primary** (leader) to one or more **repl
 - **High durability** — multiple copies mean data survives node failures
 - **Scale read throughput** — distribute read traffic across replicas
 
-
-
 > **Backups ≠ Replicas.** Backups are periodic snapshots of the database used to rollback to a prior state or to seed a new replica. Replicas are live, continuously updated copies.
-
----
 
 ## Replication Propagation
 
@@ -25,13 +19,12 @@ The two fundamental strategies for how writes travel from leader to followers:
 
 **Asynchronous** — leader writes to local storage and confirms to the client immediately. Replicas catch up independently in the background.
 
----
-
 ## Single Leader Replication
 
 The simplest and most common model. One node is designated the **leader** (also called primary, master, source). All writes go to the leader first. Followers are **read-only** from the client's perspective.
 
 *Also known as: primary-secondary, leader-follower, active-passive*
+
 ```
 Client WRITE → Leader → propagates → Follower 1
                                    → Follower 2
@@ -41,10 +34,13 @@ Client READ  → Leader OR any Follower
 ### Synchronous Replication
 
 Leader waits for quorum ACK before confirming the write.
+
 -  No data loss — high durability
 -  Lower availability — any sync follower failure blocks all writes
 - Use when: durability is critical and you can tolerate some write latency
+
 ### Asynchronous Replication
+
 Leader does not wait for any follower ACK.
 
 -  High availability — leader is never blocked
@@ -70,18 +66,18 @@ When a follower crashes and comes back:
 When the leader fails, a follower must be **promoted** to become the new leader.
 
 **Challenge — Detecting leader failure:** Usually through timeouts. Tune carefully:
+
 - Too long → writes are blocked for too long during outage
 - Too short → unnecessary failovers during transient slowness
 
 **Challenge — Leader election:** Leader is chosen by majority of replicas. Best candidate = replica with the most up-to-date writes (consensus algorithms).
 
 **Challenge — Post-failover reconfiguration:**
+
 - Clients must send writes to the new leader
 - Old leader must come back as a *follower*, not a leader
 -  **Split-brain** — if the old leader comes back and also acts as leader, two nodes accept writes independently → data diverges. Systems will shut down one node if split-brain is detected. There is no perfect solution to this.
 -  **Non-durable writes** — writes that were ACKed by the old leader but not yet replicated may need to be discarded. This can violate durability guarantees.
-
----
 
 ## Multi Leader Replication
 
@@ -110,6 +106,7 @@ Leaders accept writes independently and resolve conflicts afterward. This is the
 **Geo-replicated systems** — each data centre has its own leader. Writes go to the nearest leader. Asynchronous replication between data centres.
 
 **Sync Engines / Local-first storage** — a local leader on the user's device syncs to a remote leader asynchronously. Examples:
+
 - WhatsApp: write locally, sync to server
 - Offline-first apps: work without network, sync when reconnected
 - Real-time collaboration (similar infrastructure to offline-first)
@@ -123,6 +120,7 @@ Cons: not suitable for large datasets, must handle conflicts
 ### Topologies for Replication
 
 How write changes propagate between multiple leaders:
+
 - **Circular** — each leader forwards to the next in a ring
 - **Star** — all leaders forward through a designated central node
 - **All-to-all** — every leader replicates directly to every other leader (most resilient)
@@ -138,14 +136,13 @@ Conflicts occur when two leaders accept writes to the same record simultaneously
 **Manual Resolution** — like a Git merge conflict. CouchDB can return multiple values for the same key; the application picks the right one. Problems: data skewness, awkward for frontends, merging can introduce new conflicts.
 
 **Automatic Resolution (CRDT / OT):**
+
 - Goal: data converges eventually → *strong eventual consistency*
 - **CRDT** (Conflict-free Replicated Datatypes) — data structures that merge automatically: text (insert/delete ops), arrays (merge elements), integers (add values)
 - **OT** (Operational Transformation) — used in collaborative editors
 - Best for offline-first applications
 
 **Business Conflicts** — some conflicts can't be resolved automatically. Example: two leaders from different regions book the same last available slot. Requires application-level logic.
-
----
 
 ## Leaderless Replication
 
@@ -188,6 +185,7 @@ As long as `w + r > n`, we expect to get an up-to-date value. `r` and `w` are th
 **Typical configuration:** choose n as an odd number; set `w = r = (n+1)/2`
 
 **Tuning for workload:**
+
 - Read-heavy: set `w = n, r = 1` → reads are fast, but one failed node blocks all writes
 
 ### Problems with Quorum
@@ -200,8 +198,6 @@ Quorum does **not** always guarantee absolute consistency:
 - A write that succeeds on some nodes but fails on others is not rolled back — subsequent reads may or may not return that value
 - Unreliable timestamps make LWW decisions wrong
 - Concurrent writes to the same key → conflict (must use LWW or similar)
-
----
 
 ## Leaderless vs Multi-Leader vs Single Leader
 
@@ -220,8 +216,6 @@ Quorum does **not** always guarantee absolute consistency:
 **Resilience:** the strength of leaderless comes from not distinguishing between normal and failure cases.
 
 **Multi-Leader vs Leaderless for network partitions:** Multi-leader can offer greater resilience because reads/writes need communication with only one co-located leader, whereas leaderless reads/writes need to contact multiple replicas across the network.
-
----
 
 ## How Replication Works
 
@@ -253,8 +247,6 @@ Log **row-level changes** (before and after images of each affected row) rather 
 - MySQL: binlog replication
 - PostgreSQL: converts physical WAL into row-based logical logs, also used for CDC integration
 
----
-
 ## Problems with Replication Lag
 
 In asynchronous replication, replicas may lag behind the leader. This causes several consistency anomalies:
@@ -264,6 +256,7 @@ In asynchronous replication, replicas may lag behind the leader. This causes sev
 **Problem:** User writes data, then immediately reads from a replica that hasn't caught up yet — they don't see their own write.
 
 **Solutions:**
+
 - When reading data the user may have modified, read from the leader (or a synchronously updated follower)
 - Track the timestamp of the user's last write; for some time window, route reads to the leader
 - **Cross-device:** if a user switches devices, route all of that user's devices to the same region, since a device timestamp stored locally isn't visible to another device
@@ -281,8 +274,6 @@ In asynchronous replication, replicas may lag behind the leader. This causes sev
 
 **Solution:** Ensure causally related writes go to the same shard so their ordering is preserved.
 
----
-
 ## CAP Theorem
 
 In the presence of a network partition, a distributed system must choose between:
@@ -293,8 +284,6 @@ In the presence of a network partition, a distributed system must choose between
 
 **Synchronous replication** → CP (consistency over availability)
 **Asynchronous replication** → AP (availability over consistency)
-
----
 
 ## Quick Reference — Replication in Popular Databases
 
@@ -307,9 +296,6 @@ In the presence of a network partition, a distributed system must choose between
 | Redis | Primary–Replica | Async replication + Sentinel for failover |
 | CockroachDB | Multi-Primary (Raft) | Strong consistency via distributed Raft |
 | DynamoDB | Leaderless | Quorum reads/writes, eventual consistency by default |
-
-
----
 
 ## Related
 

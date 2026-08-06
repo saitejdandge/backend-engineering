@@ -10,8 +10,6 @@
 
 The goal: reduce the cost, risk, and time of getting changes into production.
 
----
-
 ## CI Pipeline Design
 
 A well-structured pipeline is fast, reliable, and informative.
@@ -44,13 +42,12 @@ Nightly          → Full regression, security scans, chaos tests
 ### Quality Gates
 
 Hard stops that prevent bad code from progressing:
+
 - Code coverage drops below threshold (e.g., 80%)
 - Any failing test
 - Static analysis violations (security, code smells)
 - License compliance issues
 - Dependency vulnerabilities (CRITICAL or HIGH severity)
-
----
 
 ## Deployment Strategies
 
@@ -76,6 +73,7 @@ Replace pods incrementally. Some old and new versions run simultaneously.
 **Cons:** Multiple versions running simultaneously (API must be backward compatible with old clients). Slow rollback (must roll forward, then roll back).
 
 **Key settings:**
+
 ```yaml
 strategy:
   rollingUpdate:
@@ -136,6 +134,7 @@ else:
 **Targeting rules:** Enable for internal users → beta users → 1% → 10% → 100%.
 
 **Benefits:**
+
 - Test in production with real traffic before wide release
 - Instant rollback (flip a flag)
 - A/B testing capability
@@ -143,8 +142,6 @@ else:
 - Separate deployment from business release decision
 
 **Tools:** LaunchDarkly, Unleash (open-source), Split, AWS AppConfig, Flipt.
-
----
 
 ## Database Migrations in CI/CD
 
@@ -155,18 +152,21 @@ Database migrations are the hardest part of zero-downtime deployments.
 Never do breaking schema changes in a single deploy. Use three-phase approach:
 
 **Phase 1 (Expand):** Add the new structure. Keep old structure working.
+
 ```sql
 ALTER TABLE users ADD COLUMN full_name TEXT;  -- Add new column (nullable)
 -- Both old code (writes first_name/last_name) and new code work
 ```
 
 **Phase 2 (Migrate):** Backfill data, run new code.
+
 ```sql
 UPDATE users SET full_name = first_name || ' ' || last_name WHERE full_name IS NULL;
 -- New code starts writing to full_name
 ```
 
 **Phase 3 (Contract):** Remove old structure once no old code is running.
+
 ```sql
 ALTER TABLE users DROP COLUMN first_name;
 ALTER TABLE users DROP COLUMN last_name;
@@ -176,6 +176,7 @@ ALTER TABLE users DROP COLUMN last_name;
 ### Online Schema Changes
 
 For large tables, use tools that avoid long-running locks:
+
 - **gh-ost (GitHub):** Online schema migration for MySQL. Shadow table approach.
 - **pg_repack:** PostgreSQL table restructuring without locking.
 - **pglogical:** Logical replication based migrations.
@@ -188,27 +189,24 @@ For large tables, use tools that avoid long-running locks:
 
 **Best practice:** Migrations run automatically before deploying the new app version. App must be backward compatible with both old and new schema (supports rolling deployments).
 
----
-
 ## GitOps
 
 GitOps is a deployment model where the desired state of infrastructure and applications is stored in Git. Changes are applied automatically by controllers.
 
 **Key principles:**
+
 1. Declarative configuration in Git is the source of truth
 2. Controllers continuously reconcile actual state with desired state
 3. All changes happen via pull request (not `kubectl apply` by hand)
 4. Rollback = revert the Git commit
 
 **Tools:**
+
 - **ArgoCD:** Kubernetes-native GitOps. Watches Git repos and syncs to K8s.
 - **Flux:** Similar to ArgoCD. CNCF graduated project.
 - **Terraform Cloud:** GitOps for infrastructure.
 
 **Benefits:** Full audit trail (git history), easy rollback, consistent environments, peer review for infrastructure changes.
-
-
----
 
 ## Related
 

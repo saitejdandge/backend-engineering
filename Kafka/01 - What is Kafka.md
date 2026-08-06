@@ -4,8 +4,6 @@ Apache Kafka is an open-source distributed event streaming platform that can be 
 
 > According to Kafka's website, it's used by **80% of the Fortune 100**.
 
----
-
 ## A Motivating Example
 
 Imagine a World Cup website providing real-time match statistics. Each time a goal is scored, a player is booked, or a substitution is made, the site must update instantly.
@@ -69,8 +67,6 @@ Soccer Events ──▶  Topic: "soccer"  ──▶  Soccer Website Consumer Gro
 Basketball Events ──▶  Topic: "basketball"  ──▶  Basketball Website Consumer Group
 ```
 
----
-
 ## Core Terminology
 
 | Term | Definition |
@@ -93,8 +89,6 @@ Basketball Events ──▶  Topic: "basketball"  ──▶  Basketball Website 
 | Purpose | Organize data | Scale and parallelize data |
 | Location | Spans many brokers | Resides on one broker (replicated) |
 
----
-
 ## Message vs Stream
 
 Kafka can operate in two modes:
@@ -105,8 +99,6 @@ Kafka can operate in two modes:
 | **Stream** | Log retained, multiple consumer groups, replayable | Time/size-based | Real-time processing, event sourcing, analytics |
 
 The distinction is minor at the infrastructure level — both use offset commits. The difference is in the **consumption pattern** and whether you replay the log.
-
----
 
 ## Full Architecture Picture
 
@@ -132,8 +124,6 @@ The distinction is minor at the infrastructure level — both use offset commits
      (reads Topic A)           (reads Topic B)
 ```
 
----
-
 ## Kafka vs Traditional Message Queues
 
 | Feature | Kafka | RabbitMQ / SQS |
@@ -145,9 +135,6 @@ The distinction is minor at the infrastructure level — both use offset commits
 | Throughput | Very high (1M+ msg/sec) | Moderate |
 | Built-in retry | No (must implement) | Yes (SQS DLQ built-in) |
 | Best for | Streams, event sourcing, high throughput | Simple async queues, built-in retry |
-
-
----
 
 ## Related
 

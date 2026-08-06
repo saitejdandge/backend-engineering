@@ -11,8 +11,6 @@ Most systems should use HTTP/REST, gRPC, or WebSockets. Build custom only when:
 
 **Don't build custom protocols for:** Normal web services, microservices, anything where gRPC works.
 
----
-
 ## Anatomy of a Protocol
 
 Every protocol needs to solve:
@@ -21,8 +19,6 @@ Every protocol needs to solve:
 2. **Encoding:** How are data types represented as bytes?
 3. **Error detection:** How do we know if data was corrupted?
 4. **Versioning:** How do we evolve the protocol without breaking clients?
-
----
 
 ## Framing Strategies
 
@@ -96,8 +92,6 @@ fun readLine(input: InputStream): String {
 Every message is exactly N bytes. Simple but inflexible.
 
 Used by: UDP game packets (each packet is 64 bytes of game state).
-
----
 
 ## Binary Encoding
 
@@ -191,8 +185,6 @@ packer.packString("ts"); packer.packLong(System.currentTimeMillis())
 val bytes = packer.toByteArray()  // ~35 bytes vs ~65 bytes JSON
 ```
 
----
-
 ## Full Custom Protocol Example: Game Server
 
 ```kotlin
@@ -275,8 +267,6 @@ class GameClient(private val socket: Socket) {
 }
 ```
 
----
-
 ## Protocol Versioning
 
 **Backwards compatibility rule:** Always be able to parse older versions. New fields are optional.
@@ -303,8 +293,6 @@ data class HandshakeAck(
 
 enum class Feature { COMPRESSION, ENCRYPTION, MULTIPLEXING }
 ```
-
----
 
 ## Implementing Multiplexing (Like HTTP/2)
 
@@ -351,15 +339,13 @@ class Multiplexer(private val socket: Socket) {
             val flags = buf.get()
             val len = buf.int
             val payload = ByteArray(len).also { input.readFully(it) }
-            
+
             streams.getOrPut(streamId) { Channel(capacity = 100) }
                 .trySend(Frame(streamId, flags, payload))
         }
     }.start()
 }
 ```
-
----
 
 ## Redis RESP Protocol (Real-World Example)
 
@@ -377,6 +363,7 @@ Redis uses a simple text protocol called RESP (REdis Serialization Protocol). St
 ```
 
 Lessons:
+
 - Text protocol is human-readable and debuggable with netcat
 - Type indicator as first byte (+ - : $ *)
 - Variable-length bulk strings avoid delimiter escaping
@@ -405,8 +392,6 @@ fun parseResp(input: InputStream): Any? {
 }
 ```
 
----
-
 ## Performance: Protocol Benchmarking
 
 ```kotlin
@@ -415,23 +400,20 @@ data class Event(val userId: Long, val action: String, val timestamp: Long)
 
 fun benchmarkEncodings() {
     val event = Event(123456789L, "page_view", System.currentTimeMillis())
-    
+
     // JSON: ~60 bytes
     val json = """{"userId":123456789,"action":"page_view","timestamp":${event.timestamp}}"""
-    
+
     // MessagePack: ~35 bytes, 2-3x faster serialize/deserialize
     // Protobuf: ~20 bytes, 5-10x faster than JSON
     // Custom binary: ~21 bytes, maximal control
-    
+
     // For 1M events/sec:
     // JSON: 60MB/s bandwidth, ~500ns/serialize
     // Protobuf: 20MB/s bandwidth, ~50ns/serialize
     // Custom: 21MB/s bandwidth, ~10ns/serialize
 }
 ```
-
-
----
 
 ## Related
 

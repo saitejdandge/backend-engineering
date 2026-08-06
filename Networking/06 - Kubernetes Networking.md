@@ -7,8 +7,6 @@
 3. **Pod-to-Service:** stable virtual IP for a group of pods
 4. **External-to-Service:** expose services to the outside world
 
----
-
 ## Pod Networking
 
 Every pod gets its own **network namespace** with a virtual ethernet interface (veth pair).
@@ -25,12 +23,11 @@ cbr0 (bridge): connects all veth pairs on the node
 ```
 
 When Pod A sends to Pod B:
+
 - **Same node:** Packet goes out pod-A eth0 → veth-a → bridge → veth-b → pod-B eth0. No host networking involved.
 - **Different node:** Packet goes out bridge → node eth0 → network → other node eth0 → bridge → target pod.
 
 **K8s requirement:** Every pod must be able to reach every other pod without NAT. Pod IP must be the source IP seen by the destination.
-
----
 
 ## CNI Plugins (How Pod Networking is Implemented)
 
@@ -74,8 +71,6 @@ Uses **eBPF** programs in the kernel instead of iptables. Higher performance, be
 - Hubble: real-time network visibility (which pods talk to which)
 - WireGuard encryption between nodes
 
----
-
 ## Services
 
 A Service provides a stable virtual IP (ClusterIP) for a dynamic set of pods. Pods are selected by label selectors.
@@ -97,11 +92,13 @@ spec:
 ### Service Types
 
 **ClusterIP (default)**
+
 - Virtual IP only accessible within cluster
 - kube-proxy sets up iptables/IPVS rules to forward ClusterIP traffic to pod IPs
 - `user-service.default.svc.cluster.local` → 10.96.45.123 (ClusterIP)
 
 **NodePort**
+
 - Opens a port (30000-32767) on every node
 - External traffic to `<any-node-ip>:<nodeport>` → service
 - Not production-grade (fixed ports, exposes all nodes)
@@ -115,6 +112,7 @@ ports:
 ```
 
 **LoadBalancer**
+
 - Provisions a cloud load balancer (AWS ALB/NLB, GCP LB)
 - External IP → cloud LB → NodePort → pods
 - One LB per service (expensive at scale, use Ingress instead)
@@ -127,10 +125,9 @@ annotations:
 ```
 
 **ExternalName**
+
 - DNS CNAME alias to an external hostname
 - `SELECT * FROM db` → k8s resolves `db` → CNAME → rds.amazonaws.com
-
----
 
 ## kube-proxy: How Services Actually Work
 
@@ -149,7 +146,7 @@ kube-proxy watches the Endpoints API. When pods are added/removed, it updates ip
 ```
 # Example iptables rules for service with 3 pod replicas
 -A KUBE-SVC-XYZ -m statistic --mode random --probability 0.33 -j KUBE-SEP-POD1
--A KUBE-SVC-XYZ -m statistic --mode random --probability 0.50 -j KUBE-SEP-POD2  
+-A KUBE-SVC-XYZ -m statistic --mode random --probability 0.50 -j KUBE-SEP-POD2
 -A KUBE-SVC-XYZ -j KUBE-SEP-POD3
 ```
 
@@ -166,8 +163,6 @@ kube-proxy --proxy-mode=ipvs
 ```
 
 Supports multiple LB algorithms: round-robin, least connection, source-hash.
-
----
 
 ## CoreDNS: Kubernetes DNS
 
@@ -193,14 +188,13 @@ nslookup user-service.other-namespace
 ```
 
 DNS search path is configured in `/etc/resolv.conf` inside pods:
+
 ```
 search default.svc.cluster.local svc.cluster.local cluster.local
 nameserver 10.96.0.10   # CoreDNS ClusterIP
 ```
 
 So `curl user-service` works because it tries `user-service.default.svc.cluster.local` first.
-
----
 
 ## Ingress: HTTP Routing at Scale
 
@@ -246,8 +240,6 @@ spec:
 ```
 
 **Ingress Controllers:** Nginx Ingress, Traefik, HAProxy Ingress, AWS ALB Ingress Controller, Kong.
-
----
 
 ## Network Policies
 
@@ -295,8 +287,6 @@ spec:
 
 Requires a CNI that supports NetworkPolicy (Calico, Cilium, Weave).
 
----
-
 ## Service Mesh (Istio/Linkerd)
 
 A service mesh adds a **sidecar proxy (Envoy)** to every pod. The proxy intercepts all network traffic.
@@ -308,12 +298,14 @@ Pod A                              Pod B
 ```
 
 **What you get automatically:**
+
 - **mTLS between all services** — encrypted, authenticated service-to-service
 - **Distributed tracing** — every request gets a trace ID, propagated through sidecars
 - **Traffic management** — canary deployments, A/B testing, circuit breaking
 - **Observability** — golden signals (rate, errors, duration) for every service pair
 
 **Istio architecture:**
+
 ```
 istiod (control plane)
   ├── Pilot: service discovery, routes config → Envoy sidecars
@@ -324,6 +316,7 @@ Envoy sidecar (data plane) — runs in every pod
 ```
 
 **Traffic shaping:**
+
 ```yaml
 # 90% to v1, 10% to v2 (canary)
 apiVersion: networking.istio.io/v1alpha3
@@ -340,8 +333,6 @@ spec:
           subset: v2
         weight: 10
 ```
-
----
 
 ## Practical Networking Debugging in K8s
 
@@ -370,9 +361,6 @@ kubectl exec -it pod-a -- ip addr
 kubectl exec -it pod-a -- ip route
 kubectl exec -it pod-a -- cat /etc/resolv.conf
 ```
-
-
----
 
 ## Related
 

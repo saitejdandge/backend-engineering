@@ -12,8 +12,6 @@ The full OSI model has 7 layers. Three matter for system design:
 
 **Mental model:** Each layer is an abstraction. As an app developer you work at L7 and take L3/L4 for granted. A load balancer at L4 sees IP+port only. A load balancer at L7 sees HTTP headers and URLs.
 
----
-
 ## How a Web Request Actually Works
 
 ```mermaid
@@ -39,13 +37,12 @@ sequenceDiagram
 ```
 
 Key observations:
+
 - Multiple round trips happen before any app data flows (DNS + TCP handshake)
 - TCP connection is **stateful** — both sides must maintain it
 - Without keep-alive or HTTP/2 multiplexing, this repeats for every request
 - HTTP/2 uses multiplexing (multiple requests over one TCP connection)
 - HTTP/3 uses QUIC (UDP-based, eliminates TCP handshake latency)
-
----
 
 ## TCP vs UDP
 
@@ -54,6 +51,7 @@ Key observations:
 **Connection-oriented.** Three-way handshake before data. Guarantees delivery, ordering, and no duplicates.
 
 **Mechanism:**
+
 - **Sequence numbers:** Every byte is numbered. Receiver sends ACK for what it got.
 - **Retransmission:** If ACK doesn't arrive in time, sender retransmits.
 - **Flow control:** Receiver advertises a "window size" — how much data it can buffer. Sender throttles.
@@ -68,6 +66,7 @@ Key observations:
 **Connectionless.** No handshake. No ordering. No retransmission. Just fire packets and hope.
 
 **When to use:**
+
 - Real-time: gaming, VoIP, live video (occasional packet loss is OK, delay is not)
 - DNS lookups (single request-response, timeout + retry is fine)
 - High-volume telemetry where loss is acceptable
@@ -79,11 +78,10 @@ Key observations:
 
 UDP-based transport that combines TCP reliability + TLS 1.3 in one handshake. Eliminates head-of-line blocking (separate streams per request). Used by Google, Cloudflare. Becoming standard but not yet ubiquitous.
 
----
-
 ## Application Layer Protocols
 
 ### HTTP/1.1
+
 - Request-response over TCP
 - Text-based headers
 - One request at a time per connection (pipelining is broken in practice)
@@ -91,6 +89,7 @@ UDP-based transport that combines TCP reliability + TLS 1.3 in one handshake. El
 - **Bottleneck:** Head-of-line blocking — request N waits for N-1 to complete
 
 ### HTTP/2
+
 - Binary framing (more efficient parsing)
 - **Multiplexing:** Multiple requests in parallel over ONE TCP connection via streams
 - Header compression (HPACK)
@@ -98,17 +97,19 @@ UDP-based transport that combines TCP reliability + TLS 1.3 in one handshake. El
 - **Still has TCP head-of-line blocking** — a lost TCP packet blocks all streams
 
 ### HTTP/3
+
 - Runs on QUIC (UDP-based)
 - No TCP head-of-line blocking — each stream is independent
 - Combined TLS+transport handshake = 1 RTT (vs 2-3 for TCP+TLS)
 - Better on mobile/lossy networks
 
 ### REST
+
 Default for external APIs. Resources + HTTP verbs. Stateless. JSON. Well-understood.
 
 ```
 GET  /users/123         → get user
-POST /users             → create user  
+POST /users             → create user
 PUT  /users/123         → update user
 DEL  /users/123         → delete user
 GET  /users/123/posts   → nested resource
@@ -117,6 +118,7 @@ GET  /users/123/posts   → nested resource
 Use by default. Switch to GraphQL if clients need flexible queries. Switch to gRPC for internal high-throughput services.
 
 ### gRPC
+
 - HTTP/2 + Protocol Buffers (binary, compact, typed)
 - Schema-first: `.proto` files generate client+server stubs
 - 10x throughput vs REST/JSON in benchmarks
@@ -126,6 +128,7 @@ Use by default. Switch to GraphQL if clients need flexible queries. Switch to gR
 **Use for:** Internal service-to-service communication where performance matters. Not for public APIs (no browser support).
 
 ### WebSockets
+
 - Starts as HTTP, upgrades to persistent bidirectional TCP connection
 - Both client and server can push messages anytime
 - Full duplex — simultaneously send and receive
@@ -135,6 +138,7 @@ Use by default. Switch to GraphQL if clients need flexible queries. Switch to gR
 **Not for:** One-directional server-to-client only (use SSE). Request-response only (use HTTP).
 
 ### SSE (Server-Sent Events)
+
 - HTTP response that never ends — server keeps streaming chunks
 - Unidirectional: server → client only
 - Browser has `EventSource` API; auto-reconnects with last event ID
@@ -144,14 +148,13 @@ Use by default. Switch to GraphQL if clients need flexible queries. Switch to gR
 **Limitation:** Some proxies buffer and break it. One-way only.
 
 ### WebRTC
+
 - Peer-to-peer, UDP-based (SRTP/DTLS)
 - Browser-to-browser without a server for data path
 - Requires signaling server (STUN/TURN) for connection setup
 - NAT traversal via STUN (direct) or TURN relay (fallback)
 
 **Use only for:** Audio/video conferencing. Not for general real-time features.
-
----
 
 ## Protocol Selection Guide
 
@@ -166,8 +169,6 @@ Use by default. Switch to GraphQL if clients need flexible queries. Switch to gR
 | Real-time gaming/streaming (mobile app) | UDP |
 | Everything else | TCP |
 
----
-
 ## Load Balancing
 
 ### Why
@@ -177,6 +178,7 @@ Single server = SPOF + limited capacity. Multiple servers = need to distribute r
 ### Client-Side Load Balancing
 
 Client gets a list of servers and picks one itself. Used by:
+
 - Redis Cluster clients (hash slot → node)
 - gRPC (built-in round-robin or custom policy)
 - DNS (returns multiple A records, client picks)
@@ -216,16 +218,15 @@ Operates at HTTP layer. Can inspect URLs, headers, cookies. Terminates connectio
 
 Load balancers poll backends (TCP or HTTP) at intervals. If a backend fails, stop routing to it. This gives automatic failover without code changes.
 
----
-
 ## Handling Failures
 
 ### Timeouts
+
 Set timeouts on every network call. Without timeouts, one slow service holds threads indefinitely.
 
 ```
 connectTimeout: 100ms
-readTimeout: 1000ms  
+readTimeout: 1000ms
 ```
 
 ### Retries + Exponential Backoff + Jitter
@@ -267,8 +268,6 @@ stateDiagram-v2
 
 **Why:** Prevents cascading failures. If DB is down, don't hammer it with retries — fast-fail immediately and give it time to recover.
 
----
-
 ## Latency Numbers
 
 | Operation | Latency |
@@ -282,9 +281,6 @@ stateDiagram-v2
 | TLS handshake (additional) | ~1 RTT |
 | HTTP/1.1 request (local) | ~2ms |
 | HTTP/3 vs HTTP/1.1 on lossy network | 30% faster |
-
-
----
 
 ## Related
 

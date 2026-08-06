@@ -1,4 +1,3 @@
-
 # Caching Fundamentals
 
 ## Why Cache
@@ -8,14 +7,13 @@ Reading from Postgres: ~50ms. Reading from Redis: ~1ms. That's a 50x improvement
 Databases store data on disk — every query pays the cost of disk I/O. Memory sits much closer to the CPU and avoids that entirely. Caches reduce load on the database and cut latency dramatically.
 
 **When to bring up caching in a design:**
+
 - Read-heavy workload (millions of daily reads hitting DB)
 - Expensive queries (joins, aggregations taking 200ms+)
 - High database CPU during peak
 - Latency requirements under 10ms that DB can't meet
 
 Don't jump straight to caching. Establish the bottleneck first, quantify it, then introduce the cache.
-
----
 
 ## Where to Cache
 
@@ -51,6 +49,7 @@ Limited control from backend. Stale data is harder to invalidate. Good for offli
 Cache data directly inside the application process — no network call at all. Even faster than Redis.
 
 Best for small, rarely-changing, frequently-read data:
+
 - Feature flags
 - Config values
 - Hot keys
@@ -60,8 +59,6 @@ Best for small, rarely-changing, frequently-read data:
 **Limitation:** Each app instance has its own cache. Updates on one server don't propagate to others.
 
 Use as an **optimization layer on top of Redis**, not a replacement.
-
----
 
 ## Cache Architectures (Read/Write Patterns)
 
@@ -114,8 +111,6 @@ sequenceDiagram
     Note over Redis: Next read will repopulate
 ```
 
----
-
 ### Write-Through
 
 Application writes to the cache; cache synchronously writes to DB before returning.
@@ -144,8 +139,6 @@ sequenceDiagram
     Redis-->>App: "{name:Saitej}" (always HIT after write)
 ```
 
----
-
 ### Write-Behind (Write-Back)
 
 Application writes to cache only. Cache batches and asynchronously writes to DB in background.
@@ -171,8 +164,6 @@ sequenceDiagram
     Note over Redis: If Redis crashes before flush → data lost
 ```
 
----
-
 ### Read-Through
 
 Cache acts as a smart proxy. On a miss, the cache itself fetches from DB, stores, and returns. Application never talks directly to the DB.
@@ -197,8 +188,6 @@ sequenceDiagram
     Cache-->>App: {id:456, name:"Laptop"} (served from cache)
 ```
 
----
-
 ### CDN as Read-Through (Real-World Example)
 
 ```mermaid
@@ -218,25 +207,25 @@ sequenceDiagram
     CDN Edge (Mumbai)-->>User in India: hero.jpg (5ms, no origin hit)
 ```
 
----
-
 ## Cache Eviction Policies
 
 When cache memory is full, which entry to remove?
 
 ### LRU (Least Recently Used)
+
 Evict the item not accessed for the longest time. Uses a linked list to track access order — O(1) eviction. **Default in most systems.** Adapts to workloads where recently used data is likely used again.
 
 ### LFU (Least Frequently Used)
+
 Evict the item accessed the fewest times. Maintains a counter per key. Good when some keys are consistently hot over time (trending videos, top playlists). More expensive to implement precisely — many systems use approximate LFU.
 
 ### FIFO (First In First Out)
+
 Evict the oldest item based on insertion time only. Ignores usage patterns. Rarely used in real systems — may evict still-hot data.
 
 ### TTL (Time To Live)
-Not a standalone eviction policy — sets an expiration time per key. Combined with LRU/LFU. Essential when data must periodically refresh (API responses, session tokens, feed snapshots).
 
----
+Not a standalone eviction policy — sets an expiration time per key. Combined with LRU/LFU. Essential when data must periodically refresh (API responses, session tokens, feed snapshots).
 
 ## Common Cache Problems
 
@@ -247,6 +236,7 @@ When a popular cache entry expires, many concurrent requests miss the cache simu
 **Example:** Homepage feed cached with 60s TTL. At 12:01:00 it expires. 1000 concurrent users hit the DB at the same moment.
 
 **Solutions:**
+
 - **Request coalescing (single-flight):** Only one request rebuilds the cache; others wait for the result. Most effective.
 - **Cache warming:** Proactively refresh keys before expiry (only helps with TTL-based expiration, not write-invalidation).
 - **Probabilistic early expiration:** Re-fetch slightly before TTL expires to avoid simultaneous misses.
@@ -257,6 +247,7 @@ When a popular cache entry expires, many concurrent requests miss the cache simu
 Cache and database can diverge. Write updates DB but cache still has old value → users see stale data.
 
 **Solutions:**
+
 - **Invalidate on write:** Delete cache key after writing to DB. Next read repopulates with fresh data. Most common.
 - **Short TTL:** Accept slight staleness; cache auto-refreshes frequently.
 - **Accept eventual consistency:** For feeds, metrics, analytics — a 60-second lag is usually fine.
@@ -270,11 +261,10 @@ A single cache key receives disproportionate traffic. Can overload one Redis nod
 **Example:** Taylor Swift's user profile (user:taylorswift) gets millions of requests/second. One Redis shard gets hammered.
 
 **Solutions:**
+
 - **Replicate hot keys across multiple nodes:** Store same value on multiple shards, load-balance reads.
 - **In-process cache as a fallback:** Keep the hottest keys in-process to avoid hitting Redis at all.
 - **Rate limiting:** Throttle abusive traffic patterns on specific keys.
-
----
 
 ## Caching Decision Framework (Interview)
 
@@ -283,6 +273,7 @@ A single cache key receives disproportionate traffic. Can overload one Redis nod
 
 **Step 2 — Decide what to cache:**
 Cache what is read frequently, changes rarely, and is expensive to compute.
+
 - User profiles (read every page load, updated rarely)
 - Trending feed (expensive aggregation, fine to be 60s stale)
 - Session tokens
@@ -295,11 +286,10 @@ Default: cache-aside. State why: simple, lazy-loads, works with Redis.
 "LRU eviction + 10-minute TTL on user profiles. On profile update, delete the cache key immediately."
 
 **Step 5 — Address downsides:**
+
 - Invalidation: "Delete on write for user data; TTL for feeds."
 - Stampede: "Single-flight for popular keys."
 - Failure: "Circuit breaker to stop DB overload if Redis goes down. In-process fallback for hottest keys."
-
----
 
 ## Strategy Comparison: When to Use What
 
@@ -317,11 +307,10 @@ Default: cache-aside. State why: simple, lazy-loads, works with Redis.
 | Cache pollution | No (only caches what's read) | Yes (caches everything written) | Yes | No |
 | Implementation complexity | Low | Medium | High | Medium |
 
----
-
 ### Detailed Decision Guide
 
 #### Use Cache-Aside when:
+
 - **You want the simplest thing that works** — default choice for 90% of use cases
 - Data is read much more than written (user profiles, product catalog, config)
 - Some staleness is acceptable (invalidate on write or rely on TTL)
@@ -336,6 +325,7 @@ User updates profile → write Postgres → DELETE Redis key
 ```
 
 #### Use Write-Through when:
+
 - **Reads must always return fresh data** (no stale reads tolerable)
 - Write volume is moderate (not millions/sec — every write hits both cache and DB)
 - You're using a caching framework/library that supports write-through natively
@@ -346,6 +336,7 @@ User updates profile → write Postgres → DELETE Redis key
 **Warning:** Still has the dual-write failure problem. If cache write succeeds but DB write fails (or vice versa), you have inconsistency. Need retry logic or compensation.
 
 #### Use Write-Behind when:
+
 - **Maximizing write throughput** is the primary goal
 - You can tolerate losing some recent writes on cache failure (analytics events, metrics, non-critical counters)
 - Data is written frequently but read less often
@@ -356,6 +347,7 @@ User updates profile → write Postgres → DELETE Redis key
 **Warning:** Never use for financial transactions, order records, or anything where data loss is unacceptable.
 
 #### Use Read-Through when:
+
 - You want to centralize cache-miss logic away from application code
 - You're behind a CDN or gateway (it IS read-through by nature)
 - Using a caching library that supports it (Caffeine with loader, Spring @Cacheable)
@@ -370,8 +362,6 @@ fun getUser(id: String): User = userRepository.findById(id)
 // First call: hits DB, caches result
 // Subsequent calls: returns from cache transparently
 ```
-
----
 
 ### Decision Tree
 
@@ -397,8 +387,6 @@ What's your primary concern?
     → CDN (it's read-through by design)
 ```
 
----
-
 ### Common Hybrid Patterns
 
 **Cache-Aside reads + Write-Through writes** (most balanced)
@@ -419,8 +407,6 @@ Request → L1 (in-process, ~0.1ms) → miss
         → DB (Postgres, ~10ms) → write to both L2 and L1
 ```
 
----
-
 ### Quick Reference by Data Type
 
 | Data Type | Strategy | TTL | Invalidation |
@@ -436,9 +422,6 @@ Request → L1 (in-process, ~0.1ms) → miss
 | Media / images | CDN (Read-Through) | Days to weeks | Purge on update |
 | Analytics events | Write-Behind | N/A (no cache reads) | N/A |
 | Bank balance | Write-Through or no cache | Short or none | Invalidate on txn |
-
-
----
 
 ## Related
 

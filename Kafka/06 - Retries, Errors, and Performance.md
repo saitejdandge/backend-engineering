@@ -30,8 +30,6 @@ Kafka deduplicates using producer ID + sequence number
 Result: message stored exactly once ← GOOD
 ```
 
----
-
 ## Consumer Retries
 
 **Kafka does NOT support consumer retries natively** (unlike AWS SQS which has built-in retry + DLQ). You must implement your own retry logic.
@@ -80,7 +78,7 @@ await consumer.run({
       // Success — offset auto-committed
     } catch (error) {
       const retryCount = parseInt(message.headers['retry-count'] || '0')
-      
+
       if (retryCount < MAX_RETRIES) {
         // Send to retry topic with incremented counter
         await producer.send({
@@ -122,8 +120,6 @@ If your use case needs consumer retries and DLQ out of the box, **AWS SQS** is o
 | Multiple consumers (same data) | Yes (consumer groups) | No |
 
 > The Web Crawler example from Hello Interview opts for SQS over Kafka specifically to get built-in retry + DLQ without implementation overhead.
-
----
 
 ## Performance Optimizations
 
@@ -222,11 +218,10 @@ vs.
 ```
 
 **Always ensure:**
+
 ```
 num_partitions >= num_consumers (in consumer group)
 ```
-
----
 
 ## Retention Policies
 
@@ -269,6 +264,7 @@ After compaction:
 ```
 
 **Use log compaction for:**
+
 - Event sourcing / CQRS (latest state per entity)
 - Configuration topics (latest config per service)
 - User profile topics (latest profile per user ID)
@@ -282,8 +278,6 @@ After compaction:
 --add-config retention.ms=604800000
 --add-config min.compaction.lag.ms=3600000  # wait 1hr before compacting
 ```
-
----
 
 ## Throughput Estimation (Interview Math)
 
@@ -308,9 +302,6 @@ Storage (7-day retention):
   250 MB/sec × 3 replicas × 86400 sec/day × 7 days = ~450 TB
   Per broker (10 brokers): 45 TB each
 ```
-
-
----
 
 ## Related
 

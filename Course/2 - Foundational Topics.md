@@ -55,7 +55,8 @@ We shard the database, if write throughput is high. Sharding can be of two types
 * Range based sharding
 * Key based sharding
 
-Either API server 
+Either API server
+
 * Knows the topology
 * Doesn't know the topology (API server -> connects to coordinator)
 
@@ -70,7 +71,7 @@ This is a mySQL proxy, which coordinates and ==abstracts the topology from the a
 
 We configure database topology in this proxy based on some *rules*.
 
-We will group the nodes based on the ==hostgroups== , For example, Let's say we have one master and three replicas. 
+We will group the nodes based on the ==hostgroups== , For example, Let's say we have one master and three replicas.
 
 * Master -> host group (10)
 * Read replica_1, replica_2, replica_3 -> host group(20)
@@ -87,15 +88,9 @@ We will group the nodes based on the ==hostgroups== , For example, Let's say we 
 Either the vertical scaling or horizontal scaling.
 
 ![[Screenshot 2026-06-07 at 11.56.26 AM.png]]
-*L4 raw TCP load balancer just works fine*, 
+*L4 raw TCP load balancer just works fine*,
 
 Amazon RDS by default uses proxy SQL, Postgres uses PG Bouncer. Proxy can maintain connection pools.
-
-
-
-
-
----
 
 ## Related
 

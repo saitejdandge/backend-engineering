@@ -50,26 +50,32 @@ Use **nouns, not verbs**. Resources are things, not actions.
 Never return unbounded lists. Three patterns:
 
 **Offset Pagination:**
+
 ```
 GET /orders?offset=100&limit=20
 ```
+
 - Simple to implement, easy to understand
 - Problem: data shifts if items are inserted/deleted between pages (page drift)
 - Expensive for large offsets (DB must scan through all skipped rows)
 
 **Cursor Pagination:**
+
 ```
 GET /orders?cursor=eyJpZCI6MTIzfQ&limit=20
 ```
+
 - Cursor encodes position (usually base64'd last item ID or timestamp)
 - Stable: no drift from concurrent writes
 - Can't jump to arbitrary page
 - Best for real-time feeds and large datasets
 
 **Keyset Pagination:**
+
 ```
 GET /orders?after_id=123&limit=20
 ```
+
 - Uses indexed column to avoid full scans
 - Efficient for DB (uses index seek instead of offset scan)
 - Variation of cursor pagination
@@ -85,8 +91,6 @@ Three approaches:
 - **Query param:** `GET /orders?version=2` — Least preferred. Versioning should be structural, not a query concern.
 
 **Recommendation:** URL versioning for external/public APIs. Header versioning for internal where you control clients.
-
----
 
 ## gRPC
 
@@ -128,8 +132,6 @@ rpc OrderUpdates (stream OrderRequest) returns (stream OrderEvent);
 - Browser clients (gRPC-Web adds complexity)
 - Simple public APIs (REST is more universally understood)
 - Teams without experience with protobuf tooling
-
----
 
 ## GraphQL
 
@@ -198,8 +200,6 @@ orders.map(order => userLoader.load(order.userId)) // batched
 - Internal service-to-service communication (use gRPC)
 - Teams unfamiliar with the ecosystem
 
----
-
 ## API Design Best Practices
 
 ### Idempotency
@@ -252,19 +252,19 @@ Retry-After: 30
 ### Backward Compatibility
 
 Breaking changes:
+
 - Removing fields
 - Changing field types
 - Changing required fields
 - Changing URL structure
 
 Non-breaking changes:
+
 - Adding optional fields
 - Adding new endpoints
 - Adding new optional query params
 
 When making breaking changes, version the API or use a deprecation period with warnings in response headers.
-
----
 
 ## API Security Essentials
 
@@ -273,9 +273,6 @@ When making breaking changes, version the API or use a deprecation period with w
 - **Never expose internal IDs** — Use UUIDs or opaque tokens, not auto-increment IDs (enumeration attacks)
 - **Implement CORS properly** — Whitelist specific origins, don't use `*` for authenticated endpoints
 - **Audit logging** — Log who did what and when. Required for compliance.
-
-
----
 
 ## Related
 

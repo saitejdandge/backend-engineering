@@ -15,8 +15,6 @@
 - **kube-proxy:** Maintains network rules (iptables/ipvs) for Service routing.
 - **Container Runtime:** containerd or CRI-O (Docker removed as default in K8s 1.24).
 
----
-
 ## Workload Resources
 
 ### Pod
@@ -58,6 +56,7 @@ spec:
 - **Limits:** Hard ceiling. CPU limit → throttled. Memory limit → OOMKilled.
 
 **QoS classes:**
+
 - **Guaranteed:** `requests == limits` for all containers. Highest priority, never evicted first.
 - **Burstable:** `requests < limits`. Evicted before Guaranteed under pressure.
 - **BestEffort:** No requests or limits set. Evicted first. Never use in production.
@@ -92,6 +91,7 @@ spec:
 ### StatefulSet
 
 For stateful applications (databases, Kafka, ZooKeeper). Provides:
+
 - Stable, predictable pod names (`app-0`, `app-1`, `app-2`)
 - Stable network identity (DNS: `app-0.app-service.namespace.svc.cluster.local`)
 - Ordered, graceful deployment and scaling
@@ -100,11 +100,10 @@ For stateful applications (databases, Kafka, ZooKeeper). Provides:
 ### DaemonSet
 
 Runs exactly one pod per node. Used for:
+
 - Log collectors (Fluentd, Filebeat)
 - Node monitoring (Datadog agent, Prometheus node exporter)
 - Network plugins (Calico, Weave)
-
----
 
 ## Probes
 
@@ -127,8 +126,6 @@ Use for: warmup period, dependency checks, graceful load shedding.
 ### Startup Probe
 
 For slow-starting containers. Disables liveness and readiness checks until startup probe succeeds. Prevents premature restarts during initialization.
-
----
 
 ## Networking
 
@@ -185,8 +182,6 @@ spec:
 
 Requires a network plugin that supports NetworkPolicy (Calico, Cilium, Weave).
 
----
-
 ## Scheduling
 
 ### Affinity and Anti-Affinity
@@ -220,13 +215,12 @@ tolerations:
   effect: "NoSchedule"
 ```
 
----
-
 ## Resource Management
 
 ### Resource Quotas (Namespace Level)
 
 Limit total resources a namespace can consume:
+
 ```yaml
 apiVersion: v1
 kind: ResourceQuota
@@ -242,6 +236,7 @@ spec:
 ### Horizontal Pod Autoscaler (HPA)
 
 Scale based on CPU, memory, or custom metrics:
+
 ```yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -265,8 +260,6 @@ spec:
 
 Automatically adjusts pod resource requests/limits based on actual usage. Don't use with HPA on the same metric. Good for initial sizing.
 
----
-
 ## Graceful Shutdown
 
 Critical for zero-downtime deployments:
@@ -277,6 +270,7 @@ Critical for zero-downtime deployments:
 4. If still running after grace period, K8s sends `SIGKILL`
 
 **Application must handle SIGTERM:**
+
 ```python
 import signal, sys
 
@@ -291,15 +285,13 @@ signal.signal(signal.SIGTERM, handle_sigterm)
 ```
 
 **Also:** Use `preStop` hook to add a sleep before SIGTERM if your service is behind a load balancer that needs time to de-register the pod:
+
 ```yaml
 lifecycle:
   preStop:
     exec:
       command: ["sleep", "5"]
 ```
-
-
----
 
 ## Related
 

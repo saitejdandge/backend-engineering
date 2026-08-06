@@ -6,8 +6,6 @@ DNS (Domain Name System) is the internet's phone book — it translates human-re
 
 Without DNS, you'd need to memorize IPs. With DNS, names are stable even when IPs change (just update the record).
 
----
-
 ## DNS Record Types
 
 | Record | Purpose | Example |
@@ -36,8 +34,6 @@ example.com.       300   IN   A       54.23.11.8
 
 **CNAME can't coexist with other records at the same name.** You can't have both `example.com CNAME` and `example.com MX` — this is why apex domains (naked `example.com`) can't use CNAME. Use ALIAS/ANAME records (Route 53 / Cloudflare flatten CNAME at zone apex).
 
----
-
 ## TTL (Time to Live)
 
 TTL is the number of seconds a DNS response should be cached.
@@ -53,11 +49,10 @@ api.example.com.   300   IN   A   54.23.11.8
 **High TTL (3600–86400s):** Cached longer, fewer lookups, lower load. Changes take longer to propagate. Good for stable records.
 
 **Rule of thumb:**
+
 - Normal operation: TTL = 300–3600s
 - Before a planned change (IP migration): Lower TTL to 60s 24h before
 - After change is stable: Raise TTL back
-
----
 
 ## How DNS Resolution Works (Full Walk-Through)
 
@@ -102,8 +97,6 @@ sequenceDiagram
 
 **Recursive:** Each server asks the next server on your behalf. Rarely used today.
 
----
-
 ## DNS Hierarchy
 
 ```
@@ -123,8 +116,6 @@ sequenceDiagram
 **TLD nameservers:** One per top-level domain. Verisign runs `.com` and `.net`. They know which nameservers are authoritative for each domain.
 
 **Authoritative nameservers:** Where you set your actual DNS records. AWS Route 53, Cloudflare, Google Cloud DNS. When you buy `example.com`, you tell the registrar which nameservers are authoritative (NS records at the TLD level).
-
----
 
 ## Zones and Zone Files
 
@@ -155,8 +146,6 @@ mail     IN  A     54.23.11.10
 @        IN  TXT   "v=spf1 include:amazonses.com ~all"
 ```
 
----
-
 ## DNSSEC (DNS Security)
 
 DNS was designed without authentication — anyone can send a forged DNS response (DNS spoofing / cache poisoning).
@@ -178,8 +167,6 @@ example.com signs its A records
 
 **Not universally adopted:** ~30% of domains use DNSSEC. Adds complexity. Most enterprises use it; many small sites don't.
 
----
-
 ## DNS in System Design
 
 ### Service Discovery
@@ -191,11 +178,13 @@ user-service.default.svc.cluster.local → ClusterIP
 ```
 
 AWS ECS uses Route 53 private hosted zones for service discovery:
+
 ```
 user-service.internal → 10.0.1.45 (ECS task IP)
 ```
 
 Consul (HashiCorp) uses DNS interface for service discovery:
+
 ```
 user-service.service.consul → healthy instance IP
 ```
@@ -211,6 +200,7 @@ api.example.com   60   A   54.23.11.10
 ```
 
 Client picks the first one (usually random after the first rotation). Very simple but:
+
 - No health checking (dead servers stay in rotation)
 - Client caching means uneven distribution
 - TTL must be short for quick failover
@@ -236,7 +226,7 @@ Route 53 measures latency from multiple regions to client, routes to lowest-late
 
 ```
 US users   → us-east-1 ALB
-EU users   → eu-west-1 ALB  
+EU users   → eu-west-1 ALB
 Asia users → ap-southeast-1 ALB
 ```
 
@@ -248,8 +238,6 @@ Return different IPs based on client's geographic location:
 US clients  → 54.23.11.8 (US datacenter)
 EU clients  → 54.23.11.9 (EU datacenter, data residency compliance)
 ```
-
----
 
 ## Split-Horizon DNS (Split-View)
 
@@ -263,8 +251,6 @@ From within VPC:       api.example.com → 10.0.1.45  (private IP, direct)
 **Why:** Avoid traffic going out to internet and back in when both client and server are in the same network.
 
 **AWS implementation:** Route 53 private hosted zones shadow public hosted zones for queries from within the VPC.
-
----
 
 ## DNS Propagation
 
@@ -283,12 +269,11 @@ Propagation time = old TTL value
 **"DNS propagation" takes 24-48 hours** is a myth. It takes as long as the TTL. If TTL was 300s, propagation is 5 minutes. If TTL was 86400s, up to 24 hours.
 
 **To minimize propagation time:**
+
 1. Lower TTL to 60s at least 24h before the planned change (let old TTL-based caches expire with the new short TTL)
 2. Make the change
 3. Verify it's correct
 4. Raise TTL back to normal after propagation
-
----
 
 ## DNS Caching Pitfalls
 
@@ -313,8 +298,6 @@ java.security.Security.setProperty("networkaddress.cache.negative.ttl", "10");
 DNS responses are much larger than requests (query is ~40 bytes, response can be 4000 bytes). Attackers send queries with spoofed source IP (victim's IP) → DNS servers flood victim with amplified responses.
 
 Mitigations: Rate limiting, Response Rate Limiting (RRL) on DNS servers, use TCP for large responses.
-
----
 
 ## Running Your Own DNS
 
@@ -390,8 +373,6 @@ for server in 8.8.8.8 1.1.1.1 9.9.9.9; do
 done
 ```
 
----
-
 ## DNS Numbers to Know
 
 | Metric | Value |
@@ -405,9 +386,6 @@ done
 | Max label length | 63 characters |
 | Max hostname length | 253 characters |
 | Max UDP DNS packet | 512 bytes (EDNS0 extends to 4096) |
-
-
----
 
 ## Related
 

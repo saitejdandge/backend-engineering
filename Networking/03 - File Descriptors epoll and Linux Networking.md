@@ -6,7 +6,7 @@ In Linux, almost everything is represented as a **file descriptor (fd)** — an 
 
 ```
 fd 0 = stdin
-fd 1 = stdout  
+fd 1 = stdout
 fd 2 = stderr
 fd 3 = first TCP socket your app opens
 fd 4 = second TCP socket
@@ -45,8 +45,6 @@ ulimit -n 1048576
 
 **C10K problem:** How do you handle 10,000 concurrent connections? Each connection = 1 fd. Not the fd limit that's the bottleneck — it's the I/O model.
 
----
-
 ## I/O Models: select → poll → epoll
 
 ### select() — The Original (Broken)
@@ -62,6 +60,7 @@ select(max_fd + 1, &read_fds, NULL, NULL, &timeout);
 ```
 
 **Problems:**
+
 - Max 1024 fds hardcoded (`FD_SETSIZE`)
 - Copies fd_set between user space and kernel on every call — O(N)
 - After returning, must scan all fds to find which are ready — O(N)
@@ -104,6 +103,7 @@ for (int i = 0; i < nready; i++) {
 ```
 
 **Why it's O(1):**
+
 - Kernel maintains a red-black tree of monitored fds — O(log N) to add/remove
 - When a fd becomes ready, kernel adds it to a ready list
 - `epoll_wait` returns only the ready fds — you only process what has work
@@ -119,8 +119,6 @@ for (int i = 0; i < nready; i++) {
 **Level-triggered (default):** `epoll_wait` returns a fd as long as it has data. If you don't read all data, it keeps notifying you.
 
 **Edge-triggered (EPOLLET):** `epoll_wait` returns a fd ONCE when new data arrives. You must read until `EAGAIN` (no more data). Harder to use but more efficient.
-
----
 
 ## How Nginx/Redis Use epoll
 
@@ -143,8 +141,6 @@ while (true) {
 This is essentially what Nginx, Redis, and Node.js do. One thread, one event loop, millions of connections.
 
 **Why it works:** Most connections are idle. A connection that's waiting for a database query doesn't need a thread — it just needs to be in the epoll interest list. When the response arrives, epoll wakes up the event loop to handle it.
-
----
 
 ## Sockets Deep Dive
 
@@ -185,14 +181,13 @@ setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &buf, sizeof(buf));
 ### TCP Buffer Sizes
 
 Each TCP connection has:
+
 - **Send buffer** (`SO_SNDBUF`): kernel buffers outgoing data before ACK
 - **Receive buffer** (`SO_RCVBUF`): kernel buffers incoming data before app reads
 
 Default: ~128KB each. For high-throughput file transfer, increase to 4-16MB.
 
 Autotuning: Linux kernel automatically adjusts TCP buffers based on RTT and bandwidth (`net.ipv4.tcp_rmem` / `net.ipv4.tcp_wmem`).
-
----
 
 ## io_uring (Linux 5.1+)
 
@@ -211,8 +206,6 @@ Completion ring: kernel writes I/O results here
 Used by: modern io libraries (io_uring-backed async Rust, Java Netty 5), high-performance databases, storage engines.
 
 Not yet mainstream but represents the future of Linux I/O.
-
----
 
 ## /proc/net — Inspecting Network State
 
@@ -249,6 +242,7 @@ cat /proc/net/nf_conntrack | wc -l
 **TIME_WAIT buildup:** After a connection closes, the socket stays in TIME_WAIT for 2×MSL (default 60s on Linux). Under high connection churn, you can exhaust ephemeral ports.
 
 Fix:
+
 ```bash
 # Reuse TIME_WAIT sockets
 echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
@@ -256,8 +250,6 @@ echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
 # Or reduce time_wait duration
 echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
 ```
-
----
 
 ## Kernel Tuning for High-Connection Servers
 
@@ -286,8 +278,6 @@ net.ipv4.tcp_rmem = 4096 87380 67108864
 net.ipv4.tcp_wmem = 4096 65536 67108864
 ```
 
----
-
 ## Practical: Tracing Network Issues
 
 ```bash
@@ -309,9 +299,6 @@ traceroute -T -p 443 google.com   # TCP traceroute
 # strace to see syscalls (fd operations)
 strace -p <pid> -e trace=read,write,accept,epoll_wait
 ```
-
-
----
 
 ## Related
 

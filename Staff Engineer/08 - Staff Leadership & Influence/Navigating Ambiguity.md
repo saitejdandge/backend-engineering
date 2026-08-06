@@ -8,8 +8,6 @@ Senior engineers are given well-defined problems and expected to find good solut
 
 Managers shouldn't have to fully specify technical problems for staff engineers. You're expected to intake vague direction and produce concrete, actionable plans.
 
----
-
 ## Breaking Down Fuzzy Problems
 
 ### The Five Clarifying Questions
@@ -27,6 +25,7 @@ When faced with ambiguity, these questions cut through it quickly:
 Example: "We need to improve our platform's scalability."
 
 This is not actionable. Disaggregate:
+
 - What specific bottleneck are we hitting? (CPU? DB? Network? Deployment speed?)
 - Which traffic patterns are we trying to handle? (Current peak? 3x? 10x?)
 - What's the business driver? (Specific launch? Projected growth? Performance complaints?)
@@ -34,8 +33,6 @@ This is not actionable. Disaggregate:
 - By when? (Hard deadline? Best effort?)
 
 After these questions, "improve scalability" becomes "add read replicas to the orders DB to handle the Q4 campaign load at 3x current peak, by November 1."
-
----
 
 ## Mapping the Problem Space
 
@@ -58,8 +55,6 @@ A time-boxed investigation into an unknown. Not production code — throwaway co
 
 Spikes reduce the cost of being wrong by surfacing risks early.
 
----
-
 ## Making Decisions Under Uncertainty
 
 Not every decision can wait for full information. Staff engineers must make good decisions with incomplete data.
@@ -67,27 +62,29 @@ Not every decision can wait for full information. Staff engineers must make good
 ### Decision Frameworks
 
 **Reversible vs Irreversible:**
+
 - Reversible decisions: make them fast, learn, adjust
 - Irreversible decisions: slow down, gather more information, involve more stakeholders
 
 **Cost of delay vs cost of being wrong:**
+
 - If the cost of delay exceeds the cost of being wrong, decide now
 - If the cost of being wrong is catastrophic, wait for more information
 
 **Two-way vs one-way door (Amazon):**
+
 - One-way door: can't easily go back (DB migration, API breaking change). More scrutiny.
 - Two-way door: can be undone (feature flag, config change). Decide and ship quickly.
 
 ### Communicating Decision Confidence
 
 Be explicit about your confidence level:
+
 - "I'm highly confident this is the right approach because we've done it before and have data."
 - "I believe this is directionally right, but we have one unknown: whether the third-party API can handle our volume. I propose we proceed while running a capacity test in parallel."
 - "I see three viable options. I lean toward Option B, but this is a judgment call and I'd like the team's input."
 
 This honesty builds trust. People follow leaders who know what they don't know.
-
----
 
 ## When to Go Deep vs Delegate
 
@@ -108,8 +105,6 @@ One of the hardest judgment calls at the staff level.
 - The risk is manageable and reversible
 
 **The mistake:** Doing deep technical work on low-stakes problems because it's comfortable and fun, while high-stakes ambiguous problems go unaddressed because they're uncomfortable.
-
----
 
 ## Dealing with Organizational Resistance
 
@@ -134,8 +129,6 @@ For large changes, align key stakeholders before the public proposal:
 
 This is not manipulation — it's reducing the cost of change by doing alignment work upfront rather than in a large combative meeting.
 
----
-
 ## Creating Clarity from Chaos
 
 The most underrated staff skill: when everyone is confused and stressed, being the person who creates a clear picture of what's happening, what needs to happen, and who should do what.
@@ -147,9 +140,6 @@ The most underrated staff skill: when everyone is confused and stressed, being t
 **During design debates:** "We've been discussing this for 45 minutes. Here's where I think we agree, here's where we disagree, and here's the specific question we need to answer to resolve it."
 
 This clarity is worth more than any line of code you could write.
-
-
----
 
 ## Related
 

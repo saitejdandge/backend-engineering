@@ -1,4 +1,5 @@
 ### Setup docker
+
 ```
 docker run --name my-postgres \
   -e POSTGRES_USER=admin \
@@ -9,15 +10,17 @@ docker run --name my-postgres \
 ```
 
 ### Connect to DB
+
 ```agsl
 docker exec -it my-postgres psql -U admin -d mydb
 ```
 
 ### intellij
+
 ![p.png](p.png)
 
-
 ### show databases
+
 ```agsl
 SELECT datname FROM pg_database;
 ```

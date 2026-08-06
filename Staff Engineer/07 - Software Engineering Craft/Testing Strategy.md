@@ -14,8 +14,6 @@
 
 The pyramid is a guide, not a law. The right ratio depends on your system. But the general principle holds: fast tests at the bottom, slow tests at the top.
 
----
-
 ## Unit Tests
 
 Test a single unit of behavior in isolation. Mock/stub all dependencies.
@@ -70,12 +68,12 @@ def test_order_creation_publishes_event():
     mock_event_bus = Mock()
     mock_repo = Mock()
     mock_repo.save.return_value = Order(id="order-123")
-    
+
     use_case = CreateOrderUseCase(repo=mock_repo, event_bus=mock_event_bus)
-    
+
     # Act
     use_case.execute(CreateOrderCommand(user_id="user-1", items=[...]))
-    
+
     # Assert
     mock_event_bus.publish.assert_called_once()
     published_event = mock_event_bus.publish.call_args[0][0]
@@ -108,8 +106,6 @@ def test_order_total_equals_sum_of_items(items):
     assert abs(order.total() - expected) < 0.001  # float tolerance
 ```
 
----
-
 ## Integration Tests
 
 Test that components work correctly together. Includes real (or realistic) dependencies — actual DB, actual Redis, but typically not external services.
@@ -137,10 +133,10 @@ def db(postgres):
 def test_order_repository_saves_and_retrieves_order(db):
     repo = PostgresOrderRepository(db)
     order = Order(id="123", user_id="user-1", items=[])
-    
+
     repo.save(order)
     retrieved = repo.find_by_id("123")
-    
+
     assert retrieved.id == order.id
     assert retrieved.user_id == order.user_id
 ```
@@ -151,8 +147,6 @@ def test_order_repository_saves_and_retrieves_order(db):
 - Cache interactions (does Redis serialization/deserialization work?)
 - Message queue producers and consumers (does Kafka message format serialize correctly?)
 - HTTP clients against real (or mocked) external services
-
----
 
 ## Contract Testing
 
@@ -178,8 +172,6 @@ pact.given('product exists').upon_receiving('a request for product 123') \
 
 **Why this matters at staff level:** Without contract tests, integration issues only surface when both services are deployed together. Contract tests catch breaking changes before they reach staging.
 
----
-
 ## E2E Tests
 
 Test complete user flows from the outside. Slowest, most brittle, most confidence.
@@ -187,6 +179,7 @@ Test complete user flows from the outside. Slowest, most brittle, most confidenc
 ### What to E2E Test
 
 Only critical user journeys:
+
 - New user can sign up, add an item to cart, and complete checkout
 - Existing user can view order history
 - Admin can process a refund
@@ -207,8 +200,6 @@ Don't write E2E tests for every feature. Use integration/unit tests instead.
 - **REST Assured / Postman:** API-level E2E testing.
 - **k6 / Gatling:** Load testing as a form of E2E validation under stress.
 
----
-
 ## Test Coverage
 
 Coverage measures what percentage of code is executed by tests.
@@ -216,15 +207,18 @@ Coverage measures what percentage of code is executed by tests.
 **Don't use coverage as a goal in itself.** 100% coverage with bad tests is worthless. 70% coverage with good tests that cover critical paths is valuable.
 
 **What coverage tells you:**
+
 - Which code is never tested (potential hidden bugs)
 - Which code was deleted but tests still reference it
 
 **What coverage doesn't tell you:**
+
 - Whether tests are meaningful
 - Whether error cases are covered
 - Whether the right behavior is asserted
 
 **Reasonable targets:**
+
 - Core business logic: 90%+
 - Infrastructure/adapters: 70%+
 - Generated code / third-party wrappers: exempt
@@ -249,26 +243,24 @@ def is_adult(age: int) -> bool:
 
 Tools: **mutmut** (Python), **PIT** (Java).
 
----
-
 ## Test-Driven Development (TDD)
 
 Write the test first, then write the code to make it pass.
 
 **Red → Green → Refactor:**
+
 1. **Red:** Write a failing test for the next piece of behavior
 2. **Green:** Write the minimum code to make the test pass
 3. **Refactor:** Clean up code and tests while keeping tests green
 
 **Benefits:**
+
 - Forces you to think about the interface before the implementation
 - Results in naturally testable code (no untestable God classes)
 - Tests serve as executable documentation
 - Prevents over-engineering (you only write code that's needed)
 
 **TDD is not always appropriate:** UI prototyping, exploratory coding, performance optimization. But it's highly effective for business logic, APIs, and anything with well-defined behavior.
-
----
 
 ## Testing in Production
 
@@ -279,9 +271,6 @@ Test techniques that run against real production traffic:
 - **A/B testing:** Compare business metrics between two versions with real users
 - **Chaos engineering:** Intentionally break things (see Reliability Engineering notes)
 - **Synthetic monitoring:** Run real transactions against production on a schedule (check that checkout actually works every 5 minutes)
-
-
----
 
 ## Related
 

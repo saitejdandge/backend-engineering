@@ -20,8 +20,6 @@ INSERT INTO mysql_servers(hostgroup_id, hostname, port, weight, max_connections)
 -- replica-1 and replica-2 get 2x traffic of replica-3
 ```
 
----
-
 ## mysql_query_rules — The Routing Engine
 
 Query rules are evaluated in `rule_id` order. **First matching rule wins.**
@@ -131,7 +129,7 @@ Query digest strips literal values — `WHERE id = 123` becomes `WHERE id = ?`.
 INSERT INTO mysql_query_rules(
     rule_id, active, match_digest, destination_hostgroup, apply
 ) VALUES (
-    20, 1, 
+    20, 1,
     '^SELECT .* FROM orders WHERE user_id = ?',  -- digest pattern
     20,  -- replica hostgroup
     1
@@ -148,8 +146,6 @@ INSERT INTO mysql_query_rules(
     1
 );
 ```
-
----
 
 ## Replication-Aware Routing
 
@@ -174,7 +170,7 @@ VALUES (10, 20, 'primary-replica replication');
 
 -- ProxySQL monitors SHOW SLAVE STATUS on replicas
 -- If Seconds_Behind_Master > max_replication_lag, server moves to SHUNNED
-UPDATE global_variables 
+UPDATE global_variables
 SET variable_value = '5'   -- shun replicas lagging more than 5 seconds
 WHERE variable_name = 'mysql-monitor_replication_lag_interval';
 
@@ -188,8 +184,8 @@ ProxySQL can route reads to primary for a period after a write in the same conne
 ```sql
 -- Configure transaction isolation for read/write split
 -- If the connection just wrote, route next N reads to primary
-UPDATE global_variables 
-SET variable_value = '1' 
+UPDATE global_variables
+SET variable_value = '1'
 WHERE variable_name = 'mysql-use_rw_splitting_regex_cache';
 
 -- Or in query rules: use session_cache for post-write reads
@@ -235,8 +231,6 @@ class OrderService(
 }
 ```
 
----
-
 ## Query Caching
 
 ProxySQL can cache query results in memory:
@@ -246,26 +240,25 @@ ProxySQL can cache query results in memory:
 INSERT INTO mysql_query_rules(
     rule_id, active, match_digest, cache_ttl, apply
 ) VALUES (
-    100, 1, 
+    100, 1,
     '^SELECT .* FROM dashboard',
     30000,  -- 30 seconds in milliseconds
     1
 );
 
 -- Check cache hits
-SELECT * FROM stats_mysql_query_digest 
+SELECT * FROM stats_mysql_query_digest
 WHERE digest_text LIKE '%dashboard%'
 ORDER BY count_star DESC;
 -- Look for cache_hit column
 ```
 
 **Cache limitations:**
+
 - In-memory only (not distributed across ProxySQL instances)
 - No invalidation on write — TTL only
 - Not suitable for data that changes frequently
 - Suitable for: dashboards, aggregations, reference data
-
----
 
 ## Load Balancing Within a Hostgroup
 
@@ -273,11 +266,11 @@ ORDER BY count_star DESC;
 -- Weight-based (default): servers with higher weight get more traffic
 INSERT INTO mysql_servers(hostgroup_id, hostname, port, weight) VALUES
 (20, 'replica-1', 3306, 1000),  -- 50% traffic
-(20, 'replica-2', 3306, 1000),  -- 50% traffic  
+(20, 'replica-2', 3306, 1000),  -- 50% traffic
 (20, 'replica-3', 3306,  500);  -- 25% traffic (lower weight)
 
 -- max_replication_lag: shun replica if lag exceeds this (seconds)
-UPDATE mysql_servers 
+UPDATE mysql_servers
 SET max_replication_lag = 10  -- shun if >10 seconds behind
 WHERE hostgroup_id = 20;
 ```
@@ -292,8 +285,6 @@ SELECT hostname, status FROM mysql_servers;
 -- OFFLINE_SOFT: draining (no new connections, existing ones finish)
 -- OFFLINE_HARD: completely removed (no connections allowed)
 ```
-
----
 
 ## Visualizing the Routing Flow
 
@@ -314,13 +305,11 @@ flowchart TD
     HG20 --> R3a[(Replica 3\nweight: 500)]
 ```
 
----
-
 ## Debugging Routing Decisions
 
 ```sql
 -- See which rule matched each query
-SELECT 
+SELECT
     hostgroup,
     sum_time,
     count_star,
@@ -334,7 +323,7 @@ LIMIT 20;
 -- If rule_id_matched = N: rule N matched
 
 -- Enable query logging temporarily
-UPDATE global_variables 
+UPDATE global_variables
 SET variable_value = '1'
 WHERE variable_name = 'mysql-eventslog_format';
 -- Logs all queries to /var/lib/proxysql/proxysql_queries.log
@@ -344,9 +333,6 @@ WHERE variable_name = 'mysql-eventslog_format';
 SELECT * FROM stats_mysql_query_rules WHERE rule_id = 5;
 -- hits: how many times this rule was triggered
 ```
-
-
----
 
 ## Related
 

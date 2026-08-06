@@ -8,8 +8,6 @@
 | **Senior** | Partitioning strategy, hot partitions, fault tolerance, consumer failure handling, offset commit timing |
 | **Staff+** | All of the above + retention policies, exactly-once semantics, Kafka Streams / Flink integration, managed services trade-offs, throughput estimation |
 
----
-
 ## The Interview Cheat Sheet
 
 ### 1. Sizing Estimate First
@@ -23,7 +21,7 @@ Your system:
   - How many producers? How often do they produce?
   - Average message size?
   - How long to retain?
-  
+
 If single broker handles it → scaling isn't the conversation
 If you exceed limits → add brokers + partition strategy
 ```
@@ -34,9 +32,9 @@ This is what interviewers want to hear. Not just "I'll use Kafka" but "I'll part
 
 ```
 Good answer:
-"I'll partition the events by user_id. This ensures all events for a 
-given user land on the same partition, guaranteeing ordering per user. 
-Since user IDs are uniformly distributed (UUIDs / sequential IDs with 
+"I'll partition the events by user_id. This ensures all events for a
+given user land on the same partition, guaranteeing ordering per user.
+Since user IDs are uniformly distributed (UUIDs / sequential IDs with
 good hash distribution), we avoid hot partitions."
 
 Bad answer:
@@ -48,9 +46,9 @@ Bad answer:
 If your partition key could create skew, bring it up before the interviewer does.
 
 ```
-"One concern with partitioning by ad_id is that popular ads could create 
-hot partitions. I'd handle this with random salting — appending a random 
-suffix 0-9 to the ad_id to spread load across 10x more partitions. The 
+"One concern with partitioning by ad_id is that popular ads could create
+hot partitions. I'd handle this with random salting — appending a random
+suffix 0-9 to the ad_id to spread load across 10x more partitions. The
 consumer then aggregates across all suffixed partitions."
 ```
 
@@ -60,7 +58,7 @@ Always have an answer for "what happens when your consumer fails?"
 
 ```
 "Consumers commit offsets to Kafka after processing. If a consumer crashes,
-it resumes from its last committed offset on restart. This gives at-least-once 
+it resumes from its last committed offset on restart. This gives at-least-once
 delivery — the last message may be reprocessed. I'll make my consumer idempotent
 by checking a deduplicated message ID in Redis before processing."
 ```
@@ -76,8 +74,6 @@ SQS: built-in retry + DLQ, simpler ops, good enough for simple async queues
 Web Crawler → SQS (built-in retry is more important than replay)
 Ad Aggregator → Kafka (high throughput stream, need replay for backfill)
 ```
-
----
 
 ## Common Interview Scenarios
 
@@ -145,8 +141,6 @@ Key design choices:
   - WebSocket servers as consumers (one per server, partition-per-server)
 ```
 
----
-
 ## Architecture Patterns with Kafka
 
 ### Pattern 1: Simple Async Queue
@@ -187,8 +181,6 @@ Commands ──▶ Command Handler ──▶ Kafka (events, log compaction) ─�
                                           └──▶ Audit / Replay / Recompute
 ```
 
----
-
 ## Key Numbers to Memorize
 
 | Metric | Value |
@@ -201,19 +193,19 @@ Commands ──▶ Command Handler ──▶ Kafka (events, log compaction) ─�
 | Added latency | ~0.1–0.5ms |
 | Typical partition count | 10–200 per topic |
 
----
-
 ## Summary
 
 **What Kafka is:** Distributed append-only log, used as message queue or event stream.
 
 **Core concepts to always mention:**
+
 1. Topics → logical grouping
 2. Partitions → unit of parallelism and ordering
 3. Consumer groups → each partition to one consumer
 4. Offsets → how consumers track progress, how recovery works
 
 **The main interview question:** "How do you partition your data?"
+
 - Choose a key with even hash distribution
 - Same key = same partition = ordering guaranteed
 - Watch for hot partitions on high-cardinality skewed data
@@ -221,9 +213,6 @@ Commands ──▶ Command Handler ──▶ Kafka (events, log compaction) ─�
 **Kafka vs SQS one-liner:** "Kafka for high throughput, replay, and multiple consumers. SQS for simple async queues with built-in retry and DLQ."
 
 **Consumer failure one-liner:** "At-least-once delivery via offset commits. Make consumers idempotent."
-
-
----
 
 ## Related
 

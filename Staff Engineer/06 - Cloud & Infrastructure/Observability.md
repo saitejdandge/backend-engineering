@@ -10,8 +10,6 @@ Observability is the ability to understand the internal state of a system from i
 
 Each pillar has different strengths. You need all three.
 
----
-
 ## Metrics
 
 ### Prometheus
@@ -19,6 +17,7 @@ Each pillar has different strengths. You need all three.
 Pull-based metrics system. Prometheus scrapes `/metrics` endpoints on a schedule. Stores time-series data in its own TSDB.
 
 **Metric types:**
+
 - **Counter:** Always increasing. Resets on restart. Use for request counts, error counts, bytes processed. Query as `rate(metric[5m])`.
 - **Gauge:** Can go up or down. Use for current memory usage, queue depth, active connections.
 - **Histogram:** Samples observations into configurable buckets. Calculates quantiles on the server. Use for request latency, response size.
@@ -63,6 +62,7 @@ container_memory_working_set_bytes{namespace="production"}
 Visualization layer on top of Prometheus (and other data sources: CloudWatch, Datadog, InfluxDB, Loki).
 
 **Dashboard best practices:**
+
 - Top-level: SLO status (is the service healthy right now?)
 - Mid-level: RED metrics (Rate, Errors, Duration) per service
 - Detail level: Resource usage (CPU, memory, connections), custom business metrics
@@ -71,6 +71,7 @@ Visualization layer on top of Prometheus (and other data sources: CloudWatch, Da
 ### The USE Method (for Resources)
 
 For every resource: **U**tilization, **S**aturation, **E**rrors.
+
 - CPU: utilization %, run queue length, context switch errors
 - Memory: utilization %, swap usage, OOM events
 - Disk: utilization %, I/O wait, disk errors
@@ -79,11 +80,10 @@ For every resource: **U**tilization, **S**aturation, **E**rrors.
 ### The RED Method (for Services)
 
 For every service: **R**ate, **E**rrors, **D**uration.
+
 - Rate: requests per second
 - Errors: error rate (fraction of failed requests)
 - Duration: latency (p50, p95, p99)
-
----
 
 ## Logging
 
@@ -107,6 +107,7 @@ logger.info("order_created",
 ```
 
 Output:
+
 ```json
 {"event": "order_created", "order_id": "order-123", "user_id": "user-456", "total": 99.99, "duration_ms": 42, "timestamp": "2024-01-15T10:30:00Z", "level": "info"}
 ```
@@ -114,6 +115,7 @@ Output:
 ### What to Log
 
 **Always include:**
+
 - Timestamp (ISO 8601)
 - Log level (DEBUG, INFO, WARN, ERROR)
 - Request ID / Trace ID (for correlation)
@@ -126,6 +128,7 @@ Output:
 **Log at DEBUG:** Verbose diagnostic info (only enable in dev or for specific debugging sessions)
 
 **Never log:**
+
 - Passwords, tokens, secrets
 - Full credit card numbers or SSNs (PII — log last 4 digits only)
 - Full request bodies (may contain sensitive data)
@@ -140,13 +143,12 @@ Output:
 ### Log Sampling
 
 At high volume (1M+ logs/min), storing every log is expensive. Use sampling for DEBUG/INFO logs:
+
 - Keep 100% of ERROR and WARN
 - Sample INFO at 10-50%
 - Sample DEBUG at 1%
 
 Always keep logs correlated to traces — if a trace is sampled, keep all its logs.
-
----
 
 ## Distributed Tracing
 
@@ -184,17 +186,18 @@ def create_order(user_id: str, items: list):
     with tracer.start_as_current_span("create_order") as span:
         span.set_attribute("user.id", user_id)
         span.set_attribute("order.items_count", len(items))
-        
+
         with tracer.start_as_current_span("db.insert"):
             order = db.insert_order(user_id, items)
             span.set_attribute("order.id", order.id)
-        
+
         return order
 ```
 
 ### Trace Context Propagation
 
 Trace ID and span ID must be passed between services via headers (W3C TraceContext standard):
+
 ```
 traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
 ```
@@ -204,11 +207,10 @@ Most OTel SDKs handle this automatically via HTTP middleware.
 ### Sampling Strategies
 
 100% trace sampling at scale is expensive. Options:
+
 - **Head-based sampling:** Decide at the start whether to sample a request. Simple, but you might sample boring successful requests and miss rare failures.
 - **Tail-based sampling:** Collect all spans, decide whether to keep the trace after it completes. Can prioritize keeping errors and slow traces. More complex infrastructure.
 - **Probability sampling:** Keep X% of all traces. Adjust rate by endpoint (always keep 100% of errors).
-
----
 
 ## Alerting Best Practices
 
@@ -229,6 +231,7 @@ expr: rate(http_errors[5m]) / rate(http_requests[5m]) > 0.01
 ### Every Alert Must Be Actionable
 
 If an alert fires and the engineer can't take an action to fix it, it's not a good alert. Either:
+
 - Fix the underlying issue so it doesn't fire
 - Add the action to the runbook
 - Remove the alert
@@ -244,12 +247,10 @@ Too many alerts → engineers ignore them → real incidents go unnoticed.
 ### SLO-Based Alerting
 
 Alert on error budget burn rate (as described in the SLOs note). This is the gold standard:
+
 - You alert when users are actually being affected at a meaningful rate
 - Fast burn (page): 14.4x burn rate over 1 hour
 - Slow burn (ticket): 1x burn rate over 3 days
-
-
----
 
 ## Related
 

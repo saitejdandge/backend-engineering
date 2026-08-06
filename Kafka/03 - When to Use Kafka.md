@@ -11,8 +11,6 @@ Kafka can operate in two modes. The infrastructure is the same — the differenc
 | **Retention** | Until offset committed (logically consumed)               | Time-based or size-based (default 7 days)   |
 | **Use case**  | Async job processing                                      | Real-time analytics, event sourcing, fanout |
 
----
-
 ## Use Kafka as a Message Queue When...
 
 ### 1. Processing Can Be Done Asynchronously
@@ -20,6 +18,7 @@ Kafka can operate in two modes. The infrastructure is the same — the differenc
 Decouple work that doesn't need to happen inline with the request.
 
 **Example — YouTube Video Upload:**
+
 ```
 User uploads video
        │
@@ -43,6 +42,7 @@ The producer (upload service) and consumer (transcoder) scale independently. A s
 All messages with the same key land on the same partition and are processed in order.
 
 **Example — Virtual Waiting Queue (Ticketmaster):**
+
 ```
 User A arrives at 10:00:00 ──▶  Partition 3, offset 1000
 User B arrives at 10:00:01 ──▶  Partition 3, offset 1001
@@ -71,8 +71,6 @@ Kafka: "orders" topic
 
 Without Kafka, a slow Inventory Service would back-pressure all the way to the Order Service.
 
----
-
 ## Use Kafka as a Stream When...
 
 ### 1. Continuous Real-Time Processing
@@ -80,6 +78,7 @@ Without Kafka, a slow Inventory Service would back-pressure all the way to the O
 Messages are processed as a flowing stream, not discrete jobs.
 
 **Example — Ad Click Aggregator:**
+
 ```
 User clicks on ad
        │
@@ -101,6 +100,7 @@ Click Service ──▶  Kafka: "ad-clicks" topic
 Multiple independent consumer groups each read every message.
 
 **Example — FB Live Comments:**
+
 ```
 User posts comment
        │
@@ -126,8 +126,6 @@ Tomorrow: Replay last 7 days to rebuild search index after corruption
 Next week: Audit trail for compliance investigation
 ```
 
----
-
 ## Decision Checklist for Interviews
 
 ```
@@ -139,8 +137,6 @@ Do I need multiple consumers?         → Yes → Kafka stream (pub/sub)
 Do I need real-time aggregation?      → Yes → Kafka stream + Flink
 Do I need to replay events?           → Yes → Kafka stream (configure retention)
 ```
-
----
 
 ## When NOT to Use Kafka
 
@@ -165,8 +161,6 @@ Upload ──▶ S3: s3://bucket/uploads/video-abc123.mp4
 
 Kafka is optimized for small messages (< 1MB). Large payloads kill throughput and inflate memory pressure on brokers.
 
----
-
 ## Real Interview Examples
 
 | Interview Problem | Kafka Role |
@@ -177,9 +171,6 @@ Kafka is optimized for small messages (< 1MB). Large payloads kill throughput an
 | FB Live Comments | Pub/sub for comment fanout — multiple consumer groups |
 | Web Crawler | Queue for crawl jobs (but SQS may be preferred for built-in retry) |
 | Uber | Stream of driver location events — real-time geospatial processing |
-
-
----
 
 ## Related
 

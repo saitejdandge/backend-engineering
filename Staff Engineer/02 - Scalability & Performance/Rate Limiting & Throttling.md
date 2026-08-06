@@ -7,8 +7,6 @@
 - **Cost control** for expensive operations (LLM API calls, SMS, etc.)
 - **Security** — slow down brute force and credential stuffing attacks
 
----
-
 ## Algorithms
 
 ### Token Bucket
@@ -21,11 +19,13 @@ Sustained rate = token refill rate.
 ```
 
 **Properties:**
+
 - Allows short bursts (up to bucket size)
 - Smooth sustained rate
 - Most commonly used
 
 **Implementation (Redis):**
+
 ```lua
 -- Atomic Lua script in Redis
 local tokens = redis.call('get', key)
@@ -46,6 +46,7 @@ end
 Requests go into a queue (the bucket). They're processed at a fixed rate. If queue is full, requests are dropped.
 
 **Properties:**
+
 - Enforces a strictly uniform output rate
 - No bursting allowed
 - Good for smoothing traffic before hitting a downstream service
@@ -82,8 +83,6 @@ effective_count = prev_count * (1 - elapsed_fraction) + curr_count
 
 **This is what most production systems use.**
 
----
-
 ## Distributed Rate Limiting
 
 In a multi-instance environment, each instance can't maintain its own counter — that would allow N times the limit.
@@ -115,8 +114,6 @@ Good for high-throughput scenarios where ~20% tolerance is acceptable.
 
 Instances gossip their counters periodically. Each uses the max known count. Eventually consistent. Used in Envoy and similar.
 
----
-
 ## Rate Limit Granularity
 
 Define limits at the right level:
@@ -128,8 +125,6 @@ Define limits at the right level:
 - **Global:** Protect your entire system from aggregate overload.
 
 Layer multiple levels: per-user + per-endpoint + global.
-
----
 
 ## Response Headers
 
@@ -144,8 +139,6 @@ Retry-After: 30                # Seconds to wait (on 429 response)
 
 Return **HTTP 429 Too Many Requests** when limit is exceeded.
 
----
-
 ## Throttling vs Rate Limiting
 
 - **Rate Limiting:** Hard reject — over-limit requests get a 429 immediately.
@@ -153,13 +146,12 @@ Return **HTTP 429 Too Many Requests** when limit is exceeded.
 
 Throttling is better for batch processing and background jobs. Rate limiting is better for interactive APIs.
 
----
-
 ## Practical Considerations
 
 ### Rate Limit by Service Tier
 
 Freemium APIs often have tiered limits:
+
 ```
 Free tier:    100 requests/day
 Pro tier:     10,000 requests/day
@@ -175,13 +167,11 @@ Internal services shouldn't be rate limited by the same rules as external client
 ### Monitoring
 
 Key metrics:
+
 - **Rate of 429 responses:** High 429 rate = limit too tight or under attack
 - **Throttle queue depth:** If using throttling, watch for queue growth
 - **Top rate-limited clients:** Identify heavy consumers for outreach or block
 - **Redis latency:** Rate limiting adds to request latency — watch Redis p99
-
-
----
 
 ## Related
 

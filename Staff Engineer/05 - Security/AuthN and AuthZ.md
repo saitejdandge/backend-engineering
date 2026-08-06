@@ -7,8 +7,6 @@
 
 Never conflate the two. A system can authenticate perfectly and still have broken authorization.
 
----
-
 ## OAuth 2.0
 
 An authorization framework (not authentication) that allows third-party apps to access resources on behalf of a user without sharing credentials.
@@ -23,6 +21,7 @@ An authorization framework (not authentication) that allows third-party apps to 
 ### Grant Types
 
 **Authorization Code Flow (for web apps with a backend):**
+
 ```
 User → Client → Authorization Server (login + consent) → Auth Code
 Client → Auth Code + Client Secret → Authorization Server → Access Token + Refresh Token
@@ -33,6 +32,7 @@ The auth code is exchanged for a token server-side — the access token never to
 
 **Authorization Code + PKCE (for SPAs and mobile):**
 Same as above but instead of a client secret (which can't be safely stored client-side), uses a **Proof Key for Code Exchange**:
+
 - Generate random `code_verifier`
 - Hash it: `code_challenge = BASE64URL(SHA256(code_verifier))`
 - Send `code_challenge` in auth request
@@ -40,6 +40,7 @@ Same as above but instead of a client secret (which can't be safely stored clien
 - Authorization server verifies hash matches
 
 **Client Credentials Flow (machine-to-machine):**
+
 ```
 Service A → Client ID + Client Secret → Authorization Server → Access Token
 Service A → Access Token → Resource Server (Service B)
@@ -50,13 +51,12 @@ No user involved. Used for microservice-to-microservice auth.
 ### Scopes
 
 Scopes limit what an access token can do:
+
 ```
 scope=read:orders write:orders read:profile
 ```
 
 The resource server validates that the token has the required scope for the operation.
-
----
 
 ## OIDC (OpenID Connect)
 
@@ -65,8 +65,6 @@ OAuth 2.0 + identity. Adds an **ID Token** (JWT containing user identity) on top
 OIDC is what makes OAuth 2.0 useful for authentication. The ID Token tells you *who* the user is; the Access Token tells you *what* they can do.
 
 **Key endpoint:** `/.well-known/openid-configuration` — discovery document with all OIDC endpoints, supported scopes, and public key URLs.
-
----
 
 ## JWT (JSON Web Token)
 
@@ -79,6 +77,7 @@ eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9   ← Header (base64)
 ```
 
 **Payload claims:**
+
 - `sub`: Subject (user ID)
 - `iss`: Issuer (who created the token)
 - `aud`: Audience (who the token is for)
@@ -116,11 +115,10 @@ decoded = jwt.decode(
 JWTs are stateless — the server doesn't track issued tokens. If a token is stolen, it remains valid until expiry.
 
 Solutions:
+
 - **Short expiry:** 15 minutes for access tokens. Use refresh tokens to get new access tokens.
 - **Token blocklist:** Store revoked JTIs in Redis. Check on every request. Adds latency.
 - **Refresh token rotation:** Issue new refresh token on every use. Old one invalid. Detects theft.
-
----
 
 ## Authorization Models
 
@@ -172,13 +170,12 @@ allow {
 
 Applications query OPA with input data; OPA returns allow/deny. Policies can be updated without redeployment.
 
----
-
 ## API Security Patterns
 
 ### Service-to-Service Auth
 
 Options:
+
 1. **Shared secret (API key):** Simple but hard to rotate, no identity granularity
 2. **Mutual TLS (mTLS):** Both parties present certificates. Identity is cryptographic. Best for microservices.
 3. **JWT with client credentials:** Service authenticates to auth server, gets a JWT, presents it downstream
@@ -186,6 +183,7 @@ Options:
 ### API Gateway Auth
 
 Centralize authentication at the API gateway:
+
 - Gateway validates JWT/API key before forwarding to services
 - Services trust the gateway (validate gateway's internal token or rely on network policy)
 - Services don't need to implement auth — reduces duplication, reduces attack surface
@@ -206,9 +204,6 @@ SELECT * FROM orders;  -- Only returns orders where user_id = 123
 ```
 
 Prevents bugs where application code fails to filter by user — the DB enforces it.
-
-
----
 
 ## Related
 

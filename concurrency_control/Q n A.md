@@ -202,8 +202,6 @@ Time | Txn A                | Txn B
 
 **Answer:** Transaction B **skips row 1** and does not update it. **Explanation:** After the lock is released, Postgres does not blindly apply the update. It re-evaluates the `WHERE` clause against the new committed value — a process called `EvalPlanQual`. The new val is 50, and `50 > 100` is false, so row 1 no longer matches. Postgres silently skips it. The final update only affects rows that still satisfy the `WHERE` clause after the wait. Under **Repeatable Read**, Postgres would not re-evaluate — it would immediately abort with `ERROR: could not serialize access due to concurrent update`.
 
----
-
 ### Scenario 8: The Ghost Reader (MVCC)
 
 **Context:** We have a `t(id, val)` table. Row id=1 has val=100.
@@ -226,8 +224,6 @@ Time | Txn A                | Txn B (SELECT)
 **Question:** Transaction B runs a plain `SELECT` at T3 while Transaction A holds an exclusive lock on row 1 with an uncommitted change. Does Transaction B wait, error, or return a value? What does it see?
 
 **Answer:** Transaction B **succeeds immediately and returns val=100** — the last committed value. **Explanation:** A plain `SELECT` in Postgres never acquires any lock and never waits for locks held by others. Instead, it reads through MVCC — each row has multiple versions, and a `SELECT` reads the version that was committed before the query started. Transaction A's uncommitted change (val=999) lives in a newer, invisible version. Transaction B sees the old committed version (val=100) without touching the lock at all. This is the core of MVCC: readers never block writers, writers never block readers.
-
----
 
 ### Scenario 9: The Peaceful Coexistence (Lock Compatibility)
 
@@ -255,8 +251,6 @@ Time | Txn A                | Txn B
 **Question:** Does Transaction B block at T3, or does it proceed immediately?
 
 **Answer:** Transaction B **proceeds immediately** — no wait. **Explanation:** `FOR NO KEY UPDATE` and `FOR KEY SHARE` are the one pair of locks in Postgres that do not conflict with each other. `FOR NO KEY UPDATE` signals "I am changing non-key columns — the row's identity is unchanged." `FOR KEY SHARE` signals "I just need this row to continue existing." Since neither threatens what the other cares about, they are compatible. This is intentional design: Postgres allows non-key updates and FK checks to run concurrently on the same parent row. If `UPDATE` on non-key columns used `FOR UPDATE` instead, every FK check during inserts would be blocked.
-
----
 
 ### Scenario 10: The Silent Anomaly (Serializable vs Repeatable Read)
 
@@ -291,8 +285,6 @@ Time | Txn A (Dr. A)        | Txn B (Dr. B)
 
 **Answer:** Under **Repeatable Read, both commits succeed** — leaving zero doctors on call, violating the business rule. Under **Serializable, Transaction B is aborted** with `ERROR: could not serialize access due to concurrent update`. **Explanation:** This anomaly is called a *write skew*. Neither transaction modified a row the other had read — Txn A read the count and updated Dr. A; Txn B read the count and updated Dr. B. They touched different rows, so there is no lost update and Repeatable Read sees nothing wrong. But the combined effect violates the invariant. Serializable tracks *read-write dependencies* across transactions and detects that the outcome is impossible under any serial order of execution. It aborts one transaction, forcing a retry that will see the updated count (1) and correctly refuse to proceed.
 
----
-
 ### Scenario 11: Fresh Eyes Every Statement (RC Snapshot Timing)
 
 **Context:** `t(id, val)`, row id=1 val=100. Txn B is Read Committed.
@@ -316,8 +308,6 @@ Time | Txn A                | Txn B (RC)
 **Question:** Txn B runs two identical SELECTs. Txn A commits between them. What does the second SELECT return?
 
 **Answer:** **999**. Under Read Committed each statement gets a fresh snapshot taken at statement start. The second SELECT starts after Txn A has committed, so it sees the new value. This is called a *non-repeatable read* and is expected (and accepted) under RC.
-
----
 
 ### Scenario 12: Frozen in Time (RR Snapshot Timing)
 
@@ -344,8 +334,6 @@ Time | Txn A                | Txn B (RR)
 
 **Answer:** **100** — the original value. Under Repeatable Read the snapshot is fixed at the start of the first statement in the transaction. All subsequent reads in the same transaction use that same snapshot, regardless of commits from other transactions. Non-repeatable reads are prevented by design.
 
----
-
 ### Scenario 13: The Generous Rollback
 
 **Context:** `t(id, val)`, row id=1. Txn A locks it. Txn B is waiting.
@@ -370,8 +358,6 @@ Time | Txn A                | Txn B
 
 **Answer:** Txn B **wakes up, acquires the lock, and sees the original value** (before Txn A's change). A rollback discards all changes — the row reverts to its pre-Txn-A state. Txn B re-evaluates the WHERE clause against this reverted version. Since it was already a candidate, it matches and the lock is granted. This behavior is the same across all isolation levels.
 
----
-
 ### Scenario 14: Peaceful Neighbors (Different Rows)
 
 **Context:** `t(id, val)` with rows id=1, id=2.
@@ -390,8 +376,6 @@ Time | Txn A                | Txn B
 **Question:** Txn A and Txn B update different rows simultaneously. Do they conflict?
 
 **Answer:** **No conflict — both proceed immediately.** Row-level locking means each transaction only locks the specific rows it touches. Txn A's lock on row 1 has no effect on Txn B's ability to lock row 2. This is why PostgreSQL's row-level locking provides far more concurrency than table-level locking would.
-
----
 
 ### Scenario 15: PK vs Non-PK Update
 
@@ -416,8 +400,6 @@ Time | Txn A (update email) | Txn B (update id)
 
 **Answer:** Txn A acquires **FOR NO KEY UPDATE** (only non-key columns changed). Txn B acquires **FOR UPDATE** (changing the primary key). `FOR UPDATE` conflicts with `FOR NO KEY UPDATE`, so **Txn B blocks and waits** for Txn A to finish. Postgres always uses the weakest safe lock — updating email doesn't need FOR UPDATE, but changing a PK does because it threatens referential integrity of any FK pointing at this row.
 
----
-
 ### Scenario 16: Two Ghosts Insert (No Row Lock on INSERT)
 
 **Context:** Empty `t(id, val)` table.
@@ -435,8 +417,6 @@ Time | Txn A                | Txn B
 **Question:** Two transactions insert different rows simultaneously. Do they block each other?
 
 **Answer:** **No — both proceed immediately.** INSERTs on different rows acquire no conflicting locks. Each transaction independently creates a new row version visible only to itself until commit. Row-level locks on inserts only come into play for FK checks (FOR KEY SHARE on the parent) or unique constraint enforcement — not for unrelated rows.
-
----
 
 ### Scenario 17: Phantom Read (RC)
 
@@ -462,8 +442,6 @@ Time | Txn A                | Txn B (RC)
 
 **Answer:** **2** — Txn B sees the newly inserted row. Under Read Committed, each statement uses a fresh snapshot, so the second SELECT sees Txn A's committed insert. This is called a *phantom read* — a row that wasn't there before has appeared. Under Repeatable Read or Serializable, the second SELECT would still return 1 because the snapshot is fixed at transaction start.
 
----
-
 ### Scenario 18: No Phantoms (RR)
 
 **Context:** Same as Scenario 17. Txn B is now Repeatable Read.
@@ -488,8 +466,6 @@ Time | Txn A                | Txn B (RR)
 **Question:** Same scenario but Txn B is Repeatable Read. What does the second COUNT return?
 
 **Answer:** **1** — the phantom row is invisible. Txn B's snapshot was fixed at the start of the transaction (before Txn A's insert). Repeatable Read prevents phantom reads by design. This makes RR suitable for multi-query reports where you need a stable view of the data throughout the transaction.
-
----
 
 ### Scenario 19: The Empty Queue (SKIP LOCKED Exhaustion)
 
@@ -518,8 +494,6 @@ Time | Txn A                | Txn B
 
 **Answer:** **An empty result set** — no rows, no error, no wait. `SKIP LOCKED` skips all locked rows. If every matching row is locked, the query returns nothing. The application must handle this gracefully (e.g. sleep briefly and retry, or exit the worker loop). This is correct behavior — Txn B should not process the same job as Txn A.
 
----
-
 ### Scenario 20: Seeing Your Own Work
 
 **Context:** `t(id, val)`, row id=1 val=100.
@@ -537,8 +511,6 @@ Time | Txn A (single txn)
 **Question:** A transaction updates a row and immediately SELECTs it — before committing. What does the SELECT return?
 
 **Answer:** **999** — the transaction's own uncommitted change. A transaction always sees the effects of its own prior statements, regardless of isolation level. MVCC gives each transaction a view that includes its own writes on top of the external snapshot. Other transactions still see the old committed value (100) until this transaction commits.
-
----
 
 ### Scenario 21: Locks Live Until COMMIT
 
@@ -564,8 +536,6 @@ Time | Txn A                | Txn B
 
 **Answer:** **Only after COMMIT (T5).** Row-level locks are held for the entire duration of the transaction — they are released atomically when the transaction commits or rolls back, not when the individual statement that acquired them finishes. A long-running transaction holds all its locks until the very end, which is why keeping transactions short matters.
 
----
-
 ### Scenario 22: Shared Readers Club (FOR SHARE)
 
 **Context:** `t(id, val)`, row id=1 val=500.
@@ -588,8 +558,6 @@ Time | Txn A         | Txn B         | Txn C
 **Question:** Txn A and Txn B both hold FOR SHARE on row 1. Txn C tries to UPDATE. What happens?
 
 **Answer:** Txn C **blocks and waits** until both Txn A and Txn B commit. FOR SHARE locks are compatible with each other — any number of transactions can hold FOR SHARE on the same row simultaneously. But a write (FOR NO KEY UPDATE from UPDATE) conflicts with FOR SHARE. Txn C must wait for all share-holders to release before it can proceed. This is the classic readers-writer lock pattern.
-
----
 
 ### Scenario 23: Row Deleted Mid-Wait
 
@@ -618,8 +586,6 @@ Time | Txn A                | Txn B
 
 **Answer:** Txn B **silently skips row 1** — no error. When Txn B wakes up after the wait, it checks the current state of the row. The row no longer exists in any live version, so there is nothing to lock or update. Postgres skips it and continues processing other candidate rows. This behavior is the same under all isolation levels.
 
----
-
 ### Scenario 24: The Unique Collision
 
 **Context:** `t(id, val)` with a UNIQUE constraint on `val`. No row with val=100 exists yet.
@@ -639,8 +605,6 @@ Time | Txn A                | Txn B
 **Question:** Txn B inserts a row with val=100 while Txn A has an uncommitted insert with the same val. What happens?
 
 **Answer:** Txn B **blocks and waits**. Postgres cannot immediately tell whether Txn A's insert will commit (creating a real conflict) or rollback (making the value available). So Txn B waits. If Txn A commits, Txn B wakes up and gets a **UNIQUE CONSTRAINT VIOLATION** error. If Txn A rolls back, Txn B proceeds and its insert succeeds.
-
----
 
 ### Scenario 25: NOWAIT on a Multi-Row Scan
 
@@ -663,8 +627,6 @@ Time | Other Txn            | Txn A (NOWAIT)
 
 **Answer:** Txn A **errors immediately** — it does not lock row 3. `NOWAIT` means "if any row cannot be locked instantly, abort." Unlike `SKIP LOCKED` which moves past locked rows, `NOWAIT` treats a locked row as a hard failure and aborts the entire statement with `ERROR: could not obtain lock on row`. The application must catch this error and retry.
 
----
-
 ### Scenario 26: Advisory Lock — Try vs Block
 
 **Context:** A cron job that should only run one instance at a time. Key = 42.
@@ -683,8 +645,6 @@ Time | Process 1                  | Process 2
 **Question:** Process 1 acquires the advisory lock. Process 2 calls `pg_try_advisory_lock(42)` at the same time. What does it return, and what should the application do?
 
 **Answer:** Process 2 gets **false** — immediately, with no wait. `pg_try_advisory_lock` is the non-blocking variant: it returns true if the lock was acquired, false if it was already held. The application should check the return value and skip the job if false. If you want Process 2 to wait instead, use `pg_advisory_lock(42)` (blocking). Use try-variant for cron jobs where skipping is fine; use blocking variant where the second process must eventually run.
-
----
 
 ### Scenario 27: Session vs Transaction Advisory Lock
 
@@ -706,8 +666,6 @@ Time | Txn A (session-level)      | Txn B
 **Question:** Txn A acquires a session-level advisory lock and then rolls back the transaction. Can Txn B acquire the lock?
 
 **Answer:** **No — Txn B returns false.** Session-level advisory locks (`pg_advisory_lock`) survive transaction rollbacks. They are tied to the database session (connection), not the transaction. The lock persists until explicitly released with `pg_advisory_unlock(99)` or until the session disconnects. If you want the lock to release automatically on commit/rollback, use `pg_advisory_xact_lock(99)` — the transaction-level variant — which behaves like a row lock.
-
----
 
 ### Scenario 28: RC — Two Sequential Updates
 
@@ -735,8 +693,6 @@ Time | Txn A                | Txn B
 
 **Answer:** **210**. Under Read Committed, the UPDATE re-fetches the latest committed version of the row after acquiring the lock. Even though Txn A read 100 earlier, the `val + 10` expression is evaluated against the current committed value (200). The result is 210. This is EvalPlanQual in action — the expression is applied to the row as it exists at lock time, not as it existed at scan time.
 
----
-
 ### Scenario 29: Serializable Read-Only — Never Aborts
 
 **Context:** A financial report reading from multiple tables. Isolation level: Serializable.
@@ -762,8 +718,6 @@ Time | Report Txn (Serializable RO) | Write Txn
 
 **Answer:** **No — it completes successfully.** Read-only transactions under Serializable are never aborted with serialization errors. They take a snapshot and read consistently from it, but since they introduce no writes, they cannot be part of a read-write dependency cycle. Postgres knows this and exempts them. This makes Serializable + READ ONLY the ideal choice for reports and audits that need a fully consistent view without any risk of retry.
 
----
-
 ### Scenario 30: Upgrade Attempt — FOR SHARE to FOR UPDATE
 
 **Context:** `t(id, val)`, row id=1. Two transactions both hold FOR SHARE.
@@ -786,9 +740,6 @@ Time | Txn A                | Txn B
 **Question:** Txn A already holds FOR SHARE on row 1 and now tries to acquire FOR UPDATE on the same row (within the same transaction). Txn B also holds FOR SHARE. What happens?
 
 **Answer:** Txn A **deadlocks with Txn B**. Upgrading from a shared lock to an exclusive lock requires that no other transaction holds a conflicting lock. Txn B's FOR SHARE conflicts with Txn A's FOR UPDATE request. So Txn A waits for Txn B's share lock. But if Txn B tries the same upgrade (or holds any other lock Txn A needs), a cycle forms and Postgres detects a deadlock. The fix is to acquire the strongest lock you will need upfront — start with FOR UPDATE if you know you will write.
-
-
----
 
 ## Related
 

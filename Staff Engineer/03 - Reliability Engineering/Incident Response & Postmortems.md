@@ -11,8 +11,6 @@ Define severity before an incident happens. Ambiguity during an incident costs t
 | SEV-3 | Partial degradation, workaround exists | < 1 hour | Slow search, minor feature broken |
 | SEV-4 | Minor issue, no immediate user impact | Next business day | Dashboard metric wrong, UI glitch |
 
----
-
 ## Incident Response Playbook
 
 ### Detect
@@ -26,6 +24,7 @@ Define severity before an incident happens. Ambiguity during an incident costs t
 ### Triage
 
 Immediately ask:
+
 1. What is the user impact? (what % of users, which features)
 2. What is the severity? (use your definition above)
 3. Is it still happening or was it transient?
@@ -50,6 +49,7 @@ Hypothesis → Test → Observe → Narrow or pivot
 ```
 
 Useful starting questions:
+
 - When did it start? (correlate with deployments, config changes, traffic spikes)
 - What changed? (recent deploys, infra changes, upstream dependencies)
 - Where is it failing? (which service, which region, which user segment)
@@ -60,9 +60,11 @@ Tools: distributed traces (Jaeger, Zipkin), centralized logs (Datadog, Splunk, L
 ### Communicate
 
 **Internal (every 30 minutes minimum):**
+
 > "Update: We've identified the issue is in the payment gateway integration. The team is working on a fix. ETA unknown."
 
 **External (status page):**
+
 > "We are investigating increased error rates on the checkout page. We will provide an update in 30 minutes."
 
 Be honest about uncertainty. "ETA unknown" is better than a missed ETA that erodes trust.
@@ -72,6 +74,7 @@ Be honest about uncertainty. "ETA unknown" is better than a missed ETA that erod
 Mitigation ≠ fix. Mitigation reduces user impact immediately while the root cause is being fixed.
 
 Common mitigations:
+
 - **Rollback deployment** (if a recent deploy caused it)
 - **Feature flag off** (disable the broken feature)
 - **Increase capacity** (if it's a resource saturation issue)
@@ -88,13 +91,12 @@ Mitigation speed matters more than elegance. A dirty fix that stops user pain in
 - Declare incident resolved with a clear "resolved at" timestamp
 - Send final customer communication
 
----
-
 ## Blameless Postmortem
 
 The postmortem is not about finding who to blame — it's about finding why the system failed and how to prevent it. People make mistakes; systems should be designed to withstand them.
 
 **When to write a postmortem:**
+
 - All SEV-1 incidents
 - All SEV-2 incidents
 - Any SEV-3 with unusual characteristics or repeated occurrence
@@ -122,6 +124,7 @@ Chronological log with timestamps. Key events: when it started, when detected, w
 **3. Root Cause Analysis**
 
 Use **5 Whys** to get past symptoms to root cause:
+
 ```
 Why did users get errors? → Payment service returned 500s
 Why did payment service error? → DB queries timing out
@@ -133,17 +136,20 @@ Why wasn't this caught? → No migration review process and no load test against
 Real root causes are almost always process/system failures, not individual mistakes.
 
 **4. Impact**
+
 - Duration: X minutes
 - Users affected: N (or % of traffic)
 - Revenue impact: $X (if calculable)
 - SLO impact: X% of error budget consumed
 
 **5. What Went Well**
+
 - Detection was fast (alert fired within 5 minutes)
 - Rollback procedure worked smoothly
 - Communication was clear and timely
 
 **6. What Went Poorly**
+
 - The issue wasn't caught in staging
 - Alert threshold was too loose (should have fired earlier)
 - Runbook was out of date
@@ -151,6 +157,7 @@ Real root causes are almost always process/system failures, not individual mista
 **7. Action Items**
 
 Each action item must have:
+
 - A clear, specific task (not "improve monitoring" — too vague)
 - An owner (specific person, not a team)
 - A due date
@@ -171,13 +178,12 @@ Each action item must have:
 - **Too long:** If nobody reads it, it helped no one. Aim for 1-2 pages max.
 - **Too quick:** Writing a postmortem 30 minutes after resolution means you haven't fully understood root cause.
 
----
-
 ## On-Call Best Practices
 
 ### Runbooks
 
 A runbook is a documented procedure for handling a specific alert or scenario. Good runbooks:
+
 - Describe what the alert means and its likely causes
 - Provide step-by-step diagnostic commands
 - List common fixes with exact commands/steps
@@ -211,9 +217,6 @@ A runbook is a documented procedure for handling a specific alert or scenario. G
 - **Compensation:** On-call shifts should be compensated (time off or financial)
 - **Follow the sun:** Distribute on-call across time zones to avoid overnight shifts
 - **Rotation size:** Minimum 5-6 people in a rotation to avoid burnout
-
-
----
 
 ## Related
 

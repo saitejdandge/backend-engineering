@@ -20,18 +20,14 @@ In practice, **network partitions are unavoidable** in any distributed system. S
 
 **Key insight for staff engineers:** CAP is a *theoretical model*. Real systems exist on a spectrum. Tools like DynamoDB let you tune consistency per-operation (eventually consistent reads vs. strongly consistent reads). Design decisions should be framed around *which guarantees matter for which operations*, not "we picked CP."
 
----
-
 ## PACELC Theorem (CAP Extension)
 
 CAP only covers behavior during a partition. **PACELC** extends it to also consider latency vs. consistency trade-offs even when the network is healthy:
 
-> If Partition → choose between Availability and Consistency.  
+> If Partition → choose between Availability and Consistency.
 > Else (no partition) → choose between Latency and Consistency.
 
 Example: Cassandra is PA/EL — it favors availability during partitions and low latency otherwise. DynamoDB with strong reads is PA/EC.
-
----
 
 ## Eventual Consistency
 
@@ -45,8 +41,6 @@ It does **not** mean data is always correct or that reads are always fresh. It m
 - **Vector Clocks:** Track causality between operations. Each node has a logical clock. Allows detecting conflicts. Used historically by Dynamo.
 - **CRDTs (Conflict-free Replicated Data Types):** Data structures that can be merged deterministically. Great for counters, sets, registers. No coordination needed.
 - **Application-level resolution:** Let the application decide (e.g., merge shopping carts instead of overwriting).
-
----
 
 ## Consensus Algorithms
 
@@ -70,6 +64,7 @@ Raft is a consensus algorithm designed for understandability. It underpins etcd 
 The original consensus algorithm. More complex than Raft, but the conceptual foundation of many systems.
 
 Phases:
+
 1. **Prepare phase:** Proposer sends a ballot number to Acceptors. Acceptors promise not to accept older ballots.
 2. **Accept phase:** Proposer sends the value. Acceptors accept if they haven't promised a newer ballot.
 3. **Learn phase:** Learners are notified of the accepted value.
@@ -83,8 +78,6 @@ Phases:
 - Atomic broadcast
 - Configuring cluster membership
 - Coordination across microservices requiring exactly-once semantics
-
----
 
 ## Replication
 
@@ -109,8 +102,6 @@ With N replicas, W write acknowledgments required, R read replicas queried:
 - **R = 1** → fast reads, stale data possible
 - Typical: N=3, W=2, R=2
 
----
-
 ## Consistency Models (Spectrum)
 
 From strongest to weakest:
@@ -122,8 +113,6 @@ From strongest to weakest:
 5. **Read Your Writes:** After writing, you'll always read your own write.
 6. **Eventual Consistency (weakest):** No real-time guarantee; convergence over time.
 
----
-
 ## Distributed Transactions
 
 ### Two-Phase Commit (2PC)
@@ -134,6 +123,7 @@ A protocol for atomic commits across multiple nodes:
 2. **Phase 2 (Commit/Abort):** If all vote yes, coordinator sends commit. Otherwise, sends abort.
 
 **Problems:**
+
 - Coordinator is a single point of failure
 - Blocking: if coordinator crashes after prepare, participants are stuck holding locks
 - Not tolerant of network partitions
@@ -146,8 +136,6 @@ An alternative to 2PC for long-lived transactions across microservices. Instead 
 - **Orchestration-based:** A saga orchestrator tells each service what to do and handles failures.
 
 **Example:** Book travel (flight + hotel + car). If car booking fails, cancel hotel and flight via compensating transactions.
-
----
 
 ## Clocks in Distributed Systems
 
@@ -173,8 +161,6 @@ Physical clocks drift. You cannot rely on wall clock time for ordering events ac
 - Stays close to wall clock time while providing causal ordering
 - Used in CockroachDB
 
----
-
 ## Key Interview / Design Questions to Practice
 
 - Design a distributed key-value store
@@ -182,9 +168,6 @@ Physical clocks drift. You cannot rely on wall clock time for ordering events ac
 - How do you handle split-brain in a leader election system?
 - What happens to your system during a network partition?
 - How do you ensure exactly-once delivery in a message queue?
-
-
----
 
 ## Related
 

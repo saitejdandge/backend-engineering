@@ -6,25 +6,27 @@ Caching stores copies of data closer to where it's needed to reduce latency, red
 
 The cache hit rate is the key metric: `hits / (hits + misses)`. A 90% hit rate means 90% of requests never touch the origin.
 
-
 ## Cache Placement
 
 ### Client-Side Cache
+
 Browser cache, mobile app cache. Controlled via HTTP headers (`Cache-Control`, `ETag`, `Last-Modified`). No server involvement on cache hit.
 
 ### CDN (Content Delivery Network)
+
 Geographically distributed caches. Cache static assets (images, JS, CSS) and increasingly dynamic content. Hit rate very high for public content. Examples: Cloudflare, Fastly, AWS CloudFront.
 
 ### Reverse Proxy Cache
+
 Sits in front of application servers. Caches HTTP responses. Examples: Varnish, Nginx. Good for read-heavy APIs with cacheable responses.
 
 ### Application-Level Cache
+
 In-process cache (Guava Cache, Caffeine) or out-of-process (Redis, Memcached). Most control, most flexibility.
 
 ### Database Query Cache
-MySQL query cache (deprecated in 8.0), PostgreSQL doesn't have one. Better to cache at application layer.
 
----
+MySQL query cache (deprecated in 8.0), PostgreSQL doesn't have one. Better to cache at application layer.
 
 ## Cache Write Strategies
 
@@ -93,8 +95,6 @@ Read:
 **Pros:** Avoids polluting cache with write-once data.
 **Cons:** First read after write always misses.
 
----
-
 ## Cache Eviction Policies
 
 When cache is full, what to evict?
@@ -107,29 +107,32 @@ When cache is full, what to evict?
 
 **Redis default:** LRU with configurable `maxmemory-policy` (allkeys-lru, volatile-lru, allkeys-random, etc.)
 
----
-
 ## Cache Invalidation
 
 > "There are only two hard things in Computer Science: cache invalidation and naming things." — Phil Karlton
 
 ### Time-Based Expiration (TTL)
+
 Simple. Set a TTL and let it expire. Guarantees eventual freshness. Stale data is possible within the TTL window.
 
 Choose TTL based on acceptable staleness: user profile (1 hour), product catalog (5 minutes), stock price (10 seconds).
 
 ### Event-Driven Invalidation
+
 When data changes, explicitly invalidate or update the cache entry. More complex but more accurate.
 
 Options:
+
 - **Delete on write:** After DB write, delete the cache key. Next read repopulates. (Cache-aside pattern)
 - **Update on write:** After DB write, update the cache directly. Consistent but complex under concurrent writes.
 - **Pub/Sub invalidation:** Write publishes an event; a cache invalidation consumer listens and deletes entries. Good for distributed cache invalidation.
 
 ### Cache Stampede / Thundering Herd
+
 When a popular cache entry expires, many requests simultaneously miss and all hammer the DB.
 
 Solutions:
+
 - **Probabilistic early expiration (PER):** Re-fetch slightly before TTL with some probability based on how close to expiry
 - **Lock / mutex:** First cache miss acquires a lock, re-fetches, populates. Others wait. Risk of lock bottleneck.
 - **Background refresh:** Refresh cache asynchronously before TTL expires. Serve slightly stale data during refresh.
@@ -142,8 +145,6 @@ base_ttl = 3600  # 1 hour
 jitter = random.randint(0, 300)  # up to 5 minutes variance
 cache.set(key, value, ttl=base_ttl + jitter)
 ```
-
----
 
 ## Distributed Cache Patterns
 
@@ -175,13 +176,12 @@ When you have multiple cache nodes, consistent hashing distributes keys across n
 
 Virtual nodes (vnodes) improve balance by mapping each physical node to multiple positions on the hash ring.
 
----
-
 ## Cache Design Considerations
 
 ### What to Cache
 
 Good candidates:
+
 - Expensive DB queries (aggregations, joins across large tables)
 - Computed results (recommendation scores, feed rankings)
 - Frequently read, rarely changed data (config, product catalog)
@@ -189,6 +189,7 @@ Good candidates:
 - Rate limiting counters
 
 Poor candidates:
+
 - Highly personalized data with near-zero reuse
 - Data that changes more often than it's read
 - Data with strict consistency requirements
@@ -196,6 +197,7 @@ Poor candidates:
 ### Cache Key Design
 
 Keys should be:
+
 - **Descriptive:** `user:123:profile` not `u123p`
 - **Namespaced:** Avoid collisions between services
 - **Versioned:** `user:v2:123:profile` lets you change schema without cache poisoning
@@ -203,14 +205,12 @@ Keys should be:
 ### Monitoring Cache Health
 
 Key metrics:
+
 - **Hit rate:** Target > 90% for effectiveness
 - **Eviction rate:** High eviction = cache too small
 - **Memory usage:** Approaching limit triggers eviction
 - **Latency:** Redis p99 should be < 1ms for most use cases
 - **Connection count:** Exhausted connection pool kills throughput
-
-
----
 
 ## Related
 

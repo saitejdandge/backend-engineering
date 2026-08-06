@@ -3,14 +3,13 @@
 ## Why NoSQL
 
 NoSQL databases trade some ACID guarantees and query flexibility for:
+
 - Horizontal scalability (sharding built-in)
 - Flexible schemas (no migration required for new fields)
 - Optimized data models for specific access patterns
 - High write throughput
 
 **Not a replacement for RDBMS** — use the right tool for the job. Most production systems use both.
-
----
 
 ## DynamoDB (Wide-Column / Key-Value)
 
@@ -38,6 +37,7 @@ This is the **single-table design** pattern — store multiple entity types in o
 DynamoDB is **access-pattern driven**. Design the data model around how you'll query it, not around entities.
 
 Define all access patterns before designing the schema:
+
 - Get all orders for a user → PK = `USER#<id>`, query by PK
 - Get a specific order → PK = `USER#<id>`, SK = `ORDER#<id>`
 - Get all items in an order → PK = `ORDER#<id>`, SK begins with `ITEM#`
@@ -45,6 +45,7 @@ Define all access patterns before designing the schema:
 ### Global Secondary Indexes (GSI)
 
 Alternative access patterns via separate indexes:
+
 ```
 Base table PK: USER#<id>, SK: ORDER#<id>
 GSI1 PK: STATUS#pending, SK: ORDER#<id>   -- Query all pending orders
@@ -78,8 +79,6 @@ dynamodb.transact_write_items(
 ```
 
 2x cost vs non-transactional. Still eventual consistency across regions in global tables.
-
----
 
 ## Cassandra (Wide-Column)
 
@@ -132,8 +131,6 @@ Deletes in Cassandra write a **tombstone** (a deletion marker). Tombstones accum
 - Predictable, well-defined query patterns
 - Data that grows forever (append-only)
 
----
-
 ## MongoDB (Document)
 
 Flexible JSON-like documents. Supports rich queries, secondary indexes, and aggregations.
@@ -158,6 +155,7 @@ Flexible JSON-like documents. Supports rich queries, secondary indexes, and aggr
 ```
 
 **Embed vs Reference:**
+
 - **Embed:** Store related data in the same document. Fast reads (one query). Document size limit: 16MB. Use when data is always accessed together.
 - **Reference:** Store IDs and look up separately. Flexible, avoids document bloat. Use when related data is large or accessed independently.
 
@@ -208,8 +206,6 @@ try {
 
 Performance: transactions have overhead. Use only when necessary.
 
----
-
 ## Redis (In-Memory)
 
 Already covered in Caching Strategies, but Redis is also a full data store.
@@ -234,8 +230,6 @@ Already covered in Caching Strategies, but Redis is also a full data store.
 Automatic data sharding across multiple nodes. 16,384 hash slots divided across masters. Each master has replicas.
 
 **Limitation:** Multi-key commands only work if all keys map to the same slot. Use hash tags `{user:123}` to force co-location.
-
----
 
 ## Elasticsearch (Search Engine)
 
@@ -288,9 +282,6 @@ GET /orders/_search
 - Geospatial queries
 
 **Not a primary database.** Data durability is lower than PostgreSQL. Use as a secondary store synced from your primary DB.
-
-
----
 
 ## Related
 

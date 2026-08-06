@@ -44,8 +44,6 @@ ProxySQL is a **high-performance MySQL proxy** that sits between your applicatio
 
 **Not just MySQL:** ProxySQL also supports Percona XtraDB Cluster, Galera Cluster, MySQL Group Replication, and Amazon Aurora.
 
----
-
 ## Architecture
 
 ```
@@ -89,8 +87,6 @@ mysql_replication_hostgroups
 global_variables
 ```
 
----
-
 ## How ProxySQL Intercepts Queries
 
 1. App connects to ProxySQL on port 6033 (looks like MySQL)
@@ -106,8 +102,6 @@ global_variables
 
 **The app has no idea any of this happened.** It just gets a result.
 
----
-
 ## ProxySQL vs PgBouncer vs Nginx
 
 | Feature | ProxySQL (MySQL) | PgBouncer (PostgreSQL) | Nginx (HTTP) |
@@ -120,8 +114,6 @@ global_variables
 | Query cache | Yes (basic) | No | Yes |
 | Admin interface | SQL on port 6032 | Config file | Config file |
 | Failover detection | Yes (built-in) | No | With upstream checks |
-
----
 
 ## Installation
 
@@ -148,8 +140,6 @@ systemctl enable proxysql
 mysql -u admin -padmin -h 127.0.0.1 -P 6032
 ```
 
----
-
 ## Minimum Working Config
 
 ```bash
@@ -173,14 +163,14 @@ After starting, configure everything via SQL on port 6032:
 
 ```sql
 -- Add backend servers
-INSERT INTO mysql_servers(hostgroup_id, hostname, port) 
+INSERT INTO mysql_servers(hostgroup_id, hostname, port)
 VALUES (10, 'mysql-primary', 3306);
 
-INSERT INTO mysql_servers(hostgroup_id, hostname, port) 
+INSERT INTO mysql_servers(hostgroup_id, hostname, port)
 VALUES (20, 'mysql-replica-1', 3306);
 
 -- Add app user
-INSERT INTO mysql_users(username, password, default_hostgroup) 
+INSERT INTO mysql_users(username, password, default_hostgroup)
 VALUES ('appuser', 'password', 10);
 
 -- Add read/write split rule
@@ -197,9 +187,6 @@ SAVE MYSQL SERVERS TO DISK;
 SAVE MYSQL USERS TO DISK;
 SAVE MYSQL QUERY RULES TO DISK;
 ```
-
-
----
 
 ## Related
 

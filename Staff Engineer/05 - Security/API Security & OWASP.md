@@ -13,6 +13,7 @@ Authorization: Bearer <user_456_token>
 ```
 
 **Fix:**
+
 - Always verify the authenticated user has access to the specific object being requested
 - Never trust client-supplied IDs without authorization check
 - Use indirect references (UUIDs instead of sequential integers reduce guessability, but don't fix the underlying auth bug)
@@ -38,6 +39,7 @@ def get_order(order_id: str, current_user: User):
 - Sensitive tokens in URLs (logs, browser history)
 
 **Fix:**
+
 - Enforce strong password policy
 - Implement rate limiting on auth endpoints
 - Use short-lived JWTs (15 min) + refresh tokens
@@ -54,6 +56,7 @@ PUT /api/users/123
 ```
 
 **Fix:**
+
 - Use explicit allowlist of fields that can be updated (not blacklist)
 - Never bind request body directly to ORM model (mass assignment vulnerability)
 
@@ -72,6 +75,7 @@ user.update(updates)
 No limits on request payload size, query depth, or computation. Enables DoS.
 
 **Fix:**
+
 - Limit request body size (nginx `client_max_body_size`, app-level limits)
 - Limit pagination page size (max 100 items, not unlimited)
 - Limit GraphQL query depth and complexity
@@ -87,6 +91,7 @@ DELETE /api/users/789      # Should require admin or own account
 ```
 
 **Fix:**
+
 - Enforce role/permission checks at the function level, not just at the route level
 - Don't rely on hiding endpoints
 - Use middleware/decorator that enforces permissions
@@ -96,6 +101,7 @@ DELETE /api/users/789      # Should require admin or own account
 APIs designed for legitimate use but with no abuse protection. Inventory reservation abuse, automated form submission, scalper bots.
 
 **Fix:**
+
 - CAPTCHA for human-verification flows
 - Device fingerprinting
 - Business logic rate limiting (max 3 promo codes per user per day)
@@ -113,6 +119,7 @@ POST /api/fetch-preview
 ```
 
 **Fix:**
+
 - Validate and allowlist URLs that can be fetched
 - Block requests to private IP ranges (10.x, 172.16.x, 192.168.x, 169.254.x)
 - Run fetch operations in isolated network environments
@@ -127,6 +134,7 @@ POST /api/fetch-preview
 - Unpatched dependencies
 
 **Fix:**
+
 - Security hardening checklist for every deployment
 - Automated security scanning in CI (SAST, dependency scanning)
 - Regular dependency updates (Dependabot)
@@ -137,6 +145,7 @@ POST /api/fetch-preview
 Undocumented APIs, deprecated versions still running, shadow APIs.
 
 **Fix:**
+
 - API versioning with explicit deprecation schedule
 - API discovery/documentation (OpenAPI)
 - Decommission old API versions on schedule
@@ -147,11 +156,10 @@ Undocumented APIs, deprecated versions still running, shadow APIs.
 Trusting downstream API data without validation. Blind deserialization. Following redirects blindly.
 
 **Fix:**
+
 - Validate and sanitize data received from third-party APIs
 - Don't deserialize untrusted data into executable code
 - Handle errors from downstream APIs explicitly
-
----
 
 ## Injection Attacks
 
@@ -168,6 +176,7 @@ cursor.execute(query, (user_input,))
 ```
 
 **Prevention:**
+
 - Always use parameterized queries / prepared statements
 - Use an ORM (but still use parameterized queries for raw SQL)
 - Principle of least privilege for DB user (no DROP, no admin permissions)
@@ -195,8 +204,6 @@ import subprocess
 subprocess.run(["convert", filename, "output.png"], check=True)
 ```
 
----
-
 ## Secrets Management
 
 ### What Counts as a Secret
@@ -217,17 +224,20 @@ subprocess.run(["convert", filename, "output.png"], check=True)
 ### Where to Store Secrets
 
 **HashiCorp Vault:**
+
 - Dynamic secrets (generates DB credentials on demand with automatic expiry)
 - Fine-grained access policies
 - Secret leasing and renewal
 - Audit log of all secret access
 
 **AWS Secrets Manager:**
+
 - Managed service. Automatic rotation for RDS passwords.
 - Integrated with IAM for access control.
 - `secretsmanager:GetSecretValue` API call at runtime.
 
 **Kubernetes Secrets + External Secrets Operator:**
+
 - Store secrets in Vault/AWS Secrets Manager
 - External Secrets Operator syncs them into Kubernetes Secrets
 - Applications consume as environment variables or mounted files
@@ -235,13 +245,12 @@ subprocess.run(["convert", filename, "output.png"], check=True)
 ### Rotation
 
 Rotate secrets regularly and immediately upon suspected compromise:
+
 - Service credentials: every 90 days
 - Root/admin credentials: every 30 days
 - API keys: every 6 months (or upon staff departure)
 
 Support zero-downtime rotation: accept both old and new secret during transition period.
-
----
 
 ## Transport Security
 
@@ -250,9 +259,11 @@ Support zero-downtime rotation: accept both old and new secret during transition
 - **TLS 1.2 minimum**, TLS 1.3 preferred (faster handshake, better cipher suites)
 - **Disable SSLv3, TLS 1.0, TLS 1.1** — all have known vulnerabilities
 - **HSTS (HTTP Strict Transport Security):** Browser won't connect over HTTP after first HTTPS visit
+
   ```
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   ```
+
 - **Certificate pinning** (mobile apps): Reject certificates not matching expected fingerprint
 
 ### mTLS (Mutual TLS)
@@ -260,14 +271,12 @@ Support zero-downtime rotation: accept both old and new secret during transition
 Both client and server present certificates. Server verifies client identity cryptographically.
 
 Used for:
+
 - Service-to-service authentication in microservices
 - API authentication for high-security clients
 - Zero-trust network access
 
 Implementation with a service mesh (Istio) handles mTLS automatically between services — no application code changes.
-
-
----
 
 ## Related
 

@@ -30,10 +30,10 @@ GRANT REPLICATION CLIENT ON *.* TO 'proxysql_monitor'@'%';
 -- (REPLICATION CLIENT needed for SHOW SLAVE STATUS)
 
 -- Configure in ProxySQL
-UPDATE global_variables SET variable_value = 'proxysql_monitor' 
+UPDATE global_variables SET variable_value = 'proxysql_monitor'
 WHERE variable_name = 'mysql-monitor_username';
 
-UPDATE global_variables SET variable_value = 'strong_password' 
+UPDATE global_variables SET variable_value = 'strong_password'
 WHERE variable_name = 'mysql-monitor_password';
 ```
 
@@ -41,18 +41,18 @@ WHERE variable_name = 'mysql-monitor_password';
 
 ```sql
 -- Monitor interval (ms) — how often ProxySQL checks backend health
-UPDATE global_variables SET variable_value = '2000' 
+UPDATE global_variables SET variable_value = '2000'
 WHERE variable_name = 'mysql-monitor_connect_interval';
 
-UPDATE global_variables SET variable_value = '2000' 
+UPDATE global_variables SET variable_value = '2000'
 WHERE variable_name = 'mysql-monitor_ping_interval';
 
 -- Replication lag check interval
-UPDATE global_variables SET variable_value = '1000' 
+UPDATE global_variables SET variable_value = '1000'
 WHERE variable_name = 'mysql-monitor_replication_lag_interval';
 
 -- How many consecutive failures before shunning
-UPDATE global_variables SET variable_value = '3' 
+UPDATE global_variables SET variable_value = '3'
 WHERE variable_name = 'mysql-monitor_max_failures';
 ```
 
@@ -103,15 +103,13 @@ INSERT INTO mysql_query_rules(
 ```sql
 -- Before deploying a rule, check what it would match:
 SELECT rule_id, match_pattern, destination_hostgroup
-FROM mysql_query_rules 
+FROM mysql_query_rules
 WHERE active = 1
 ORDER BY rule_id;
 
 -- Check rule hit counts after enabling:
 SELECT rule_id, hits FROM stats_mysql_query_rules ORDER BY rule_id;
 ```
-
----
 
 ## Common Pitfalls
 
@@ -169,7 +167,7 @@ match_digest = '^SELECT'
 ### Pitfall 3: Not Handling Transactions on Replicas
 
 ```sql
--- If a rule sends UPDATE to a replica: MySQL error: "The MySQL server is running 
+-- If a rule sends UPDATE to a replica: MySQL error: "The MySQL server is running
 -- with the --read-only option so it cannot execute this statement"
 
 -- Fix: ensure writes always go to primary
@@ -248,7 +246,7 @@ spring:
 
 ```sql
 -- ProxySQL needs to know MySQL version for protocol compatibility
-UPDATE global_variables 
+UPDATE global_variables
 SET variable_value = '8.0.28'  -- match your actual MySQL version
 WHERE variable_name = 'mysql-server_version';
 
@@ -284,8 +282,6 @@ DEALLOCATE PREPARE stmt;
 -- Connection can now be multiplexed
 ```
 
----
-
 ## Operations Playbook
 
 ### Adding a New Replica
@@ -301,16 +297,16 @@ LOAD MYSQL SERVERS TO RUNTIME;
 -- Check on MySQL: SHOW SLAVE STATUS\G → Seconds_Behind_Master = 0
 
 -- 3. Enable the server
-UPDATE mysql_servers 
-SET status = 'ONLINE' 
+UPDATE mysql_servers
+SET status = 'ONLINE'
 WHERE hostname = 'mysql-replica-4' AND hostgroup_id = 20;
 
 LOAD MYSQL SERVERS TO RUNTIME;
 SAVE MYSQL SERVERS TO DISK;
 
 -- 4. Verify traffic is hitting new replica
-SELECT hostname, ConnUsed, Queries 
-FROM stats_mysql_connection_pool 
+SELECT hostname, ConnUsed, Queries
+FROM stats_mysql_connection_pool
 WHERE srv_host = 'mysql-replica-4';
 ```
 
@@ -318,19 +314,19 @@ WHERE srv_host = 'mysql-replica-4';
 
 ```sql
 -- 1. Drain connections (existing queries finish, no new connections)
-UPDATE mysql_servers 
-SET status = 'OFFLINE_SOFT' 
+UPDATE mysql_servers
+SET status = 'OFFLINE_SOFT'
 WHERE hostname = 'mysql-replica-2';
 
 LOAD MYSQL SERVERS TO RUNTIME;
 
 -- 2. Wait for connections to drain
-SELECT ConnUsed FROM stats_mysql_connection_pool 
+SELECT ConnUsed FROM stats_mysql_connection_pool
 WHERE srv_host = 'mysql-replica-2';
 -- Wait until ConnUsed = 0
 
 -- 3. Remove completely
-DELETE FROM mysql_servers 
+DELETE FROM mysql_servers
 WHERE hostname = 'mysql-replica-2';
 
 LOAD MYSQL SERVERS TO RUNTIME;
@@ -343,7 +339,7 @@ SAVE MYSQL SERVERS TO DISK;
 -- New primary has been promoted. Update ProxySQL:
 
 -- 1. Remove old primary from writer hostgroup
-UPDATE mysql_servers 
+UPDATE mysql_servers
 SET status = 'OFFLINE_HARD'
 WHERE hostname = 'old-primary' AND hostgroup_id = 10;
 
@@ -352,7 +348,7 @@ INSERT INTO mysql_servers(hostgroup_id, hostname, port)
 VALUES (10, 'new-primary', 3306);
 
 -- 3. Move old primary to reader (if it recovers as replica)
-UPDATE mysql_servers 
+UPDATE mysql_servers
 SET hostgroup_id = 20, status = 'OFFLINE_SOFT'
 WHERE hostname = 'old-primary';
 
@@ -360,15 +356,13 @@ LOAD MYSQL SERVERS TO RUNTIME;
 SAVE MYSQL SERVERS TO DISK;
 ```
 
----
-
 ## Monitoring & Alerting
 
 ### Key Queries for Dashboards
 
 ```sql
 -- 1. Query rate and latency by hostgroup
-SELECT 
+SELECT
     hostgroup,
     COUNT(*) as queries_per_sec,
     AVG(time_to_wait_ms) as avg_latency_ms,
@@ -377,7 +371,7 @@ FROM stats_mysql_processlist
 GROUP BY hostgroup;
 
 -- 2. Slow queries (> 1 second)
-SELECT 
+SELECT
     digest_text,
     count_star,
     sum_time / count_star / 1000000 AS avg_seconds,
@@ -389,7 +383,7 @@ ORDER BY sum_time DESC
 LIMIT 20;
 
 -- 3. Top queries by volume
-SELECT 
+SELECT
     digest_text,
     count_star,
     sum_time,
@@ -399,15 +393,15 @@ ORDER BY count_star DESC
 LIMIT 20;
 
 -- 4. Connection pool health
-SELECT 
-    hostgroup, srv_host, 
+SELECT
+    hostgroup, srv_host,
     ConnUsed, ConnFree, ConnERR,
     ROUND(ConnUsed * 100.0 / (ConnUsed + ConnFree), 1) AS utilization_pct
 FROM stats_mysql_connection_pool
 WHERE status = 'ONLINE';
 
 -- 5. Error rates
-SELECT 
+SELECT
     hostgroup, srv_host,
     ConnERR,
     Queries,
@@ -426,8 +420,6 @@ FROM stats_mysql_connection_pool;
 | Replication lag | `Seconds_Behind_Master > 10s` | Warning |
 | Query latency | `avg_latency_ms > 1000` | Warning |
 | ProxySQL process down | Health check fails | Critical |
-
----
 
 ## ProxySQL with Kotlin/Spring Boot
 
@@ -448,7 +440,7 @@ spring:
 // Forcing a query to primary (for read-your-writes scenarios)
 @Repository
 class OrderRepository(private val jdbcTemplate: JdbcTemplate) {
-    
+
     fun findById(id: Long): Order {
         return jdbcTemplate.queryForObject(
             "/* PRIMARY */ SELECT * FROM orders WHERE id = ?",
@@ -456,7 +448,7 @@ class OrderRepository(private val jdbcTemplate: JdbcTemplate) {
             id
         ) ?: throw NotFoundException("Order $id not found")
     }
-    
+
     fun findByIdFromReplica(id: Long): Order {
         return jdbcTemplate.queryForObject(
             "SELECT * FROM orders WHERE id = ?",  // goes to replica via query rule
@@ -466,8 +458,6 @@ class OrderRepository(private val jdbcTemplate: JdbcTemplate) {
     }
 }
 ```
-
----
 
 ## ProxySQL vs Alternatives
 
@@ -482,9 +472,6 @@ class OrderRepository(private val jdbcTemplate: JdbcTemplate) {
 | Hosted option | No | No | No | Yes (AWS) |
 | Ops complexity | Medium | Low | High | Low |
 | Best for | MySQL at scale | Postgres pool | Sharded MySQL | AWS-native |
-
-
----
 
 ## Related
 

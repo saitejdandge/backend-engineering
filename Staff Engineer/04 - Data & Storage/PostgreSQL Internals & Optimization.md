@@ -7,6 +7,7 @@
 PostgreSQL stores table data in **heap files** — each row (tuple) stored in 8KB pages. Pages contain a header, item pointers, and tuples packed from both ends.
 
 A tuple contains:
+
 - **Header (23 bytes):** `xmin`, `xmax`, `cmin/cmax`, null bitmap, padding
 - **Data:** Actual column values
 
@@ -15,6 +16,7 @@ This is why `SELECT *` is expensive for wide tables — all columns must be read
 ### TOAST (The Oversized-Attribute Storage Technique)
 
 Values larger than ~2KB are automatically compressed and/or stored out-of-line in a separate TOAST table. Transparent to the user but impacts:
+
 - Wide text/JSON columns → stored in TOAST → slower to retrieve
 - `pg_column_size()` shows the actual stored size
 
@@ -24,8 +26,6 @@ SELECT pg_size_pretty(pg_total_relation_size('large_table')) AS total,
        pg_size_pretty(pg_relation_size('large_table')) AS main,
        pg_size_pretty(pg_total_relation_size('large_table') - pg_relation_size('large_table')) AS toast;
 ```
-
----
 
 ## Vacuuming and Bloat
 
@@ -62,8 +62,6 @@ ALTER TABLE orders SET (
 - `VACUUM FULL`: Rewrites entire table. Returns space to OS. Takes exclusive lock — blocks reads and writes. Use only when bloat is extreme and you can afford downtime.
 - `pg_repack`: Third-party extension that does VACUUM FULL equivalent without locking. Use this in production.
 
----
-
 ## Table Partitioning
 
 Split large tables into smaller physical partitions while presenting a single logical table.
@@ -86,6 +84,7 @@ CREATE TABLE orders_2024_q2 PARTITION OF orders
 ```
 
 **Benefits:**
+
 - Partition pruning: queries with date filters only scan relevant partitions
 - Drop old partitions instantly (vs. `DELETE` which is slow and creates bloat)
 - VACUUM runs per partition (faster, less blocking)
@@ -110,8 +109,6 @@ SELECT * FROM orders WHERE created_at BETWEEN '2024-01-01' AND '2024-03-31';
 -- NO pruning: scans all partitions
 SELECT * FROM orders WHERE user_id = 123;
 ```
-
----
 
 ## Query Optimization Patterns
 
@@ -155,6 +152,7 @@ CREATE INDEX idx_users_email_lower ON users(lower(email));
 ### Index-Only Scans
 
 PostgreSQL can satisfy a query entirely from the index without touching the heap if:
+
 1. All needed columns are in the index (via `INCLUDE`)
 2. The row's visibility is known (tracked in the visibility map — updated by VACUUM)
 
@@ -195,8 +193,6 @@ FROM orders;
 ```
 
 Window functions: `ROW_NUMBER()`, `RANK()`, `DENSE_RANK()`, `LAG()`, `LEAD()`, `FIRST_VALUE()`, `LAST_VALUE()`, `NTILE()`.
-
----
 
 ## Locking and Concurrency
 
@@ -249,8 +245,6 @@ SELECT pg_advisory_xact_lock(12345);
 
 Use cases: distributed cron job leader election, ensuring only one instance processes a specific entity.
 
----
-
 ## Monitoring Queries to Run Regularly
 
 ```sql
@@ -284,9 +278,6 @@ FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY pg_total_relation_size(tablename::regclass) DESC;
 ```
-
-
----
 
 ## Related
 

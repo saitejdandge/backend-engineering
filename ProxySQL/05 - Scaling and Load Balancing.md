@@ -15,16 +15,12 @@ Before scaling out, understand what a single ProxySQL instance can handle:
 
 **One ProxySQL instance handles most production workloads.** Scale out only when you hit these limits or need HA.
 
----
-
 ## Why Scale ProxySQL
 
 1. **High Availability** — single ProxySQL = SPOF
 2. **Throughput** — >1M QPS needs multiple instances
 3. **Geographic distribution** — one proxy per region/datacenter
 4. **Isolation** — separate proxy per service or tier
-
----
 
 ## Architecture Patterns
 
@@ -47,6 +43,7 @@ The simplest HA setup. Two ProxySQL instances share a Virtual IP (VIP). If the a
 **Failover time:** 2–5 seconds (Keepalived detection + VIP switchover)
 
 **Config (Keepalived on ProxySQL-1):**
+
 ```bash
 # /etc/keepalived/keepalived.conf on ProxySQL-1
 global_defs {
@@ -101,13 +98,12 @@ fi
 ```
 
 **Apps connect to VIP:**
+
 ```yaml
 spring:
   datasource:
     url: jdbc:mysql://10.0.1.100:6033/mydb  # VIP, not individual ProxySQL IPs
 ```
-
----
 
 ### Pattern 2: Active/Active with DNS Round-Robin
 
@@ -128,12 +124,11 @@ DNS: proxy.internal → [10.0.1.101, 10.0.1.102, 10.0.1.103]
 **Limitation:** DNS client caching means failover isn't instant. Apps may keep trying a failed ProxySQL for up to TTL seconds.
 
 **AWS Route 53 with health checks:**
+
 ```
 Route 53 health check: TCP port 6033 on each ProxySQL
 If health check fails → remove from DNS response
 ```
-
----
 
 ### Pattern 3: Load Balancer in Front of ProxySQL (Recommended at Scale)
 
@@ -149,6 +144,7 @@ Apps → L4 Load Balancer (NLB / HAProxy) → ProxySQL Pool → MySQL
 **Why L4, not L7?** ProxySQL speaks MySQL protocol, not HTTP. L4 routes TCP connections without inspecting content.
 
 **HAProxy in front of ProxySQL:**
+
 ```
 # /etc/haproxy/haproxy.cfg
 
@@ -172,7 +168,7 @@ backend proxysql_backend
     option tcp-check
     tcp-check connect
     tcp-check send-binary 00000001  # MySQL greeting check
-    
+
     server proxysql-1 10.0.1.101:6033 check inter 2s fall 3 rise 2 weight 100
     server proxysql-2 10.0.1.102:6033 check inter 2s fall 3 rise 2 weight 100
     server proxysql-3 10.0.1.103:6033 check inter 2s fall 3 rise 2 weight 100
@@ -189,6 +185,7 @@ backend proxysql_admin_backend
 ```
 
 **AWS NLB in front of ProxySQL:**
+
 ```
 Target group: proxysql-tg
   - Protocol: TCP
@@ -201,8 +198,6 @@ NLB listener:
   - Protocol: TCP
   - Forward to: proxysql-tg
 ```
-
----
 
 ### Pattern 4: Sidecar ProxySQL (Per-App-Server)
 
@@ -221,11 +216,13 @@ App Server 1                App Server 2
 ```
 
 **Pros:**
+
 - No network hop to ProxySQL (localhost = ~0.1ms instead of ~0.5ms)
 - Each app server has its own pool (no ProxySQL bottleneck)
 - App connects to `127.0.0.1:6033` — simple config
 
 **Cons:**
+
 - Must deploy and manage ProxySQL on every app server
 - Config changes must be pushed to all instances (use Ansible/Puppet/Terraform)
 - More ProxySQL processes = more MySQL connections total
@@ -233,6 +230,7 @@ App Server 1                App Server 2
 **When to use:** Kubernetes (ProxySQL as sidecar container), high-performance apps where 0.5ms matters.
 
 **Kubernetes sidecar:**
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -266,8 +264,6 @@ spec:
           name: proxysql-config
 ```
 
----
-
 ### Pattern 5: ProxySQL Cluster (Native Clustering)
 
 ProxySQL 2.x supports native clustering — multiple ProxySQL nodes sync config automatically.
@@ -281,6 +277,7 @@ ProxySQL-1 ─── proxysql_servers table ─── ProxySQL-2
 ```
 
 **How it works:**
+
 1. Each ProxySQL node knows about all other nodes via `proxysql_servers` table
 2. Config changes on any node are automatically propagated to all others
 3. Nodes use checksums to detect config divergence
@@ -288,7 +285,7 @@ ProxySQL-1 ─── proxysql_servers table ─── ProxySQL-2
 ```sql
 -- Configure on each ProxySQL node:
 INSERT INTO proxysql_servers(hostname, port, weight, comment)
-VALUES 
+VALUES
     ('proxysql-1', 6032, 1, 'node 1'),
     ('proxysql-2', 6032, 1, 'node 2'),
     ('proxysql-3', 6032, 1, 'node 3');
@@ -297,16 +294,16 @@ LOAD PROXYSQL SERVERS TO RUNTIME;
 SAVE PROXYSQL SERVERS TO DISK;
 
 -- Configure cluster credentials
-UPDATE global_variables 
-SET variable_value = 'cluster_user' 
+UPDATE global_variables
+SET variable_value = 'cluster_user'
 WHERE variable_name = 'admin-cluster_username';
 
-UPDATE global_variables 
-SET variable_value = 'cluster_pass' 
+UPDATE global_variables
+SET variable_value = 'cluster_pass'
 WHERE variable_name = 'admin-cluster_password';
 
 -- Sync interval (ms)
-UPDATE global_variables 
+UPDATE global_variables
 SET variable_value = '1000'
 WHERE variable_name = 'cluster_check_interval_ms';
 
@@ -315,17 +312,17 @@ SAVE ADMIN VARIABLES TO DISK;
 ```
 
 **What gets synced:**
+
 - `mysql_servers`
 - `mysql_users`
 - `mysql_query_rules`
 - `mysql_variables` (selected ones)
 
 **What doesn't sync:**
+
 - `proxysql_servers` (managed separately per node)
 - `scheduler` entries
 - Monitoring config
-
----
 
 ## Capacity Planning
 
@@ -338,7 +335,7 @@ Example:
   Peak QPS = 200,000
   Single ProxySQL QPS = 500,000
   Safety factor = 2 (for redundancy)
-  
+
   Required = 200,000 / 500,000 × 2 = 0.8 → 2 instances minimum
   (always run at least 2 for HA)
 ```
@@ -354,7 +351,7 @@ Example:
 # - Per frontend connection: ~10KB
 # - Per backend connection: ~10KB
 # - Query cache (if used): configurable
-# 
+#
 # With 10,000 frontend + 500 backend connections:
 # 500MB + (10,000 × 10KB) + (500 × 10KB) = ~605MB
 # Round up: 2GB RAM per instance is comfortable
@@ -363,8 +360,6 @@ Example:
 # 1Gbps NIC handles ~125MB/s → sufficient
 # At 500,000 QPS: need 10Gbps NIC
 ```
-
----
 
 ## Config Management at Scale
 
@@ -435,8 +430,6 @@ resource "proxysql_query_rule" "select_for_update" {
 }
 ```
 
----
-
 ## Health Checks and Monitoring at Scale
 
 ### ProxySQL Exporter (Prometheus)
@@ -455,13 +448,14 @@ services:
 scrape_configs:
   - job_name: 'proxysql'
     static_configs:
-      - targets: 
+      - targets:
           - 'proxysql-1:42004'
           - 'proxysql-2:42004'
           - 'proxysql-3:42004'
 ```
 
 **Key Prometheus metrics:**
+
 ```
 proxysql_mysql_connection_pool_conn_used        # used connections
 proxysql_mysql_connection_pool_conn_free        # free connections
@@ -483,8 +477,6 @@ Panel 7: Cache hit rate (if query cache enabled)
 Panel 8: Top 10 slowest queries (sum_time)
 ```
 
----
-
 ## Scaling the Full Stack
 
 Here's how ProxySQL fits into the complete scaling picture:
@@ -503,7 +495,7 @@ Traffic: 1M req/sec
           │                    │
     MySQL Primary         MySQL Replicas (3×)
     (all writes)          (all reads, LB by weight)
-    
+
 Config sync: ProxySQL Cluster (native)
 Monitoring:  Prometheus + Grafana
 Deployment:  Terraform + Ansible
@@ -523,14 +515,12 @@ QPS > 500K?
   → 4+ ProxySQL + NLB + ProxySQL Cluster for config sync
 
 Kubernetes?
-  → Sidecar ProxySQL per pod, or shared ProxySQL Deployment (3+ replicas) 
+  → Sidecar ProxySQL per pod, or shared ProxySQL Deployment (3+ replicas)
     behind a ClusterIP Service
 
 Multi-region?
   → One ProxySQL cluster per region, each pointing to regional MySQL
 ```
-
----
 
 ## Rollout Strategy for Config Changes
 
@@ -546,8 +536,8 @@ Changing query rules or server config on a production ProxySQL cluster requires 
    a. Update ProxySQL-1, monitor for 5 minutes
    b. Update ProxySQL-2, monitor for 5 minutes
    c. Update ProxySQL-3, monitor for 5 minutes
-   
-   (With ProxySQL Cluster, changes propagate automatically — 
+
+   (With ProxySQL Cluster, changes propagate automatically —
     but verify each node with SHOW MYSQL QUERY RULES\G)
 
 4. Rollback plan:
@@ -556,9 +546,6 @@ Changing query rules or server config on a production ProxySQL cluster requires 
    LOAD MYSQL QUERY RULES TO RUNTIME;
    SAVE MYSQL QUERY RULES TO DISK;
 ```
-
-
----
 
 ## Related
 

@@ -21,8 +21,6 @@ A Kafka message (also called a **record**) has four fields — all technically o
 └──────────────────────────────────────────-───┘
 ```
 
----
-
 ## Publishing a Message — Step by Step
 
 When a producer sends a message:
@@ -53,8 +51,6 @@ Broker 1 ──[replicate]──▶ Broker 2 (follower)
          ──[replicate]──▶ Broker 3 (follower)
 ```
 
----
-
 ## The Append-Only Log
 
 Each partition is an **append-only log file**. Messages are written sequentially at the end. They are never modified in-place.
@@ -75,8 +71,6 @@ Offset:  0       1       2       3       4
 - **Immutability:** Messages never change → simpler replication, no consistency bugs
 - **Efficiency:** Sequential writes minimize disk seek times (major bottleneck in storage)
 - **Scalability:** Simple to replicate, easy to add partitions
-
----
 
 ## Replication — Leader/Follower Model
 
@@ -109,13 +103,12 @@ Producer ──writes──▶│  Broker 1: Partition 2 (LEADER)        │
 | `acks=1` | Wait for leader ACK | Medium (lose if leader crashes before replication) |
 | `acks=all` | Wait for all ISR ACKs | Highest — use this for critical data |
 
----
-
 ## Consuming Messages — Pull Model
 
 Kafka consumers **pull** data from brokers. Consumers actively poll for new messages at intervals they control.
 
 Why pull vs push?
+
 - Consumers control their own pace — no overwhelming slow consumers
 - Efficient batching — pull when ready, get many at once
 - Simpler failure handling
@@ -142,8 +135,6 @@ Offset:  0       1       2       3       4       5
 
 > **Exactly-once semantics** are possible but require additional configuration: idempotent producers + transactional APIs.
 
----
-
 ## Consumer Groups and Partition Assignment
 
 Within a consumer group, each partition is assigned to **exactly one consumer**.
@@ -160,6 +151,7 @@ Partition 5 ──▶ Consumer C
 ```
 
 Rules:
+
 - **More consumers than partitions:** Some consumers are idle
 - **More partitions than consumers:** Some consumers handle multiple partitions
 - **Optimal:** num_consumers = num_partitions (maximum parallelism)
@@ -167,8 +159,6 @@ Rules:
 ### Rebalancing
 
 When a consumer joins or leaves the group, Kafka **rebalances** — redistributes partition assignments among the active consumers. During rebalance, consumption pauses briefly.
-
----
 
 ## Code Examples
 
@@ -229,8 +219,6 @@ kafka-console-consumer \
   --property "key.separator=: "
 ```
 
----
-
 ## End-to-End Flow Summary
 
 ```
@@ -258,9 +246,6 @@ Consumer (in Consumer Group)
   │  11. Commit offset back to Kafka
   └──▶ Repeat from step 9
 ```
-
-
----
 
 ## Related
 

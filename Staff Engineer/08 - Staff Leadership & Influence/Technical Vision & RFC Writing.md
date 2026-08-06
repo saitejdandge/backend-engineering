@@ -5,11 +5,10 @@
 At the staff level, your most valuable output is often not code — it's clarity. You help your organization make better technical decisions, avoid expensive mistakes, and build systems that scale well over time.
 
 This requires:
+
 - Writing technical proposals that build consensus
 - Defining technical direction across teams
 - Making architectural decisions durable and traceable
-
----
 
 ## Architecture Decision Records (ADRs)
 
@@ -69,8 +68,6 @@ more Kafka experience. Eliminated.
 ```
 
 **Why ADRs matter at staff level:** Six months later, a new engineer asks "Why are we using Kafka instead of just calling the payment service directly?" Without an ADR, this knowledge is lost. With one, they understand the full context.
-
----
 
 ## RFC (Request for Comments) Process
 
@@ -166,8 +163,6 @@ Phase 3: Deprecate per-service implementations
 - **Make it easy to disagree.** The goal is the best decision, not approval of your idea. Invite criticism explicitly.
 - **Short is better than long.** If it can be said in 1 page, don't make it 5.
 
----
-
 ## Technical Vision Documents
 
 For longer-horizon direction (6-18 months). Not a single decision, but a coherent direction for how the system should evolve.
@@ -189,13 +184,11 @@ For longer-horizon direction (6-18 months). Not a single decision, but a coheren
 ### Gaining Alignment
 
 A technical vision only has value if people follow it. Alignment comes from:
+
 - **Involving stakeholders early:** Engineers whose work will be affected should co-author or review
 - **Connecting to business outcomes:** Frame technical debt and refactoring in terms of developer velocity, reliability, and business agility
 - **Maintaining it:** A vision document that's 18 months out of date is worse than none
 - **Revisiting regularly:** Quarterly review of the vision against current priorities
-
-
----
 
 ## Related
 

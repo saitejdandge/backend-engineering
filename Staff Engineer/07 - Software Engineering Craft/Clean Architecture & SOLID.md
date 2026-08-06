@@ -29,7 +29,7 @@ class UserRegistrationService:
         self.repo = repo
         self.email_svc = email_svc
         self.validator = validator
-    
+
     def register(self, data):
         self.validator.validate(data.password)
         user = self.repo.save(User(data))
@@ -155,8 +155,6 @@ class OrderService:
 
 This is the foundation of dependency injection (DI). DI containers (Spring, Guice, FastAPI Depends) automate wiring.
 
----
-
 ## Clean Architecture
 
 Robert Martin's architecture that enforces separation of concerns through dependency rules.
@@ -168,38 +166,42 @@ Robert Martin's architecture that enforces separation of concerns through depend
 ```
 
   Frameworks & Drivers                      ← outermost
-    
-    Interface Adapters                 
-       
-      Application (Use Cases)       
-          
+
+    Interface Adapters
+
+      Application (Use Cases)
+
         Domain (Entities)          ← innermost, no dependencies
-          
-       
-    
+
+
+
 
 ```
 
 ### Layers
 
 **Domain (Entities):**
+
 - Business rules and entities. Pure business logic.
 - No framework dependencies, no DB, no HTTP.
 - Depends on: nothing.
 - Example: `Order`, `Payment`, `User` domain objects with business methods.
 
 **Application (Use Cases):**
+
 - Orchestrates domain objects to fulfill a use case.
 - Defines ports (interfaces) for what it needs from the outside.
 - Depends on: Domain only.
 - Example: `CreateOrderUseCase`, `ProcessPaymentUseCase`.
 
 **Interface Adapters:**
+
 - Converts between use case data formats and external formats.
 - Controllers (HTTP → use case), Presenters (use case → HTTP response), Repositories (use case port → DB).
 - Depends on: Application, Domain.
 
 **Frameworks & Drivers:**
+
 - Flask/FastAPI, SQLAlchemy, Redis, external APIs.
 - Depends on: Interface Adapters.
 
@@ -213,10 +215,10 @@ class Order:
         self.user_id = user_id
         self.items = items
         self.status = "pending"
-    
+
     def total(self) -> float:
         return sum(item.price * item.quantity for item in self.items)
-    
+
     def can_cancel(self) -> bool:
         return self.status == "pending"
 
@@ -232,7 +234,7 @@ class CreateOrderUseCase:
     def __init__(self, order_repo: OrderRepository, event_publisher: EventPublisher):
         self.order_repo = order_repo
         self.event_publisher = event_publisher
-    
+
     def execute(self, command: CreateOrderCommand) -> Order:
         order = Order(id=generate_id(), user_id=command.user_id, items=command.items)
         self.order_repo.save(order)
@@ -243,7 +245,7 @@ class CreateOrderUseCase:
 class OrderController:
     def __init__(self, use_case: CreateOrderUseCase):
         self.use_case = use_case
-    
+
     def create_order(self, request: HttpRequest) -> HttpResponse:
         command = CreateOrderCommand(
             user_id=request.json["user_id"],
@@ -256,13 +258,11 @@ class OrderController:
 class PostgresOrderRepository(OrderRepository):
     def save(self, order: Order) -> None:
         db.execute("INSERT INTO orders ...", order.id, order.user_id, ...)
-    
+
     def find_by_id(self, order_id: str) -> Order:
         row = db.execute("SELECT * FROM orders WHERE id = %s", order_id)
         return Order(id=row.id, user_id=row.user_id, items=row.items)
 ```
-
----
 
 ## Domain-Driven Design (Key Concepts)
 
@@ -293,7 +293,7 @@ class Order:  # Aggregate Root
         item = OrderItem(product_id, quantity, price)
         self._items.append(item)
         self._validate_item_limit()  # Invariant enforced here
-    
+
     def remove_item(self, product_id):
         # Business rule: can't remove if order is already shipped
         if self.status == "shipped":
@@ -315,16 +315,16 @@ from typing import ClassVar
 class Money:
     amount: float
     currency: str
-    
+
     def __post_init__(self):
         if self.amount < 0:
             raise ValueError("Amount cannot be negative")
-    
+
     def add(self, other: 'Money') -> 'Money':
         if self.currency != other.currency:
             raise ValueError("Cannot add different currencies")
         return Money(self.amount + other.amount, self.currency)
-    
+
     def __str__(self):
         return f"{self.amount} {self.currency}"
 
@@ -333,9 +333,6 @@ price = Money(29.99, "USD")
 tax = Money(2.40, "USD")
 total = price.add(tax)  # Returns new Money object, original unchanged
 ```
-
-
----
 
 ## Related
 

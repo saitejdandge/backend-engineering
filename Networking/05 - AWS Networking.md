@@ -25,6 +25,7 @@ AWS Region (us-east-1)
 **Private subnet:** No route to internet gateway. Resources have only private IPs. Not directly reachable from internet. Use **NAT Gateway** for outbound internet access.
 
 **Typical architecture:**
+
 - **Public subnets:** Load balancers, bastion hosts, NAT gateways
 - **Private subnets:** App servers, databases, cache clusters
 
@@ -39,8 +40,6 @@ graph TD
     App1 --> NAT[NAT Gateway - Public Subnet]
     NAT --> Internet
 ```
-
----
 
 ## Security Groups vs NACLs
 
@@ -62,7 +61,8 @@ Outbound:
   All traffic → 0.0.0.0/0 (allow all by default)
 ```
 
-**Best practice:** 
+**Best practice:**
+
 - Don't allow 0.0.0.0/0 inbound except for LB
 - Reference security groups instead of IPs: "allow from alb-sg on port 8080"
 
@@ -86,8 +86,6 @@ Outbound:
 
 **Use NACLs for:** Broad subnet-level blocking (block a bad IP range for all resources in subnet). Security Groups for fine-grained per-resource rules.
 
----
-
 ## AWS Load Balancers
 
 ### ALB (Application Load Balancer) — L7
@@ -98,6 +96,7 @@ Internet → ALB (L7) → Target Group A (EC2, ECS, Lambda)
 ```
 
 **Features:**
+
 - HTTP/HTTPS routing
 - Path-based routing: `/api` → target-group-api, `/static` → target-group-static
 - Host-based routing: `api.example.com` → API servers, `app.example.com` → web servers
@@ -107,6 +106,7 @@ Internet → ALB (L7) → Target Group A (EC2, ECS, Lambda)
 - Authentication via Cognito/OIDC
 
 **Listener rules:**
+
 ```
 Rule 1: IF path = /api/*      → forward to api-servers-tg
 Rule 2: IF path = /health     → return 200 (fixed response)
@@ -127,8 +127,6 @@ Rule 4: Default               → forward to web-servers-tg
 ### CLB (Classic Load Balancer) — Legacy
 
 Don't use. ALB/NLB are strictly better.
-
----
 
 ## Route 53 (DNS)
 
@@ -170,14 +168,14 @@ Health check: HTTPS GET /health on ALB
   Recovery: 3 consecutive successes → healthy
 ```
 
----
-
 ## VPC Connectivity Options
 
 ### Internet Gateway (IGW)
+
 Allows public subnets to reach the internet. One per VPC. Horizontally scaled, managed by AWS.
 
 ### NAT Gateway
+
 Allows private subnets to initiate outbound internet connections (software updates, external API calls). Inbound connections from internet not allowed.
 
 ```
@@ -187,6 +185,7 @@ Private EC2 → NAT Gateway (in public subnet) → Internet Gateway → Internet
 Cost: ~$0.045/hour + data processing. Put in each AZ to avoid cross-AZ data transfer charges.
 
 ### VPC Peering
+
 Direct network connection between two VPCs (same or different accounts/regions). Traffic stays within AWS network.
 
 ```
@@ -196,6 +195,7 @@ VPC-A (10.0.0.0/16) ←→ VPC-B (10.1.0.0/16)
 **Limitation:** Not transitive. If A peers with B and B peers with C, A cannot reach C through B.
 
 ### Transit Gateway
+
 Hub-and-spoke connectivity between multiple VPCs and on-premises networks. Solves the peering transitivity problem.
 
 ```
@@ -205,6 +205,7 @@ VPC-C ─┘
 ```
 
 ### VPC Endpoints
+
 Allow private subnets to access AWS services (S3, DynamoDB, SQS) without internet or NAT gateway. Traffic stays within AWS network.
 
 ```
@@ -215,6 +216,7 @@ Private EC2 → VPC Endpoint → S3  (no internet, no NAT)
 **Gateway endpoint:** Route table entry. Free. Only for S3 and DynamoDB.
 
 ### AWS PrivateLink
+
 Expose a service in your VPC to other VPCs without peering. Appears as an ENI in consumer's VPC.
 
 ```
@@ -223,10 +225,9 @@ Service Consumer VPC → Interface VPC Endpoint → connects to above
 ```
 
 ### VPN and Direct Connect
+
 - **Site-to-Site VPN:** Encrypted tunnel over internet between on-premises and AWS VPC. Low cost, variable latency.
 - **AWS Direct Connect:** Dedicated physical fiber connection to AWS. Consistent latency, high throughput. Expensive.
-
----
 
 ## CloudFront (CDN)
 
@@ -239,21 +240,21 @@ User (India) → CloudFront Edge (Mumbai) → (on miss) → Origin (S3, ALB, EC2
 **Origin types:** S3 bucket, ALB, EC2, API Gateway, any HTTP server.
 
 **Cache behaviors:**
+
 ```
 /*          → cache for 1 day, compress, redirect HTTP→HTTPS
 /api/*      → no cache (forward all, set Cache-Control: no-store)
 /static/*   → cache for 1 year (versioned files)
 ```
 
-**Security:** 
+**Security:**
+
 - WAF at edge (blocks bad traffic before hitting origin)
 - OAI/OAC: only CloudFront can access S3 origin (not public)
 - Field-level encryption
 - DDoS protection (AWS Shield)
 
 **Price:** First 10TB/month free tier. Then ~$0.008-0.085/GB depending on region.
-
----
 
 ## Security Architecture Pattern
 
@@ -280,15 +281,13 @@ VPC Endpoint → S3 (no internet)
 ```
 
 **Security layers:**
+
 1. Route 53: health check based failover
 2. CloudFront: edge WAF, DDoS, cache
 3. ALB: SSL termination, auth (Cognito), routing
 4. Security Groups: per-instance firewall
 5. NACLs: per-subnet firewall (broad rules)
 6. VPC private subnets: no internet exposure for backends/DBs
-
-
----
 
 ## Related
 

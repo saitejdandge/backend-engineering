@@ -1,8 +1,7 @@
-
-
 # Motivating Example
 
 Let's say we are building photo sharing application, There is bunch of stuff we need to do like
+
 * Content moderation
 * Image resizing
 * Filtering ..etc
@@ -20,7 +19,6 @@ All these tasks are ==long running tasks==. There are bunch of problems if we ju
 
 > What need not be done in real time, shouldn't be done in real time.
 
-
 We will add a message queue and give some breathing space to server.
 
 ![[Screenshot 2026-06-14 at 7.15.33 PM.png]]
@@ -31,10 +29,9 @@ Other end of queue, we have workers, polling the tasks and process the tasks in 
 * Failures are isolated
 * Heavy traffic mean deeper queue.
 
-
 # Message queue
 
-Message queue is ==buffered queue sits between producer and consumer==. 
+Message queue is ==buffered queue sits between producer and consumer==.
 
 We ==decouple== producer and consumer
 
@@ -42,9 +39,7 @@ We ==decouple== producer and consumer
 
 ![[Screenshot 2026-06-14 at 7.18.15 PM.png]]
 
-
 # Acknowledgements
-
 
 ![[Screenshot 2026-06-14 at 7.20.58 PM.png]]
 
@@ -58,11 +53,13 @@ Queue will hold on messages, until consumers `ACKS` the message.
 
 Let's say there is message which is very slow, consumer 1 picks the message, consumer 2 will wait on forever.
 
-* Consumer 2 can't process the same message because of work depublication. 
+* Consumer 2 can't process the same message because of work depublication.
 * If work the consumer does is not idempotent, it could be dangerous to application.
-#### SQS 
+
+#### SQS
 
 When consumer picks a message, it becomes ==invisible== for some time for other consumers.
+
 #### Kafka
 
 Kafka assigns each partition to exactly ==one consumer== in consumer group
@@ -90,7 +87,6 @@ We will have to design consumers naturally `idempotent`
 
 ![[Screenshot 2026-06-14 at 7.31.17 PM.png]]
 
-
 # Scaling queue
 
 There are two sides of queue that needs scaling.
@@ -100,20 +96,18 @@ There are two sides of queue that needs scaling.
 
 ![[Screenshot 2026-06-14 at 7.50.05 PM.png]]
 
-
 ![[Screenshot 2026-06-14 at 8.16.58 PM.png]]
 
 ## Scaling write throughput to queue.
 
-We will have concept called `paritions`, These partitions are sub-queues within that queue. 
+We will have concept called `paritions`, These partitions are sub-queues within that queue.
 
 ### Choosing partition key:
 
 * Ordering is maintained at partition level
-* Even distribution,  some partitions could be HOT. 
+* Even distribution,  some partitions could be HOT.
 
 It's tricky to choosing: 'Keys giving ordering might not give equal distribution'
-
 
 ## Scaling read consumption
 
@@ -124,7 +118,7 @@ We can scale read consumption through `consumer groups`.  Each partition for a g
 * When we increase partitions, Older messages in the queue ==won't be rehashed== to the new partition. Every new partition starts ==fresh==.
 	* Re balancing will not happen, we will get up events in new partition now.
 * We cannot ==decrease the partitions==.
-* We cannot have more consumers than the partitions it-self, Additional consumers added will be ==idle==. 
+* We cannot have more consumers than the partitions it-self, Additional consumers added will be ==idle==.
 * If consumers are under provisioned, ==consumer== can read from multiple partitions.
 * Ordering is maintained only at ==partition level==.
 * ==Kafka doesn't use consistent hashing== for re-balancing because its ==append only== nature and moving messages means deleting the data, that is not supported. In addition to this, there is this concept of consumer in consumer group.
@@ -152,7 +146,6 @@ Modern queues have replicas, They also store these messages to ==disk==, Kafka d
 
 ![[Screenshot 2026-06-14 at 8.03.13 PM.png]]
 
-
 * Kafka offers ==replaying==
 
 # Common technologies.
@@ -169,9 +162,6 @@ Modern queues have replicas, They also store these messages to ==disk==, Kafka d
 * Rabbit MQ
 	* Complex message broker
 	* Complex routing
-
-
----
 
 ## Related
 

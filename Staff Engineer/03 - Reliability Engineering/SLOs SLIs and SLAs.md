@@ -10,8 +10,6 @@
 
 SLOs should always be stricter than SLAs to give yourself a buffer.
 
----
-
 ## SLIs — What to Measure
 
 The four golden signals (Google SRE Book):
@@ -36,8 +34,6 @@ error_rate = error_requests / total_requests
 
 **Key insight for staff engineers:** Proportion-based SLIs (fraction of requests meeting a criterion) are more useful than raw metrics. They naturally account for traffic changes and are directly convertible to error budgets.
 
----
-
 ## SLOs — Setting Targets
 ### Avoid 100% targets
 
@@ -55,6 +51,7 @@ error_rate = error_requests / total_requests
 | 99.999% | 5.26 minutes | 26 seconds |
 
 **Set SLOs based on:**
+
 - What users actually need (not what engineering can theoretically achieve)
 - Historical baseline (what have you achieved?)
 - Cost of improvement (99.99% is massively more expensive than 99.9%)
@@ -63,13 +60,12 @@ error_rate = error_requests / total_requests
 ### Multi-window SLOs
 
 Define SLOs over multiple windows to catch both short spikes and long degradations:
+
 ```
 Availability SLO:
 - 99.9% over 30 days (rolling)
 - 99.5% over 5 minutes (for alerting on current incidents)
 ```
-
----
 
 ## Error Budgets
 
@@ -80,11 +76,13 @@ Error budget = 1 - SLO target
 ```
 
 For a 99.9% availability SLO over 30 days:
+
 ```
 Error budget = 0.1% of requests = ~43.8 minutes of downtime equivalent
 ```
 
 **Why error budgets matter:**
+
 - They make reliability a shared concern between dev and ops
 - They create a rational framework for release velocity vs. reliability trade-offs
 - If the error budget is burning fast → slow down deployments, focus on reliability
@@ -93,11 +91,10 @@ Error budget = 0.1% of requests = ~43.8 minutes of downtime equivalent
 ### Error Budget Policies
 
 Define what happens when budget is consumed:
+
 - **50% consumed:** Alert. Review recent incidents. Assess risk of next deployment.
 - **75% consumed:** Freeze non-critical deployments. Mandatory reliability sprint.
 - **100% consumed:** Feature freeze. All hands on reliability until budget recovers.
-
----
 
 ## Burn Rate Alerting
 
@@ -121,8 +118,6 @@ A burn rate of 10 = consuming 10x faster than sustainable → will exhaust budge
 | Ticket | 3 days | 6 hours | 1x | ~10% in 3d |
 
 Short window = fast reaction. Long window = confirmation (avoids noise from brief spikes).
-
----
 
 ## Defining Good SLIs for Different Services
 
@@ -150,20 +145,16 @@ durability = count(writes successfully stored) / count(writes attempted
 read_availability = count(reads returning data) / count(reads attempted)
 ```
 
----
-
 ## Tracking and Reporting SLOs
 
 Tools:
+
 - **Prometheus + Grafana:** Query Prometheus for SLI data, build dashboards with error budget burn rate
 - **Datadog SLOs:** Built-in SLO tracking with burn rate alerts
 - **Google Cloud Monitoring:** Native SLO support for GCP services
 - **Sloth / Pyrra:** Open-source SLO tools that generate Prometheus rules from SLO definitions
 
 **Weekly SLO reviews:** Make it a team ritual. Review current error budget consumption, recent incidents, and reliability investments.
-
-
----
 
 ## Related
 

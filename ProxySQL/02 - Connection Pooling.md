@@ -10,6 +10,7 @@ MySQL max_connections = 1000 → CRASH
 ```
 
 MySQL connections are expensive:
+
 - Each holds ~1MB RAM on the MySQL server
 - Thread creation + authentication overhead
 - MySQL's thread scheduler degrades with many threads
@@ -19,8 +20,6 @@ ProxySQL solves this with **connection multiplexing** — many app connections s
 ```
 5,000 app connections → ProxySQL → 50 MySQL connections
 ```
-
----
 
 ## Three Pooling Modes
 
@@ -36,12 +35,14 @@ App connection B sends query → gets MySQL conn #3 → query executes → conn 
 **How it works:** When a query finishes, ProxySQL checks if the connection is "clean" (no open transactions, no session state). If clean, it returns to the pool for another app to use.
 
 **Limitation:** MySQL connections carry session state. ProxySQL must reset state between uses:
+
 - `SET NAMES utf8` → must be replayed
 - `SET SESSION var = value` → must be replayed
 - Open transactions → connection cannot be multiplexed until committed/rolled back
 - Prepared statements → connection is "reserved" until deallocated
 
 **When multiplexing is disabled (connection is pinned):**
+
 - Active transaction (`BEGIN` ... not yet `COMMIT/ROLLBACK`)
 - `LOCK TABLES`
 - `GET_LOCK()`
@@ -59,17 +60,15 @@ Simpler but less efficient. Like traditional connection pooling (HikariCP behavi
 
 Default in newer versions. Connection released back to pool after each transaction (not each query). Better compatibility than query-level multiplexing.
 
----
-
 ## Configuring the Connection Pool
 
 ```sql
 -- Global pool settings
-UPDATE global_variables SET variable_value = '200' 
+UPDATE global_variables SET variable_value = '200'
 WHERE variable_name = 'mysql-max_connections';
 -- Max connections from APPS to ProxySQL (frontend)
 
-UPDATE global_variables SET variable_value = '50' 
+UPDATE global_variables SET variable_value = '50'
 WHERE variable_name = 'mysql-connection_max_age_ms';
 -- Recycle backend connections older than 50ms (prevent stale conn)
 
@@ -86,11 +85,11 @@ SAVE MYSQL VARIABLES TO DISK;
 ```sql
 -- max_connections per server limits how many MySQL connections ProxySQL opens
 -- to that specific backend
-UPDATE mysql_servers 
+UPDATE mysql_servers
 SET max_connections = 100
 WHERE hostname = 'mysql-primary' AND hostgroup_id = 10;
 
-UPDATE mysql_servers 
+UPDATE mysql_servers
 SET max_connections = 200  -- replicas can handle more reads
 WHERE hostname = 'mysql-replica-1' AND hostgroup_id = 20;
 
@@ -101,7 +100,7 @@ SAVE MYSQL SERVERS TO DISK;
 ### Connection Pool Sizing Formula
 
 ```
-backend_connections_per_server = 
+backend_connections_per_server =
     (queries_per_second × avg_query_duration_ms) / 1000
 
 Example:
@@ -111,8 +110,6 @@ Example:
 
 Add 20% headroom: max_connections = 60
 ```
-
----
 
 ## Session State Tracking
 
@@ -163,8 +160,6 @@ SELECT * FROM stats_mysql_connection_pool;
 -- Pinned connections show up as "used" connections that don't return to pool
 ```
 
----
-
 ## Connection Lifecycle
 
 ```
@@ -191,13 +186,11 @@ App disconnects
     → session state cleared (SET NAMES reset, variables cleared)
 ```
 
----
-
 ## Connection Pool Monitoring
 
 ```sql
 -- Real-time connection pool stats
-SELECT 
+SELECT
     hostgroup,
     srv_host,
     status,
@@ -230,8 +223,6 @@ SELECT * FROM stats_mysql_connection_pool_reset;
 | `Latency_us` | > 10,000 → backend is slow |
 | `ConnFree = 0` | Pool exhausted — queries queuing |
 
----
-
 ## Practical: Testing Connection Multiplexing
 
 ```sql
@@ -244,11 +235,9 @@ SELECT * FROM stats_mysql_connection_pool_reset;
 SHOW STATUS LIKE 'Threads_connected';  -- should be much less than app connections
 
 -- In ProxySQL stats:
-SELECT hostgroup, srv_host, ConnUsed, ConnFree 
+SELECT hostgroup, srv_host, ConnUsed, ConnFree
 FROM stats_mysql_connection_pool;
 ```
-
----
 
 ## Connection Pool Anti-Patterns
 
@@ -289,9 +278,6 @@ SELECT * FROM orders WHERE user_id = @current_user;
 -- GOOD: Pass value directly
 SELECT * FROM orders WHERE user_id = 123;
 ```
-
-
----
 
 ## Related
 

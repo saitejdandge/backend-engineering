@@ -11,7 +11,6 @@
 
 # MySQL setup
 
-
 | command                                                                                                                                                                                                             | use                           | More details                                                                                           |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `docker run --name local-mysql -e MYSQL_ROOT_PASSWORD=password -p 3306:3306 -d mysql:latest`                                                                                                                        | Setup a my sql instance       | - **Host:** `127.0.0.1` or `localhost`<br>    <br>- **Port:** `3306`<br>    <br>- **Username:** `root` |
@@ -29,19 +28,19 @@ DELIMITER $$
 CREATE PROCEDURE LoadUserData()
 BEGIN
     DECLARE i INT DEFAULT 1;
-    
+
     -- Start a transaction to make insertion blazing fast
     START TRANSACTION;
-    
+
     WHILE i <= 1000000 DO
-        INSERT INTO users (username, email) 
+        INSERT INTO users (username, email)
         VALUES (
-            CONCAT('user_', i), 
+            CONCAT('user_', i),
             CONCAT('user_', i, '@example.com')
         );
         SET i = i + 1;
     END WHILE;
-    
+
     -- Commit all changes to disk at once
     COMMIT;
 END$$

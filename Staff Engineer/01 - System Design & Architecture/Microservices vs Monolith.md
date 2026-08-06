@@ -17,8 +17,8 @@ A monolith is a single deployable unit where all application logic resides. Ofte
 - Low operational complexity tolerance
 - Unclear service boundaries (splitting prematurely leads to the distributed monolith anti-pattern)
 
----
 ## Microservices
+
 Microservices decompose an application into small, independently deployable services that each own a specific business capability.
 
 ### Core Principles
@@ -29,8 +29,6 @@ Microservices decompose an application into small, independently deployable serv
 - **Failure isolation:** One service crashing doesn't bring down the whole system
 - **Technology heterogeneity:** Each service can use the best tool for its job
 
----
-
 ## Service Decomposition Strategies
 
 ### By Business Capability
@@ -38,6 +36,7 @@ Microservices decompose an application into small, independently deployable serv
 Align services with business domains. Most natural and stable over time.
 
 Example for an e-commerce platform:
+
 - `order-service` — order lifecycle
 - `inventory-service` — stock management
 - `payment-service` — payment processing
@@ -53,13 +52,12 @@ Use DDD's bounded context concept. Each bounded context becomes a service. The c
 Incrementally migrate from monolith to microservices by routing traffic to new services as they replace monolith functionality. The monolith "shrinks" as new services absorb it.
 
 Steps:
+
 1. Identify a bounded domain in the monolith
 2. Build the new service with its own data store
 3. Route traffic to the new service (via a facade or API gateway)
 4. Delete the old monolith code
 5. Repeat
-
----
 
 ## Inter-Service Communication
 
@@ -78,11 +76,10 @@ Steps:
 - **Harder to trace:** Debugging requires distributed tracing.
 
 Patterns:
+
 - **Event Notification:** "Something happened." Consumer decides what to do. Fire-and-forget.
 - **Event-Carried State Transfer:** Event contains all data consumer needs. No need to call back.
 - **Event Sourcing:** State is derived from a log of events. Complete audit trail.
-
----
 
 ## Data Management in Microservices
 
@@ -91,6 +88,7 @@ Patterns:
 Sharing a database couples services at the data layer — defeats the purpose of microservices.
 
 Each service owns its schema and decides its storage technology:
+
 - `user-service` → PostgreSQL
 - `search-service` → Elasticsearch
 - `session-service` → Redis
@@ -108,11 +106,10 @@ You can't do a SQL join across service databases. Options:
 
 Use the **Saga pattern** (see Distributed Systems Fundamentals). Each step is a local transaction. Failures trigger compensating transactions.
 
----
-
 ## API Gateway
 
 A single entry point for clients. Handles:
+
 - **Routing:** Directs requests to the appropriate service
 - **Authentication/Authorization:** Central JWT validation
 - **Rate limiting:** Protects services from overload
@@ -121,13 +118,12 @@ A single entry point for clients. Handles:
 
 Popular: Kong, AWS API Gateway, Nginx, Envoy.
 
----
-
 ## Service Mesh
 
 A dedicated infrastructure layer for service-to-service communication. Typically implemented as a **sidecar proxy** (Envoy) alongside each service.
 
 Capabilities:
+
 - **mTLS between services** (automatic, without app code changes)
 - **Traffic management:** Load balancing, retries, circuit breaking, canary routing
 - **Observability:** Automatic distributed tracing and metrics
@@ -137,8 +133,6 @@ Popular: Istio, Linkerd, AWS App Mesh.
 
 **When to use:** Complex microservice environments with many services, strict security requirements, or need for fine-grained traffic control. Adds operational complexity — don't add it prematurely.
 
----
-
 ## Organizational Coupling (Conway's Law)
 
 > "Organizations which design systems are constrained to produce designs which are a copy of the communication structures of those organizations."
@@ -146,8 +140,6 @@ Popular: Istio, Linkerd, AWS App Mesh.
 If two teams own the same service, you'll get tight coupling. Microservices work best when service boundaries align with team boundaries. This is why Amazon's "two-pizza team" model maps well to microservices.
 
 **Inverse Conway Maneuver:** Deliberately structure teams to drive the architecture you want.
-
----
 
 ## Trade-off Summary
 
@@ -162,11 +154,10 @@ If two teams own the same service, you'll get tight coupling. Microservices work
 | Initial Velocity       | High             | Lower (infra overhead) |
 | Failure Isolation      | None             | Strong                 |
 
----
-
 ## When to Split a Monolith
 
 Split when you see:
+
 - Different scaling requirements (e.g., video processing vs. authentication)
 - A team is blocked by another team's code changes
 - A part of the system needs different deployment frequency
@@ -174,9 +165,6 @@ Split when you see:
 - Specific compliance or security isolation requirements
 
 **Red flag:** Splitting too early is a common mistake. Premature decomposition leads to a distributed monolith — you get all the pain with none of the gains.
-
-
----
 
 ## Related
 

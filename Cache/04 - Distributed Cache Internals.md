@@ -7,6 +7,7 @@ Understanding the internals helps you reason about performance characteristics, 
 ### Single-Threaded Event Loop
 
 Redis processes commands on a **single main thread** using an event loop (libevent / epoll). This means:
+
 - No locking needed for individual commands — atomic by design
 - One slow command blocks everything (KEYS, LRANGE on huge lists, SORT)
 - CPU bottleneck is single-core throughput
@@ -22,6 +23,7 @@ Client connections → I/O threads (parse/serialize) → Single main thread (exe
 ### Memory Model
 
 Redis allocates memory using **jemalloc** (a specialized memory allocator). Each key-value pair consumes:
+
 - The key string
 - The value (varies by type)
 - A `redisObject` header (16 bytes): type, encoding, LRU clock, reference count, pointer to data
@@ -51,8 +53,6 @@ Redis doesn't track a true LRU because a full linked list would double memory. I
 Higher `maxmemory-samples` = more accurate LRU but more CPU per eviction. Default of 5 is good enough for most workloads.
 
 **LFU mode** (Redis 4+): replaces the LRU clock with a frequency counter. Uses Morris counter (probabilistic decrement) to avoid overflow on very hot keys.
-
----
 
 ## Distributed Caching Architecture
 
@@ -84,12 +84,14 @@ Maps both keys and nodes onto a virtual hash ring (0 to 2^32). A key is assigned
 **Removing a node:** Only keys on that node migrate to the next clockwise node.
 
 **Virtual nodes (vnodes):** Each physical node is mapped to multiple points on the ring (e.g., 150 vnodes per node). This:
+
 - Improves balance (avoids hot spots from uneven distribution)
 - Makes partial failure graceful (load spreads across many neighbors)
 
 ### Redis Cluster: How It Actually Shards
 
 Redis Cluster uses **hash slots** instead of consistent hashing:
+
 - 16,384 total hash slots (0–16383)
 - Each master node owns a range of slots
 - `CLUSTER KEYSLOT key` → `CRC16(key) % 16384`
@@ -101,18 +103,18 @@ Node C: slots 10923–16383
 ```
 
 When you run `GET user:123`:
+
 1. Client computes slot: `CRC16("user:123") % 16384 = 5789`
 2. Client checks its slot map → Node B owns 5789
 3. Client sends directly to Node B (smart routing, no proxy)
 
 If the client sends to the wrong node, Redis returns a `MOVED` redirect:
+
 ```
 -MOVED 5789 127.0.0.1:7002
 ```
 
 **Hash tags:** Force keys onto the same slot: `user:{123}:profile` and `user:{123}:feed` both hash on `123` → same slot → MGET/transactions work.
-
----
 
 ## Replication: Avoiding SPOF
 
@@ -131,6 +133,7 @@ Master (writes) → async replicate → Replica 1 (reads)
 - On master failure, a replica must be promoted manually (or automatically via Sentinel)
 
 **Replication process:**
+
 1. Replica connects to master
 2. Master forks, creates RDB snapshot, sends it to replica (full sync)
 3. Master buffers new commands during snapshot transfer
@@ -153,6 +156,7 @@ Replica 2
 ```
 
 **What Sentinel does:**
+
 - Monitors master and replicas with heartbeats
 - If master doesn't respond: marks it `subjectively down (SDOWN)`
 - If quorum (majority) of Sentinels agree: marks `objectively down (ODOWN)`
@@ -178,6 +182,7 @@ Replica A1                   Replica B1                         Replica C1
 ```
 
 **Failure detection:**
+
 - Nodes gossip with each other (ping/pong every second)
 - If a node doesn't respond → marked `PFAIL` (possible fail)
 - If majority of masters agree → marked `FAIL`
@@ -187,8 +192,6 @@ Replica A1                   Replica B1                         Replica C1
 
 **Minimum viable cluster:** 3 masters + 3 replicas (6 nodes total).
 
----
-
 ## Durability
 
 By default Redis is in-memory only — a crash loses all data. Durability is a tradeoff with performance.
@@ -196,6 +199,7 @@ By default Redis is in-memory only — a crash loses all data. Durability is a t
 ### RDB (Redis Database Backup — Snapshots)
 
 Periodic point-in-time snapshots. Uses **fork() + copy-on-write**:
+
 1. Redis forks a child process
 2. Child writes memory to disk (`.rdb` file) — takes seconds to minutes for large datasets
 3. Parent continues serving — writes go to new pages (COW)
@@ -229,6 +233,7 @@ appendfsync everysec   # fsync to disk once per second (recommended)
 ### RDB + AOF (Recommended for Production)
 
 Use both:
+
 - AOF for durability (minimize data loss)
 - RDB for fast restarts and backups
 
@@ -241,13 +246,12 @@ AOF can embed an RDB snapshot at the start of the file for fast load + complete 
 ### Durability in Redis Cluster
 
 Each master has its own persistence config. Replicas also persist (configurable). For true durability:
+
 - Enable AOF with `appendfsync everysec` on all masters
 - Use `min-replicas-to-write 1` — master refuses writes if no replica has acknowledged
 - Accept that there's still a small window of data loss (async replication + 1s AOF lag)
 
 **Redis is not a primary database for critical financial data.** For that, use Postgres with Redis as a cache layer.
-
----
 
 ## Scaling the Cache
 
@@ -276,6 +280,7 @@ If write throughput exceeds a single master's capacity, you need sharding.
 **Redis Cluster** splits the keyspace into 16,384 slots across multiple masters. Each master handles a portion of writes.
 
 **Adding a shard:**
+
 1. Add new master + replica to cluster
 2. Move some slots from existing masters to new master (`CLUSTER RESHARD`)
 3. Redis migrates key-by-key during slot migration — live, no downtime
@@ -287,6 +292,7 @@ redis-cli --cluster reshard existing-host:7000
 ```
 
 **Removing a shard:**
+
 1. Migrate all slots away from node first
 2. Then remove the empty node
 
@@ -295,11 +301,10 @@ redis-cli --cluster reshard existing-host:7000
 Even with good hashing, some keys may be hotter than others (hot key problem).
 
 **Solutions:**
+
 1. **Key replication across slots:** Store hot key on multiple shards, append random suffix: `trending:posts:0`, `trending:posts:1` … `trending:posts:9`. Read from a random shard.
 2. **Local in-process cache (L1):** Cache the hottest keys in-process memory. Reduces Redis hits entirely.
 3. **Read from replicas:** Distribute hot-key reads across master + all its replicas.
-
----
 
 ## Memory Management Deep Dive
 
@@ -311,6 +316,7 @@ maxmemory-policy allkeys-lru   # evict any key using LRU
 ```
 
 **Eviction policies:**
+
 - `noeviction` — return error when full (dangerous for caches)
 - `allkeys-lru` — evict any key by LRU (best for pure caches)
 - `volatile-lru` — evict only keys with TTL, by LRU
@@ -336,14 +342,13 @@ redis-cli info memory
 ### Large Value Problem
 
 Large values (> 1MB) cause issues:
+
 - Slow commands: `GET` on a 10MB string takes time to serialize
 - Network congestion: single response consumes bandwidth
 - AOF/RDB bloat
 - Eviction pain: evicting one big key frees a lot, but LRU can keep big old keys
 
 **Best practice:** Keep individual values under 100KB. For large objects (e.g., HTML pages, large JSON), compress before storing or store in object storage (S3) and cache only the metadata/URL.
-
----
 
 ## Network and Connection Management
 
@@ -352,6 +357,7 @@ Large values (> 1MB) cause issues:
 Each TCP connection to Redis has overhead (~4KB memory, file descriptor). Don't create a new connection per request.
 
 Use a connection pool:
+
 - Pool size: typically `(CPU cores * 2) + active_connections`
 - Lettuce (Kotlin/Java): uses single connection + multiplexing by default — no pool needed
 - Jedis: needs explicit connection pool
@@ -397,8 +403,6 @@ commands.exec()  // execute atomically
 
 **Not true ACID:** If Redis crashes mid-transaction, partial execution is possible. For true atomicity, use Lua scripts (executed atomically as a single command).
 
----
-
 ## Observability and Monitoring
 
 ### Key Redis Metrics
@@ -441,8 +445,6 @@ redis-cli config set slowlog-log-slower-than 10000  # microseconds
 redis-cli slowlog get 10  # last 10 slow commands
 ```
 
----
-
 ## Anti-Patterns to Avoid
 
 **KEYS * in production** — blocks the entire server while scanning all keys. Use `SCAN` cursor-based iteration instead.
@@ -458,9 +460,6 @@ redis-cli slowlog get 10  # last 10 slow commands
 **Forgetting connection pool limits** — too many connections exhausts Redis's `maxclients` (default 10,000). Each connection uses ~2KB of memory.
 
 **Ignoring replication lag** — if you write to master and immediately read from replica, you may read stale data. Either read from master for critical reads, or implement read-your-writes (read from master for N seconds after a write by that user).
-
-
----
 
 ## Related
 

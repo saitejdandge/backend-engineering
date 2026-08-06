@@ -5,6 +5,7 @@
 Never guess. Measure first, then optimize. Premature optimization is expensive and often wrong.
 
 **The loop:**
+
 1. Observe symptoms (high latency, high CPU, OOM)
 2. Form a hypothesis
 3. Measure to confirm or disprove
@@ -13,12 +14,12 @@ Never guess. Measure first, then optimize. Premature optimization is expensive a
 6. Repeat
 
 **Amdahl's Law:** The speedup from optimizing a part of a system is limited by the fraction of time that part is used.
+
 ```
 Speedup = 1 / (1 - P + P/S)
 ```
-Where P = fraction of time in the optimized part, S = speedup of that part. Diminishing returns quickly.
 
----
+Where P = fraction of time in the optimized part, S = speedup of that part. Diminishing returns quickly.
 
 ## The Four Resources
 
@@ -51,8 +52,6 @@ strace -p <pid>  # system calls
 perf top         # CPU profiling
 ```
 
----
-
 ## Profiling Java Applications
 
 ### JVM Metrics to Watch
@@ -64,6 +63,7 @@ perf top         # CPU profiling
 ### GC Tuning Basics
 
 Modern GCs (G1GC, ZGC, Shenandoah) are good defaults. Key knobs:
+
 - **G1GC:** Default in Java 9+. Tunable pause target: `-XX:MaxGCPauseMillis=200`
 - **ZGC:** Sub-millisecond pauses. Best for latency-sensitive services. Use in Java 15+.
 - **Heap size:** `-Xms` (initial) = `-Xmx` (max) in production to avoid resizing pauses.
@@ -84,8 +84,6 @@ Visualize where CPU time is spent. X-axis = % of time in that stack frame. Y-axi
 
 Read from bottom (entry point) to top (leaf function). Wide frames at the top = hot code. Wide frames in the middle = lots of code underneath that path.
 
----
-
 ## Profiling Python Applications
 
 ```python
@@ -99,11 +97,10 @@ py-spy record -o profile.svg --pid 1234
 ```
 
 For async Python (asyncio), use `pyinstrument`:
+
 ```bash
 pyinstrument my_script.py
 ```
-
----
 
 ## Database Query Profiling
 
@@ -125,6 +122,7 @@ LIMIT 20;
 ```
 
 **What to look for in EXPLAIN output:**
+
 - `Seq Scan` on large tables → add index
 - `Hash Join` with high rows → check join condition selectivity
 - `Sort` → index might help, or reduce data before sort
@@ -147,8 +145,6 @@ orders = Order.query.options(joinedload('user')).all()
 
 In production, use query logging in development, and APM tools (Datadog, New Relic) to detect N+1 patterns automatically.
 
----
-
 ## Common Application Bottlenecks
 
 ### Synchronous Blocking I/O in Async Context
@@ -167,6 +163,7 @@ async def handle_request():
 ### Object Serialization
 
 JSON serialization/deserialization is CPU-intensive at scale. Options:
+
 - Use faster JSON libraries: `orjson` (Python), `jackson` with optimized config (Java)
 - Use binary formats (Protobuf, Avro, MessagePack) for internal APIs
 - Cache serialized output when possible
@@ -197,8 +194,6 @@ Excessive locking creates contention. Signs: high `BLOCKED` thread count, low CP
 - Use read-write locks when reads dominate
 - Consider optimistic locking (CAS operations)
 
----
-
 ## Latency Percentiles
 
 Never look at averages alone. Use percentiles.
@@ -211,6 +206,7 @@ Never look at averages alone. Use percentiles.
 A system with p50=10ms and p99=2000ms is suffering — the average might look fine at 50ms.
 
 **Latency percentile targets by service type:**
+
 - External-facing API: p99 < 200ms
 - Internal service: p99 < 50ms
 - DB query: p99 < 10ms
@@ -226,28 +222,25 @@ Combined p99 ≈ sum of individual p99s + serial overhead
 
 This is why minimizing serial I/O hops (fan-out, parallel calls) is critical.
 
----
-
 ## Load Testing
 
 Never go to production without load testing. Know your system's limits before your users find them.
 
 **Tools:**
+
 - **k6:** Modern, scriptable, good for CI integration
 - **Locust:** Python-based, easy to write complex scenarios
 - **Apache JMeter:** Feature-rich, older, XML-based config
 - **Gatling:** Scala DSL, good reporting
 
 **What to test:**
+
 - **Baseline:** Normal traffic. Confirm p99 meets SLO.
 - **Stress test:** Gradually increase until system breaks. Find the breaking point.
 - **Spike test:** Sudden traffic jump. Test auto-scaling and circuit breakers.
 - **Soak test:** Sustained load over hours/days. Reveals memory leaks, connection pool exhaustion, disk fill.
 
 **Always test with production-like data volume.** A test with 100 rows performs nothing like a test with 100 million rows.
-
-
----
 
 ## Related
 
