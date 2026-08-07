@@ -141,7 +141,6 @@
   --status-bar-background: var(--claude-surface-soft);
   --status-bar-text-color: var(--claude-muted);
 
-  --font-interface: var(--claude-font-body);
   --font-text: var(--claude-font-body);
   --font-monospace: var(--claude-font-mono);
 
@@ -221,8 +220,6 @@
 .nav-file-title {
   color: var(--claude-body);
   border-radius: var(--radius-m);
-  font-weight: 500;
-  font-size: 14px;
 }
 
 .nav-file-title.is-active,
@@ -247,12 +244,6 @@
 .workspace-tab-header.is-active {
   background-color: var(--claude-canvas);
   color: var(--claude-ink);
-}
-
-.workspace-tab-header-inner-title {
-  font-family: var(--claude-font-body);
-  font-weight: 500;
-  font-size: 14px;
 }
 
 /* Editorial headings — Copernicus display at weight 400 */

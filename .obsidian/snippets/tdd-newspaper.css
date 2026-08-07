@@ -1,5 +1,5 @@
-/* The Daily Diff (tdd.cat) — newspaper typography & palette
-   Display: Lora | Body: PT Serif | Accent: burgundy / gold */
+/* The Daily Diff (tdd.cat) — newspaper typography
+   Mild warm backgrounds | original accent & text colors */
 
 @import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap");
 
@@ -12,9 +12,10 @@
 }
 
 .theme-light {
-  --tdd-page: #e7e1d1;
-  --tdd-canvas: #f8f4e8;
-  --tdd-surface-soft: #efe8d4;
+  /* mild backgrounds only */
+  --tdd-page: #ebe8e2;
+  --tdd-canvas: #f9f7f3;
+  --tdd-surface-soft: #f2efe8;
   --tdd-well: #ffffff;
   --tdd-ink: #1b1a17;
   --tdd-body: #45423a;
@@ -31,9 +32,10 @@
 }
 
 .theme-dark {
-  --tdd-page: #17150f;
-  --tdd-canvas: #221f19;
-  --tdd-surface-soft: #2a2520;
+  /* mild backgrounds only */
+  --tdd-page: #1a1816;
+  --tdd-canvas: #22201d;
+  --tdd-surface-soft: #2a2724;
   --tdd-well: #1c1913;
   --tdd-ink: #d9d0bd;
   --tdd-body: #b0a790;
@@ -82,7 +84,6 @@
   --status-bar-background: var(--tdd-surface-soft);
   --status-bar-text-color: var(--tdd-muted);
 
-  --font-interface: var(--tdd-font-body);
   --font-text: var(--tdd-font-body);
   --font-monospace: var(--tdd-font-mono);
 
@@ -98,13 +99,15 @@
   --code-normal: var(--tdd-ink);
   --code-block-background: var(--tdd-code-block);
 
+  /* default readable line length ≈ 700px */
+  --file-line-width: 960px;
+
   background-color: var(--tdd-canvas);
 }
 
 .theme-light { color-scheme: light; }
 .theme-dark { color-scheme: dark; }
 
-/* Page frame — outer margin like tdd.cat */
 .workspace-split.mod-root {
   background-color: var(--tdd-page);
 }
@@ -137,8 +140,6 @@
 .nav-file-title,
 .nav-folder-title-content,
 .nav-file-title-content {
-  font-family: var(--tdd-font-body);
-  font-size: 14px;
   color: var(--tdd-body);
   border-radius: 2px;
 }
@@ -150,13 +151,7 @@
   color: var(--tdd-ink) !important;
 }
 
-.workspace-tab-header-inner-title {
-  font-family: var(--tdd-font-body);
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-/* Headings — shared typography, no double underline */
+/* Headings */
 .inline-title,
 .markdown-preview-view h1,
 .markdown-preview-view h2,
@@ -215,7 +210,6 @@
   border-bottom: none;
 }
 
-/* Edit mode: underline the line, not inline tokens — prevents double rule */
 .markdown-source-view.mod-cm6 .HyperMD-header-1 {
   border-bottom: 2px solid var(--tdd-rule) !important;
 }
@@ -234,9 +228,9 @@
 .markdown-source-view.mod-cm6 .inline-title {
   border-bottom: 2px solid var(--tdd-rule);
   padding-bottom: 0.35em;
+  color: var(--tdd-ink) !important;
 }
 
-/* Body — all serif, like the newspaper */
 .markdown-preview-view,
 .markdown-source-view.mod-cm6 .cm-content {
   font-family: var(--tdd-font-body) !important;
@@ -301,7 +295,6 @@
   color: var(--tdd-code-text) !important;
 }
 
-/* Fenced code blocks — dark in edit mode too */
 .markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock,
 .markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-begin,
 .markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-end {
@@ -387,4 +380,10 @@ button.mod-cta {
 
 .theme-dark ::selection {
   background: rgba(204, 154, 86, 0.25);
+}
+
+/* Wider note column — needs Settings → Editor → Readable line length ON */
+.markdown-preview-view.is-readable-line-width .markdown-preview-sizer,
+.markdown-source-view.mod-cm6.is-readable-line-width .cm-sizer {
+  max-width: var(--file-line-width);
 }
