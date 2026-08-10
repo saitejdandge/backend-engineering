@@ -9,13 +9,17 @@ const target = path.resolve(__dirname, "../quartz/styles/obsidian-snippet.scss")
 const css = fs.readFileSync(source, "utf8")
 let adapted = css
   .replace(/@import url\([^)]+\);\s*/g, "")
-  .replace(/\.theme-light/g, ".theme-light, html:not([saved-theme=\"dark\"])")
+  // Font tokens apply globally; drop Obsidian theme class hooks from this block.
+  .replace(/:root,\s*\n\.theme-light,\s*\n\.theme-dark/g, ":root")
+  .replace(/\.theme-light/g, ":root, .theme-light, html[saved-theme=\"light\"], html:not([saved-theme=\"dark\"])")
   .replace(/\.theme-dark/g, ".theme-dark, html[saved-theme=\"dark\"]")
+  // Collapse duplicate :root entries from the transforms above.
+  .replace(/(:root,\s*)+:root,/g, ":root,")
 
 // Descendant selectors: ".theme-dark ::pseudo" must not become ".theme-dark, html[dark] ::pseudo"
 adapted = adapted.replace(
-  /\.theme-light, html:not\(\[saved-theme="dark"\]\) (::[\w-]+)/g,
-  "html:not([saved-theme=\"dark\"]) $1",
+  /:root, \.theme-light, html\[saved-theme="light"\], html:not\(\[saved-theme="dark"\]\) (::[\w-]+)/g,
+  ":root $1, html:not([saved-theme=\"dark\"]) $1",
 )
 adapted = adapted.replace(
   /\.theme-dark, html\[saved-theme="dark"\] (::[\w-]+)/g,

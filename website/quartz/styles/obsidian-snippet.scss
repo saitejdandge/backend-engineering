@@ -2,15 +2,13 @@
 /* The Daily Diff (tdd.cat) — newspaper typography
    Mild warm backgrounds | original accent & text colors */
 
-:root,
-.theme-light, html:not([saved-theme="dark"]),
-.theme-dark, html[saved-theme="dark"] {
+:root {
   --tdd-font-display: "Lora", Georgia, "Times New Roman", serif;
   --tdd-font-body: "PT Serif", Georgia, "Times New Roman", serif;
   --tdd-font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
-.theme-light, html:not([saved-theme="dark"]) {
+:root, .theme-light, html[saved-theme="light"], html:not([saved-theme="dark"]) {
   /* mild backgrounds only */
   --tdd-page: #ebe8e2;
   --tdd-canvas: #f9f7f3;
@@ -50,7 +48,7 @@
   --tdd-code-text: #d9d0bd;
 }
 
-.theme-light, html:not([saved-theme="dark"]),
+:root, .theme-light, html[saved-theme="light"], html:not([saved-theme="dark"]),
 .theme-dark, html[saved-theme="dark"] {
   --background-primary: var(--tdd-canvas);
   --background-primary-alt: var(--tdd-surface-soft);
@@ -101,9 +99,10 @@
   /* default readable line length ≈ 700px */
   --file-line-width: 960px;
 
-  }
+  background-color: var(--tdd-canvas);
+}
 
-.theme-light, html:not([saved-theme="dark"]) { color-scheme: light; }
+:root, .theme-light, html[saved-theme="light"], html:not([saved-theme="dark"]) { color-scheme: light; }
 .theme-dark, html[saved-theme="dark"] { color-scheme: dark; }
 
 .workspace-split.mod-root {

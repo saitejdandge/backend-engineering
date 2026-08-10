@@ -159,7 +159,7 @@ describe("theme CSS", () => {
     assert.ok(cssFiles.length > 0, "Expected compiled index-*.css in public/")
 
     const css = fs.readFileSync(path.join(publicDir, cssFiles[0]!), "utf8")
-    assert.match(css, /html:not\(\[saved-theme=dark\]\).*background-color:var\(--tdd-page\)/)
-    assert.match(css, /min-height:100vh/)
+    assert.match(css, /:root\{[^}]*--tdd-page:#ebe8e2/)
+    assert.match(css, /min-height:-webkit-fill-available/)
   })
 })

@@ -12,20 +12,37 @@
 
 // --- Quartz ↔ Obsidian bridge ---
 
-// Page chrome — full width; no outer letterbox margins on wide screens
-html:not([saved-theme="dark"]),
+// Light tokens on :root — real mobile browsers (Samsung Internet, etc.) sometimes
+// miss html:not([saved-theme="dark"]) before/without the theme class on body.
+:root {
+  color-scheme: light;
+  --tdd-page: #ebe8e2;
+  --tdd-canvas: #f9f7f3;
+  --tdd-surface-soft: #f2efe8;
+  --tdd-body: #45423a;
+}
+
 html[saved-theme="dark"] {
-  background-color: var(--tdd-page) !important;
+  color-scheme: dark;
+}
+
+// Page chrome — full width; no outer letterbox margins on wide screens
+html {
+  background-color: var(--tdd-page, #ebe8e2) !important;
   min-height: 100%;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
 }
 
 body,
 .page,
 #quartz-body,
 #quartz-body .center {
-  background-color: var(--tdd-canvas);
-  color: var(--tdd-body);
+  background-color: var(--tdd-canvas, #f9f7f3);
+  color: var(--tdd-body, #45423a);
   min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
 }
 
 // Breadcrumb already includes the current page — hide duplicate title before article h1
