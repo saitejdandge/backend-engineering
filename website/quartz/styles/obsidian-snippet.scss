@@ -101,8 +101,7 @@
   /* default readable line length ≈ 700px */
   --file-line-width: 960px;
 
-  background-color: var(--tdd-canvas);
-}
+  }
 
 .theme-light, html:not([saved-theme="dark"]) { color-scheme: light; }
 .theme-dark, html[saved-theme="dark"] { color-scheme: dark; }
@@ -377,7 +376,7 @@ button.mod-cta {
   background: rgba(138, 31, 17, 0.16);
 }
 
-.theme-dark, html[saved-theme="dark"] ::selection {
+html[saved-theme="dark"] ::selection {
   background: rgba(204, 154, 86, 0.25);
 }
 

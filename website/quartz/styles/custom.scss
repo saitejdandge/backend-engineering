@@ -3,13 +3,17 @@
 
 @include meta.load-css("obsidian-snippet");
 
-// --- Quartz ↔ Obsidian bridge (Quartz uses different DOM outside the note body) ---
+// --- Quartz ↔ Obsidian bridge ---
 
-html:not([saved-theme="dark"]) {
-  background-color: var(--tdd-page);
+// Page chrome: outer frame vs reading surface (matches Obsidian workspace split)
+html:not([saved-theme="dark"]),
+html[saved-theme="dark"] {
+  background-color: var(--tdd-page) !important;
 }
 
-body {
+body,
+.page,
+#quartz-body .center {
   background-color: var(--tdd-canvas);
   color: var(--tdd-body);
 }
@@ -23,36 +27,173 @@ body {
   max-width: var(--file-line-width);
 }
 
-// Title sits outside .markdown-preview-view in Quartz
-h1.article-title {
-  font-family: var(--tdd-font-display) !important;
-  font-weight: 700 !important;
-  color: var(--tdd-accent) !important;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  border-bottom: 2px solid var(--tdd-rule);
-  padding-bottom: 0.35em;
-  margin-top: 0;
+// Sidebars
+#quartz-body .sidebar {
+  background-color: var(--tdd-surface-soft) !important;
 }
 
-// Hide Quartz metadata chrome — Obsidian reading view doesn't show this
+.sidebar .page-title,
+.sidebar .page-title a {
+  font-family: var(--tdd-font-display);
+  color: var(--tdd-ink);
+  font-weight: 700;
+}
+
+// Explorer: Quartz defaults folder names to --secondary (accent red)
+.explorer {
+  button.desktop-explorer h2,
+  button.mobile-explorer h2 {
+    font-family: var(--tdd-font-display);
+    color: var(--tdd-ink);
+    font-weight: 600;
+  }
+
+  .explorer-content ul li > a {
+    color: var(--tdd-body);
+    font-weight: 400;
+    opacity: 1;
+
+    &:hover {
+      color: var(--tdd-ink);
+    }
+
+    &.active {
+      color: var(--tdd-ink);
+      background-color: var(--tdd-accent-soft);
+      border-radius: 2px;
+      padding: 0 0.25rem;
+    }
+  }
+
+  .folder-container {
+    div > a,
+    div > button,
+    div > button span,
+    .folder-title {
+      color: var(--tdd-body) !important;
+      font-family: var(--tdd-font-body) !important;
+      font-weight: 500 !important;
+    }
+
+    div > a:hover,
+    div > button:hover span {
+      color: var(--tdd-ink) !important;
+    }
+  }
+
+  .folder-icon {
+    color: var(--tdd-muted) !important;
+
+    &:hover {
+      color: var(--tdd-body) !important;
+    }
+  }
+}
+
+// Breadcrumbs & TOC — muted nav, accent only on hover
+.breadcrumbs {
+  color: var(--tdd-muted);
+  font-size: 0.875rem;
+
+  a {
+    color: var(--tdd-muted);
+    font-weight: 400;
+
+    &:hover {
+      color: var(--tdd-accent);
+    }
+  }
+}
+
+.toc {
+  a {
+    color: var(--tdd-muted);
+    font-weight: 400;
+
+    &.in-view,
+    &:hover {
+      color: var(--tdd-ink);
+    }
+  }
+}
+
+.sidebar.right .graph h3,
+.toc h3,
+.backlinks h3 {
+  font-family: var(--tdd-font-display);
+  color: var(--tdd-ink);
+}
+
+// Hide Quartz metadata chrome
 .note-properties,
 .content-meta {
   display: none;
 }
 
-// Quartz wraps internal links differently
+// Article headings — content h1 only (article-title plugin disabled)
+.markdown-preview-view {
+  h1 {
+    font-family: var(--tdd-font-display) !important;
+    font-weight: 700 !important;
+    color: var(--tdd-accent) !important;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    border-bottom: 2px solid var(--tdd-rule);
+    padding-bottom: 0.35em;
+    margin-top: 0;
+  }
+}
+
+// Body links keep newspaper accent; sidebars stay muted (see above)
+.markdown-preview-view a:not(.tag-link) {
+  color: var(--tdd-accent);
+  font-weight: 400;
+
+  &:hover {
+    color: var(--tdd-accent);
+    opacity: 0.85;
+  }
+}
+
+// Wiki links — Obsidian style, not Quartz pill highlight
 .markdown-preview-view a.internal-link,
 .markdown-preview-view a.internal.internal-link,
-a.internal.internal-link {
+a.internal.internal-link:not(.tag-link) {
   background: transparent !important;
   padding: 0 !important;
   border-radius: 0 !important;
   line-height: inherit !important;
   font-weight: 400 !important;
+  color: var(--tdd-accent) !important;
 }
 
-// Code blocks: Quartz uses Shiki figures, not plain <pre>
+// Tags — Quartz uses a.internal.tag-link; Obsidian uses a.tag
+.markdown-preview-view a.internal.tag-link,
+.tag-list a.internal.tag-link,
+a.internal.tag-link {
+  background: var(--tdd-surface-soft) !important;
+  color: var(--tdd-ink) !important;
+  border-radius: 2px !important;
+  font-family: var(--tdd-font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 0.15em 0.45em;
+  line-height: 1.4;
+
+  &:hover {
+    background: var(--tdd-accent-soft) !important;
+    color: var(--tdd-ink) !important;
+    opacity: 1;
+  }
+}
+
+.tag-list {
+  margin-bottom: 0.75rem;
+}
+
+// Code blocks
 .markdown-preview-view figure[data-rehype-pretty-code-figure],
 figure[data-rehype-pretty-code-figure] {
   background: var(--tdd-code-block) !important;
@@ -77,41 +218,8 @@ figure[data-rehype-pretty-code-figure] {
   }
 }
 
-// Obsidian uses dark code blocks even in light mode — force Shiki dark tokens
 html:not([saved-theme="dark"]) figure[data-rehype-pretty-code-figure] code span {
   color: var(--shiki-dark) !important;
-}
-
-// Sidebars → Obsidian nav palette
-#quartz-body .sidebar {
-  background-color: var(--tdd-surface-soft) !important;
-}
-
-.sidebar .page-title,
-.sidebar .page-title a {
-  font-family: var(--tdd-font-display);
-  color: var(--tdd-ink);
-  font-weight: 700;
-}
-
-.explorer .tree-item-self,
-.explorer .nav-file-title,
-.explorer .nav-folder-title {
-  color: var(--tdd-body);
-  border-radius: 2px;
-}
-
-.explorer .tree-item-self.active,
-.explorer .nav-file-title.is-active {
-  background-color: var(--tdd-accent-soft) !important;
-  color: var(--tdd-ink) !important;
-}
-
-.sidebar.right .graph h3,
-.toc h3,
-.backlinks h3 {
-  font-family: var(--tdd-font-display);
-  color: var(--tdd-ink);
 }
 
 footer {
