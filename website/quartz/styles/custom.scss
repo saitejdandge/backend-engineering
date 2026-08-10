@@ -1,3 +1,234 @@
 @use "./variables.scss" as *;
 
-// put your custom CSS here!
+// Newspaper theme — adapted from .obsidian/snippets/tdd-newspaper.css
+
+:root {
+  --tdd-page: #ebe8e2;
+  --tdd-well: #ffffff;
+  --tdd-rule-soft: rgba(32, 30, 25, 0.28);
+  --tdd-rule-hair: rgba(32, 30, 25, 0.16);
+  --tdd-code-bg: #efe8d4;
+  --tdd-code-block: #1b1a17;
+  --tdd-code-text: #f8f4e8;
+  --tdd-content-width: 960px;
+}
+
+:root[saved-theme="dark"] {
+  --tdd-page: #1a1816;
+  --tdd-well: #1c1913;
+  --tdd-rule-soft: rgba(217, 208, 189, 0.22);
+  --tdd-rule-hair: rgba(217, 208, 189, 0.12);
+  --tdd-code-bg: #2a2520;
+  --tdd-code-block: #1c1913;
+  --tdd-code-text: #d9d0bd;
+}
+
+html {
+  background-color: var(--tdd-page);
+}
+
+body {
+  background-color: var(--light);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--textHighlight);
+  color: var(--dark);
+}
+
+.page {
+  max-width: calc(var(--tdd-content-width) + 640px);
+}
+
+#quartz-body .sidebar {
+  background-color: var(--lightgray);
+}
+
+#quartz-body .sidebar.left,
+#quartz-body .sidebar.right {
+  border-color: var(--tdd-rule-hair);
+}
+
+.page > #quartz-body .center > article {
+  max-width: var(--tdd-content-width);
+  background: var(--light);
+  padding: 0 0.5rem;
+}
+
+article {
+  font-family: var(--bodyFont);
+  color: var(--darkgray);
+}
+
+article > h1,
+h1.article-title,
+article > .article-title,
+h1.title {
+  font-family: var(--headerFont) !important;
+  font-weight: 700 !important;
+  color: var(--secondary) !important;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  border-bottom: 2px solid var(--dark);
+  padding-bottom: 0.35em;
+  margin-top: 0;
+}
+
+article h1 {
+  font-size: 2rem;
+}
+
+article h2 {
+  font-family: var(--headerFont);
+  font-weight: 700;
+  color: var(--dark);
+  line-height: 1.25;
+  border-bottom: 1px solid var(--tdd-rule-soft);
+  padding-bottom: 0.25em;
+}
+
+article h3,
+article h4,
+article h5,
+article h6 {
+  font-family: var(--headerFont);
+  font-weight: 600;
+  color: var(--dark);
+  border-bottom: none;
+}
+
+article p > strong,
+article strong {
+  color: var(--dark);
+  font-weight: 700;
+}
+
+article a {
+  color: var(--secondary);
+  font-weight: 400;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--secondary);
+    text-decoration: underline;
+  }
+
+  &.internal {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    line-height: inherit;
+  }
+
+  &.tag-link {
+    background: var(--lightgray);
+    color: var(--dark) !important;
+    border-radius: 2px;
+    font-family: var(--headerFont);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.15em 0.45em;
+    font-weight: 600;
+
+    &::before {
+      content: none;
+    }
+  }
+}
+
+article hr {
+  border: none;
+  border-top: 1px solid var(--tdd-rule-soft);
+  margin: 2em 0;
+}
+
+article blockquote {
+  background: var(--lightgray);
+  border-left: 3px solid var(--secondary);
+  border-radius: 0;
+  color: var(--darkgray);
+  font-style: italic;
+  padding: 0.75em 1em;
+}
+
+article code:not(pre code) {
+  font-family: var(--codeFont) !important;
+  background: var(--tdd-code-bg) !important;
+  color: var(--dark) !important;
+  border-radius: 2px;
+  padding: 0.1em 0.35em;
+  font-size: 0.875em;
+}
+
+article pre,
+article figure[data-rehype-pretty-code-figure] {
+  background: var(--tdd-code-block) !important;
+  border: 1px solid var(--tdd-rule-hair);
+  border-radius: 4px;
+}
+
+article pre code,
+article figure[data-rehype-pretty-code-figure] code {
+  background: transparent !important;
+  color: var(--tdd-code-text) !important;
+}
+
+article table {
+  border-collapse: collapse;
+  border: 1px solid var(--tdd-rule-soft);
+}
+
+article th {
+  font-family: var(--headerFont);
+  background: var(--lightgray);
+  color: var(--dark);
+  font-weight: 700;
+  border-bottom: 1px solid var(--tdd-rule-soft);
+}
+
+article td {
+  border-bottom: 1px solid var(--tdd-rule-hair);
+  color: var(--darkgray);
+}
+
+article .callout {
+  background: var(--lightgray);
+  border: 1px solid var(--tdd-rule-soft);
+  border-radius: 4px;
+}
+
+article .callout[data-callout="info"],
+article .callout[data-callout="note"],
+article .callout[data-callout="tip"] {
+  --color: var(--secondary);
+  --border: color-mix(in srgb, var(--secondary) 28%, transparent);
+  --bg: var(--highlight);
+}
+
+.page-title {
+  font-family: var(--headerFont);
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.explorer ul li > a,
+.toc li > a,
+.backlinks li > a {
+  color: var(--darkgray);
+  border-radius: 2px;
+
+  &.active,
+  &:hover {
+    background: var(--highlight);
+    color: var(--dark);
+  }
+}
+
+footer {
+  color: var(--gray);
+  border-top: 1px solid var(--tdd-rule-hair);
+  padding-top: 1rem;
+}
