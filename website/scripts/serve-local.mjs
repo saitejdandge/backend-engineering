@@ -5,9 +5,19 @@ import serveHandler from "serve-handler"
 
 const port = Number(process.env.PORT ?? 8080)
 const output = path.resolve("public")
-const baseDir = process.env.BASE_DIR ?? ""
+// Match GitHub Pages subpath used in production builds
+const baseDir = process.env.BASE_DIR ?? "/backend-engineering"
 
 const server = http.createServer(async (req, res) => {
+  const url = req.url?.split("?")[0] ?? "/"
+
+  // Redirect site root to the GitHub Pages subpath
+  if (baseDir && (url === "/" || url === "")) {
+    res.writeHead(302, { Location: `${baseDir}/` })
+    res.end()
+    return
+  }
+
   if (baseDir && !req.url?.startsWith(baseDir)) {
     res.writeHead(404)
     res.end("Not found")

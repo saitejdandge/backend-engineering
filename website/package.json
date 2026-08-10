@@ -21,7 +21,8 @@
     "install-plugins": "npx tsx ./quartz/plugins/loader/install-plugins.ts",
     "prebuild": "node scripts/sync-obsidian-css.mjs && npm run install-plugins",
     "preview": "node scripts/serve-local.mjs",
-    "dev": "node scripts/sync-obsidian-css.mjs && npx quartz build && node scripts/serve-local.mjs",
+    "dev": "node scripts/sync-obsidian-css.mjs && npx quartz build --serve",
+    "dev:static": "node scripts/sync-obsidian-css.mjs && npx quartz build && node scripts/serve-local.mjs",
     "sync-theme": "node scripts/sync-obsidian-css.mjs"
   },
   "engines": {
