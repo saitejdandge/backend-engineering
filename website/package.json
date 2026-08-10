@@ -17,6 +17,7 @@
     "check": "tsc --noEmit && npx prettier . --check",
     "format": "npx prettier . --write",
     "test": "tsx --test",
+    "verify:links": "node scripts/emit-short-path-redirects.mjs && tsx --test scripts/verify-internal-links.test.ts",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
     "install-plugins": "npx tsx ./quartz/plugins/loader/install-plugins.ts",
     "prebuild": "node scripts/sync-obsidian-css.mjs && npm run install-plugins",

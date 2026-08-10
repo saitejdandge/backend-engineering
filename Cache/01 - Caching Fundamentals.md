@@ -425,4 +425,4 @@ Request → L1 (in-process, ~0.1ms) → miss
 
 ## Related
 
-[[02 - Redis Deep Dive]]  [[../Staff Engineer/01 - System Design & Architecture/Caching Strategies]]
+[[02 - Redis Deep Dive]]  [[Staff Engineer/01 - System Design & Architecture/Caching Strategies]]

@@ -65,7 +65,7 @@ Same topology setup,  application server may create multiple connection objects 
 Sometimes the database provider handles the partition pickups, and abstracts that logic
 example: *DynamoDB, MongoDB*
 
-## Proxy SQL Primer [[../ProxySQL/01 - What is ProxySQL]]
+## Proxy SQL Primer [[ProxySQL/01 - What is ProxySQL]]
 
 This is a mySQL proxy, which coordinates and ==abstracts the topology from the application layer==.
 

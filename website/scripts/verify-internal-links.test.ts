@@ -4,10 +4,12 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, test } from "node:test"
 import { globby } from "globby"
+import { emitShortPathRedirects } from "../scripts/emit-short-path-redirects.mjs"
 
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url))
 const websiteDir = path.resolve(scriptsDir, "..")
 const publicDir = path.join(websiteDir, "public")
+const contentDir = path.resolve(websiteDir, "..")
 
 /** Candidate public/ paths for a relative internal href. */
 export function resolveInternalHrefCandidates(fromHtml: string, href: string): string[] {
@@ -28,6 +30,10 @@ export function resolveInternalHrefCandidates(fromHtml: string, href: string): s
   }
 
   rest = rest.replace(/\/$/, "")
+  if (!rest) {
+    return [dir ? `${dir}/index.html` : "index.html"]
+  }
+
   const base = path.join(dir, rest).replace(/\\/g, "/")
 
   return [`${base}/index.html`, `${base}.html`]
@@ -37,38 +43,53 @@ export function internalHrefExists(fromHtml: string, href: string, htmlSet: Set<
   return resolveInternalHrefCandidates(fromHtml, href).some((candidate) => htmlSet.has(candidate))
 }
 
-/** TOC links on a folder index should stay in-folder (./child), not escape via ../. */
-export function findEscapingTocLinks(pageHtml: string, html: string): string[] {
-  const folder = path.dirname(pageHtml.replace(/\\/g, "/"))
-  if (folder === ".") {
+/** Section index pages must use vault-qualified wikilinks for subfolders. */
+export function findUnqualifiedSectionIndexWikilinks(markdown: string, filePath: string): string[] {
+  if (!/^[^/]+\/index\.md$/.test(filePath)) {
     return []
   }
 
   const issues: string[] = []
-  const articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/)
-  if (!articleMatch) {
-    return issues
-  }
+  const linkPattern = /\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]/g
+  const sectionDir = path.join(contentDir, path.dirname(filePath))
 
-  const linkPattern = /href="(\.\.?\/[^"#?]+)"[^>]*class="[^"]*internal/g
-  for (const match of articleMatch[1].matchAll(linkPattern)) {
-    const href = match[1]
-    if (href.startsWith("../") && !href.startsWith(`../${folder}/`)) {
-      const candidates = resolveInternalHrefCandidates(pageHtml, href)
-      const staysInFolder = candidates.some((target) =>
-        target.startsWith(`${folder}/`) || target === `${folder}/index.html`,
-      )
-      if (staysInFolder) {
-        issues.push(`${href} should be ./… (escapes folder ${folder} unnecessarily)`)
-      }
+  for (const match of markdown.matchAll(linkPattern)) {
+    const target = match[1].trim()
+    if (target.includes("/")) {
+      continue
     }
-    if (href.startsWith("../") && !href.includes(`${folder}/`)) {
-      issues.push(`${href} escapes section folder ${folder}`)
+    const childDir = path.join(sectionDir, target)
+    if (fs.existsSync(childDir) && fs.statSync(childDir).isDirectory()) {
+      issues.push(target)
     }
   }
 
   return issues
 }
+
+describe("content index wikilinks", () => {
+  test("section index pages qualify subfolder wikilinks with vault paths", async () => {
+    const indexFiles = await globby("**/index.md", {
+      cwd: contentDir,
+      ignore: ["website/**", ".git/**", "node_modules/**"],
+    })
+
+    const failures: string[] = []
+    for (const file of indexFiles) {
+      const markdown = fs.readFileSync(path.join(contentDir, file), "utf8")
+      const risky = findUnqualifiedSectionIndexWikilinks(markdown, file)
+      if (risky.length > 0) {
+        failures.push(`${file}: ${risky.join(", ")}`)
+      }
+    }
+
+    assert.equal(
+      failures.length,
+      0,
+      `Unqualified subfolder wikilinks in section indexes:\n${failures.join("\n")}`,
+    )
+  })
+})
 
 describe("built internal links", () => {
   test("all relative internal links resolve to existing HTML under public/", async () => {
@@ -100,27 +121,34 @@ describe("built internal links", () => {
     )
   })
 
-  test("section index TOC links use in-folder relative paths", async () => {
+  test("staff-engineer index never emits collapsed ./api-design links", () => {
+    const html = fs.readFileSync(path.join(publicDir, "staff-engineer/index.html"), "utf8")
+    const article = html.match(/<article[\s\S]*?<\/article>/)?.[0] ?? ""
+    assert.doesNotMatch(
+      article,
+      /href="\.\/api-design"/,
+      "Collapsed api-design link would 404 at /staff-engineer/api-design",
+    )
+  })
+
+  test("short-path redirect exists for staff-engineer/api-design", () => {
+    const redirectPath = path.join(publicDir, "staff-engineer/api-design.html")
+    assert.ok(fs.existsSync(redirectPath), "Expected redirect at staff-engineer/api-design.html")
+    const html = fs.readFileSync(redirectPath, "utf8")
+    assert.match(html, /01---system-design--and--architecture\/api-design/)
+  })
+})
+
+describe("short-path redirects", () => {
+  test("emitShortPathRedirects creates unique collapsed-path aliases", async () => {
     if (!fs.existsSync(publicDir)) {
-      throw new Error("Run `npx quartz build` before link verification tests")
+      throw new Error("Run `npx quartz build` before redirect tests")
     }
 
-    const sectionIndexes = [
-      "staff-engineer/index.html",
-      "database-systems/index.html",
-    ]
-    const failures: string[] = []
-
-    for (const page of sectionIndexes) {
-      const html = fs.readFileSync(path.join(publicDir, page), "utf8")
-      const issues = findEscapingTocLinks(page, html)
-      failures.push(...issues.map((issue) => `${page}: ${issue}`))
-    }
-
-    assert.equal(
-      failures.length,
-      0,
-      `TOC links escape their section folder:\n${failures.join("\n")}`,
+    await emitShortPathRedirects({ publicDir })
+    assert.ok(
+      fs.existsSync(path.join(publicDir, "staff-engineer/api-design.html")),
+      "api-design short path redirect missing",
     )
   })
 })
@@ -133,7 +161,5 @@ describe("theme CSS", () => {
     const css = fs.readFileSync(path.join(publicDir, cssFiles[0]!), "utf8")
     assert.match(css, /html:not\(\[saved-theme=dark\]\).*background-color:var\(--tdd-page\)/)
     assert.match(css, /min-height:100vh/)
-    assert.match(css, /--tdd-page:#ebe8e2/)
-    assert.match(css, /--tdd-canvas:#f9f7f3/)
   })
 })

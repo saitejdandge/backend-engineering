@@ -56,6 +56,9 @@ jobs:
       - name: Build site
         run: npx quartz build
 
+      - name: Emit short-path redirects
+        run: node scripts/emit-short-path-redirects.mjs
+
       - name: Verify internal links and theme
         run: npm test
 

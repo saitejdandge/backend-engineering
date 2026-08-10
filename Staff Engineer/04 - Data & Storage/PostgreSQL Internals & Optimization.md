@@ -281,4 +281,4 @@ ORDER BY pg_total_relation_size(tablename::regclass) DESC;
 
 ## Related
 
-[[NoSQL Systems]]  [[../../../Concurrency_control/1. Intro]]
+[[NoSQL Systems]]  [[Concurrency_control/1. Intro]]

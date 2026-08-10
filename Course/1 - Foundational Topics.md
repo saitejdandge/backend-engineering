@@ -326,7 +326,7 @@ SHOW PROFILES;
 
 # Caching
 
-More details -> [[../Cache/01 - Caching Fundamentals]]
+More details -> [[Cache/01 - Caching Fundamentals]]
 
 Caches can be on disk, caches can be on network.
 

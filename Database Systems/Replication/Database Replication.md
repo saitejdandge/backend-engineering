@@ -299,4 +299,4 @@ In the presence of a network partition, a distributed system must choose between
 
 ## Related
 
-[[../Sharding/Database Sharding]]
+[[Database Systems/Sharding/Database Sharding]]

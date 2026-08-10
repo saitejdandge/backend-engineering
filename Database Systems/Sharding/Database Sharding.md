@@ -215,4 +215,4 @@ The challenge is choosing a sharding strategy (key-range vs hash) that achieves 
 
 ## Related
 
-[[../Replication/Database Replication]]
+[[Database Systems/Replication/Database Replication]]
