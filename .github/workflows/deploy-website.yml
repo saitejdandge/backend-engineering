@@ -56,6 +56,9 @@ jobs:
       - name: Build site
         run: npx quartz build
 
+      - name: Verify internal links and theme
+        run: npm test
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

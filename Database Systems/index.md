@@ -7,5 +7,5 @@ Notes on database replication, sharding strategies, and scaling data stores.
 
 ## Table of Contents
 
-- **[[Replication/index|Replication]]** — leader-follower replication, failover, and consistency
-- **[[Sharding/index|Sharding]]** — horizontal partitioning, shard keys, and rebalancing
+- **[[Database Systems/Replication|Replication]]** — leader-follower replication, failover, and consistency
+- **[[Database Systems/Sharding|Sharding]]** — horizontal partitioning, shard keys, and rebalancing

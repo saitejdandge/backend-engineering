@@ -15,7 +15,7 @@
 // Page chrome — full width; no outer letterbox margins on wide screens
 html:not([saved-theme="dark"]),
 html[saved-theme="dark"] {
-  background-color: var(--tdd-canvas) !important;
+  background-color: var(--tdd-page) !important;
 }
 
 body,
@@ -77,18 +77,6 @@ body,
     padding-left: 0;
     padding-right: 0;
   }
-
-  .page > #quartz-body .center > .page-header {
-    margin-top: 1rem !important;
-    margin-bottom: 1.25rem;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    box-sizing: border-box;
-
-    &:has(.article-title) {
-      margin-bottom: 0;
-    }
-  }
 }
 
 .sidebar .page-title,
@@ -101,69 +89,6 @@ body,
 // Folder / tag index — hide auto-generated date listing (curated index.md lists are used instead)
 .center .page-listing {
   display: none !important;
-}
-
-.page-listing > p {
-  margin: 0.75rem 0 0.5rem;
-  font-size: 0.875rem;
-  color: var(--tdd-muted);
-}
-
-.tag-section {
-  margin-top: 1.5rem;
-
-  > h2 {
-    margin: 0 0 0.35rem;
-    font-size: 1rem;
-    border: none;
-    padding: 0;
-  }
-
-  > p {
-    margin: 0 0 0.5rem;
-    font-size: 0.875rem;
-    color: var(--tdd-muted);
-    line-height: 1.5;
-  }
-}
-
-.section-ul {
-  .section-title {
-    color: var(--tdd-ink) !important;
-    font-weight: 600;
-    background: transparent !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    line-height: inherit !important;
-
-    &:hover {
-      color: var(--tdd-accent) !important;
-      opacity: 0.9;
-    }
-  }
-
-  .section-excerpt {
-    font-weight: 400;
-  }
-}
-
-@media all and ($mobile) {
-  .section-ul {
-    margin-top: 0.5rem;
-
-    .section-li {
-      padding: 0.75rem 0;
-    }
-
-    .section-entry {
-      font-size: 0.875rem;
-      line-height: 1.5;
-    }
-
-    .section-excerpt {
-      display: inline;
-    }
-  }
 }
 
 // Explorer — unified row rhythm for folders and files
@@ -472,8 +397,7 @@ body,
   }
 }
 
-.toc h3,
-.backlinks h3 {
+.toc h3 {
   font-family: var(--tdd-font-display);
   color: var(--tdd-ink);
 }
@@ -584,9 +508,7 @@ a.internal.internal-link:not(.tag-link) {
 
 // Tags — shared pill style (sidebar, body, tag pages, popovers)
 .markdown-preview-view a.internal.tag-link,
-.tag-list a.internal.tag-link,
 .related-content a.internal.tag-link,
-.section a.internal.tag-link,
 a.internal.tag-link {
   background: var(--tdd-surface-soft) !important;
   color: var(--tdd-ink) !important;
@@ -604,20 +526,6 @@ a.internal.tag-link {
     color: var(--tdd-ink) !important;
     opacity: 1;
   }
-}
-
-.page-header ul.tags {
-  margin: 0 0 1rem;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-// Inline #tags in the note body duplicate tag-list (OFM merges them into frontmatter)
-.page-header:has(ul.tags) + article .markdown-preview-view > p:first-child:not(:has(> :not(a.tag-link))) {
-  display: none;
 }
 
 // Code blocks
@@ -943,32 +851,6 @@ pre:has(> code.mermaid):hover {
   .markdown-preview-view {
     overflow-wrap: anywhere;
 
-    h1 {
-      font-size: 1.25rem !important;
-      margin-top: 0;
-      margin-bottom: 0.65rem;
-      padding-bottom: 0.3em;
-    }
-
-    h2 {
-      font-size: 1.125rem !important;
-      margin-top: 1.25rem;
-      margin-bottom: 0.5rem;
-      padding-bottom: 0.2em;
-    }
-
-    h3 {
-      font-size: 1rem !important;
-      margin-top: 1rem;
-      margin-bottom: 0.4rem;
-    }
-
-    h4 {
-      font-size: 0.9375rem !important;
-      margin-top: 0.85rem;
-      margin-bottom: 0.35rem;
-    }
-
     .table-container > table {
       margin: 0.75rem 0;
       padding: 0.75rem;
@@ -984,7 +866,6 @@ pre:has(> code.mermaid):hover {
       border-radius: 4px;
     }
 
-    // Folder / overview lists — consistent inset with body text
     ul,
     ol {
       padding-left: 1.25rem;
@@ -1322,12 +1203,6 @@ pre:has(> code.mermaid):hover {
   }
 }
 
-footer {
-  color: var(--tdd-muted);
-  border-top: 1px solid var(--tdd-rule-hair);
-  padding-top: 1rem;
-}
-
 // Link hover previews
 .popover > .popover-inner {
   padding: 1rem 1.25rem 1.25rem !important;
@@ -1352,15 +1227,6 @@ footer {
   }
 
   .content-meta {
-    display: none;
-  }
-
-  ul.tags {
-    margin: 0.35rem 0 0;
-  }
-
-  // Duplicate inline tags when tag-list is in the preview header
-  .popover-hint:has(ul.tags) + .popover-hint .markdown-preview-view > p:first-child:not(:has(> :not(a.tag-link))) {
     display: none;
   }
 
