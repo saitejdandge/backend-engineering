@@ -62,9 +62,9 @@ plugins:
     enabled: true
     options:
       theme:
-        light: github-light
+        light: github-dark
         dark: github-dark
-      keepBackground: false
+      keepBackground: true
     order: 20
   - source: "@quartz-community/obsidian-flavored-markdown"
     enabled: true
@@ -119,10 +119,7 @@ plugins:
   - source: "@quartz-community/quartz-fonts"
     enabled: true
   - source: "@quartz-themes/core"
-    enabled: true
-    options:
-      theme: default
-      mode: both
+    enabled: false
   - source: "@quartz-community/remove-draft"
     enabled: true
   - source: "@quartz-community/explicit-publish"
@@ -257,22 +254,7 @@ plugins:
     options: {}
     order: 50
   - source: "@quartz-community/note-properties"
-    enabled: true
-    options:
-      includeAll: false
-      includedProperties:
-        - description
-        - tags
-        - aliases
-      excludedProperties: []
-      hidePropertiesView: false
-      delimiters: ---
-      language: yaml
-    order: 5
-    layout:
-      position: beforeBody
-      priority: 15
-      display: all
+    enabled: false
   - source: "@quartz-community/obsidian-plugin-excalidraw"
     enabled: true
     options:

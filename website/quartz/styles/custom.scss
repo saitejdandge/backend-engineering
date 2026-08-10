@@ -1,234 +1,121 @@
+@use "sass:meta";
 @use "./variables.scss" as *;
 
-// Newspaper theme — adapted from .obsidian/snippets/tdd-newspaper.css
+@include meta.load-css("obsidian-snippet");
 
-:root {
-  --tdd-page: #ebe8e2;
-  --tdd-well: #ffffff;
-  --tdd-rule-soft: rgba(32, 30, 25, 0.28);
-  --tdd-rule-hair: rgba(32, 30, 25, 0.16);
-  --tdd-code-bg: #efe8d4;
-  --tdd-code-block: #1b1a17;
-  --tdd-code-text: #f8f4e8;
-  --tdd-content-width: 960px;
-}
+// --- Quartz ↔ Obsidian bridge (Quartz uses different DOM outside the note body) ---
 
-:root[saved-theme="dark"] {
-  --tdd-page: #1a1816;
-  --tdd-well: #1c1913;
-  --tdd-rule-soft: rgba(217, 208, 189, 0.22);
-  --tdd-rule-hair: rgba(217, 208, 189, 0.12);
-  --tdd-code-bg: #2a2520;
-  --tdd-code-block: #1c1913;
-  --tdd-code-text: #d9d0bd;
-}
-
-html {
+html:not([saved-theme="dark"]) {
   background-color: var(--tdd-page);
 }
 
 body {
-  background-color: var(--light);
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-::selection {
-  background: var(--textHighlight);
-  color: var(--dark);
+  background-color: var(--tdd-canvas);
+  color: var(--tdd-body);
 }
 
 .page {
-  max-width: calc(var(--tdd-content-width) + 640px);
+  max-width: calc(var(--file-line-width) + 640px);
 }
 
-#quartz-body .sidebar {
-  background-color: var(--lightgray);
+.page > #quartz-body .center > article,
+.page > #quartz-body .center > .page-header {
+  max-width: var(--file-line-width);
 }
 
-#quartz-body .sidebar.left,
-#quartz-body .sidebar.right {
-  border-color: var(--tdd-rule-hair);
-}
-
-.page > #quartz-body .center > article {
-  max-width: var(--tdd-content-width);
-  background: var(--light);
-  padding: 0 0.5rem;
-}
-
-article {
-  font-family: var(--bodyFont);
-  color: var(--darkgray);
-}
-
-article > h1,
-h1.article-title,
-article > .article-title,
-h1.title {
-  font-family: var(--headerFont) !important;
+// Title sits outside .markdown-preview-view in Quartz
+h1.article-title {
+  font-family: var(--tdd-font-display) !important;
   font-weight: 700 !important;
-  color: var(--secondary) !important;
+  color: var(--tdd-accent) !important;
   letter-spacing: -0.01em;
   line-height: 1.15;
-  border-bottom: 2px solid var(--dark);
+  border-bottom: 2px solid var(--tdd-rule);
   padding-bottom: 0.35em;
   margin-top: 0;
 }
 
-article h1 {
-  font-size: 2rem;
+// Hide Quartz metadata chrome — Obsidian reading view doesn't show this
+.note-properties,
+.content-meta {
+  display: none;
 }
 
-article h2 {
-  font-family: var(--headerFont);
-  font-weight: 700;
-  color: var(--dark);
-  line-height: 1.25;
-  border-bottom: 1px solid var(--tdd-rule-soft);
-  padding-bottom: 0.25em;
+// Quartz wraps internal links differently
+.markdown-preview-view a.internal-link,
+.markdown-preview-view a.internal.internal-link,
+a.internal.internal-link {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  line-height: inherit !important;
+  font-weight: 400 !important;
 }
 
-article h3,
-article h4,
-article h5,
-article h6 {
-  font-family: var(--headerFont);
-  font-weight: 600;
-  color: var(--dark);
-  border-bottom: none;
-}
-
-article p > strong,
-article strong {
-  color: var(--dark);
-  font-weight: 700;
-}
-
-article a {
-  color: var(--secondary);
-  font-weight: 400;
-  text-decoration: none;
-
-  &:hover {
-    color: var(--secondary);
-    text-decoration: underline;
-  }
-
-  &.internal {
-    background-color: transparent;
-    padding: 0;
-    border-radius: 0;
-    line-height: inherit;
-  }
-
-  &.tag-link {
-    background: var(--lightgray);
-    color: var(--dark) !important;
-    border-radius: 2px;
-    font-family: var(--headerFont);
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 0.15em 0.45em;
-    font-weight: 600;
-
-    &::before {
-      content: none;
-    }
-  }
-}
-
-article hr {
-  border: none;
-  border-top: 1px solid var(--tdd-rule-soft);
-  margin: 2em 0;
-}
-
-article blockquote {
-  background: var(--lightgray);
-  border-left: 3px solid var(--secondary);
-  border-radius: 0;
-  color: var(--darkgray);
-  font-style: italic;
-  padding: 0.75em 1em;
-}
-
-article code:not(pre code) {
-  font-family: var(--codeFont) !important;
-  background: var(--tdd-code-bg) !important;
-  color: var(--dark) !important;
-  border-radius: 2px;
-  padding: 0.1em 0.35em;
-  font-size: 0.875em;
-}
-
-article pre,
-article figure[data-rehype-pretty-code-figure] {
+// Code blocks: Quartz uses Shiki figures, not plain <pre>
+.markdown-preview-view figure[data-rehype-pretty-code-figure],
+figure[data-rehype-pretty-code-figure] {
   background: var(--tdd-code-block) !important;
   border: 1px solid var(--tdd-rule-hair);
   border-radius: 4px;
-}
+  margin: 1rem 0;
+  overflow: hidden;
 
-article pre code,
-article figure[data-rehype-pretty-code-figure] code {
-  background: transparent !important;
-  color: var(--tdd-code-text) !important;
-}
+  pre {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0;
+    margin: 0;
+    padding: 1em 1.15em;
+  }
 
-article table {
-  border-collapse: collapse;
-  border: 1px solid var(--tdd-rule-soft);
-}
-
-article th {
-  font-family: var(--headerFont);
-  background: var(--lightgray);
-  color: var(--dark);
-  font-weight: 700;
-  border-bottom: 1px solid var(--tdd-rule-soft);
-}
-
-article td {
-  border-bottom: 1px solid var(--tdd-rule-hair);
-  color: var(--darkgray);
-}
-
-article .callout {
-  background: var(--lightgray);
-  border: 1px solid var(--tdd-rule-soft);
-  border-radius: 4px;
-}
-
-article .callout[data-callout="info"],
-article .callout[data-callout="note"],
-article .callout[data-callout="tip"] {
-  --color: var(--secondary);
-  --border: color-mix(in srgb, var(--secondary) 28%, transparent);
-  --bg: var(--highlight);
-}
-
-.page-title {
-  font-family: var(--headerFont);
-  font-weight: 700;
-  color: var(--dark);
-}
-
-.explorer ul li > a,
-.toc li > a,
-.backlinks li > a {
-  color: var(--darkgray);
-  border-radius: 2px;
-
-  &.active,
-  &:hover {
-    background: var(--highlight);
-    color: var(--dark);
+  code {
+    background: transparent !important;
+    color: var(--tdd-code-text) !important;
+    font-family: var(--tdd-font-mono) !important;
+    font-size: 0.875em;
   }
 }
 
+// Obsidian uses dark code blocks even in light mode — force Shiki dark tokens
+html:not([saved-theme="dark"]) figure[data-rehype-pretty-code-figure] code span {
+  color: var(--shiki-dark) !important;
+}
+
+// Sidebars → Obsidian nav palette
+#quartz-body .sidebar {
+  background-color: var(--tdd-surface-soft) !important;
+}
+
+.sidebar .page-title,
+.sidebar .page-title a {
+  font-family: var(--tdd-font-display);
+  color: var(--tdd-ink);
+  font-weight: 700;
+}
+
+.explorer .tree-item-self,
+.explorer .nav-file-title,
+.explorer .nav-folder-title {
+  color: var(--tdd-body);
+  border-radius: 2px;
+}
+
+.explorer .tree-item-self.active,
+.explorer .nav-file-title.is-active {
+  background-color: var(--tdd-accent-soft) !important;
+  color: var(--tdd-ink) !important;
+}
+
+.sidebar.right .graph h3,
+.toc h3,
+.backlinks h3 {
+  font-family: var(--tdd-font-display);
+  color: var(--tdd-ink);
+}
+
 footer {
-  color: var(--gray);
+  color: var(--tdd-muted);
   border-top: 1px solid var(--tdd-rule-hair);
   padding-top: 1rem;
 }

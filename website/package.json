@@ -19,7 +19,10 @@
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
     "install-plugins": "npx tsx ./quartz/plugins/loader/install-plugins.ts",
-    "prebuild": "npm run install-plugins"
+    "prebuild": "node scripts/sync-obsidian-css.mjs && npm run install-plugins",
+    "preview": "node scripts/serve-local.mjs",
+    "dev": "node scripts/sync-obsidian-css.mjs && npx quartz build && node scripts/serve-local.mjs",
+    "sync-theme": "node scripts/sync-obsidian-css.mjs"
   },
   "engines": {
     "npm": ">=10.9.2",
