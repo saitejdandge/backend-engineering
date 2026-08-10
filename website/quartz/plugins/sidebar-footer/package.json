@@ -1,0 +1,12 @@
+{
+  "name": "sidebar-footer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "quartz": {
+    "name": "sidebar-footer",
+    "displayName": "Sidebar Footer",
+    "category": "component",
+    "version": "1.0.0"
+  }
+}

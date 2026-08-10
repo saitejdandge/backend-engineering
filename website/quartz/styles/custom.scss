@@ -3,6 +3,13 @@
 
 @include meta.load-css("obsidian-snippet");
 
+@mixin truncate-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
 // --- Quartz ↔ Obsidian bridge ---
 
 // Page chrome — full width; no outer letterbox margins on wide screens
@@ -50,6 +57,25 @@ body,
 // Sidebars
 #quartz-body .sidebar {
   background-color: var(--tdd-surface-soft) !important;
+  min-width: 0;
+  padding-top: 2rem !important;
+}
+
+.sidebar.right > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.page > #quartz-body .center > .page-header {
+  margin-top: 2rem !important;
+  margin-bottom: 1.75rem;
+}
+
+@media (max-width: 800px) {
+  .page > #quartz-body .center > .page-header {
+    margin-top: 1rem !important;
+    margin-bottom: 1.25rem;
+  }
 }
 
 .sidebar .page-title,
@@ -95,8 +121,10 @@ body,
     width: 100%;
     box-sizing: border-box;
     min-height: 1.75rem;
+    min-width: 0;
     padding: 0.2rem 0.5rem 0.2rem 0.35rem;
     gap: 0.35rem;
+    overflow: hidden;
 
     div > a,
     div > button,
@@ -107,6 +135,7 @@ body,
       font-size: inherit !important;
       font-weight: 400 !important;
       line-height: 1.5 !important;
+      @include truncate-line;
     }
 
     div > a:hover,
@@ -133,11 +162,13 @@ body,
     width: 100%;
     box-sizing: border-box;
     min-height: 1.75rem;
+    min-width: 0;
     padding: 0.2rem 0.5rem 0.2rem 0.65rem;
     margin: 1px 0;
     border-radius: 2px;
     border-left: 2px solid transparent;
     line-height: 1.5;
+    @include truncate-line;
 
     &:hover {
       color: var(--tdd-ink);
@@ -165,11 +196,7 @@ body,
   }
 }
 
-// Breadcrumbs — black/ink text, space before title
-.page > #quartz-body .center > .page-header {
-  margin-bottom: 1.5rem;
-}
-
+// Breadcrumbs — ink text, space before title
 .breadcrumb-container {
   color: var(--tdd-ink);
   font-size: 0.875rem;
@@ -193,9 +220,13 @@ body,
 }
 
 .toc {
+  min-width: 0;
+
   a {
     color: var(--tdd-muted);
     font-weight: 400;
+    display: block;
+    @include truncate-line;
 
     &.in-view,
     &:hover {
@@ -204,7 +235,82 @@ body,
   }
 }
 
-.sidebar.right .graph h3,
+.related-content h3 {
+  font-family: var(--tdd-font-display);
+  color: var(--tdd-ink);
+  border-bottom: 1px solid var(--tdd-rule-hair);
+  padding-bottom: 0.35rem;
+  margin-bottom: 0;
+}
+
+.related-content ul.tags {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.related-content ul.related-links {
+  min-width: 0;
+}
+
+.related-content ul.related-links li {
+  min-width: 0;
+}
+
+.related-content ul.related-links a.internal {
+  color: var(--tdd-accent);
+  font-weight: 400;
+  background: transparent;
+  display: block;
+  @include truncate-line;
+
+  &:hover {
+    color: var(--tdd-ink);
+    opacity: 0.85;
+  }
+}
+
+.related-content-divider {
+  border: none;
+  border-top: 1px solid var(--tdd-rule-hair);
+  margin: 0.65rem 0 0;
+  width: 100%;
+}
+
+.related-content-divider--bottom {
+  margin-top: 0.85rem;
+}
+
+// In-article "## Related" at bottom of notes
+.markdown-preview-view h2#related {
+  font-family: var(--tdd-font-display);
+  color: var(--tdd-ink);
+  border-bottom: 1px solid var(--tdd-rule-hair);
+  padding-bottom: 0.35rem;
+  margin-top: 2rem;
+}
+
+.markdown-preview-view h2#related + p:has(a.internal-link) {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+
+  a.internal-link {
+    display: block;
+    color: var(--tdd-accent);
+    font-weight: 400;
+    margin: 0.2rem 0;
+    @include truncate-line;
+
+    &:hover {
+      color: var(--tdd-ink);
+      opacity: 0.85;
+    }
+  }
+}
+
 .toc h3,
 .backlinks h3 {
   font-family: var(--tdd-font-display);
@@ -254,9 +360,10 @@ a.internal.internal-link:not(.tag-link) {
   color: var(--tdd-accent) !important;
 }
 
-// Tags — Quartz uses a.internal.tag-link; Obsidian uses a.tag
+// Tags — shared pill style (page header, related content, body)
 .markdown-preview-view a.internal.tag-link,
 .tag-list a.internal.tag-link,
+.related-content a.internal.tag-link,
 a.internal.tag-link {
   background: var(--tdd-surface-soft) !important;
   color: var(--tdd-ink) !important;
@@ -277,7 +384,7 @@ a.internal.tag-link {
 }
 
 .page-header ul.tags {
-  margin: 0.25rem 0 1rem;
+  margin: 0 0 1rem;
   padding: 0;
   list-style: none;
   display: flex;

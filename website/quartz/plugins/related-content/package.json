@@ -1,0 +1,12 @@
+{
+  "name": "related-content",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "quartz": {
+    "name": "related-content",
+    "displayName": "Related Content",
+    "category": "component",
+    "version": "1.0.0"
+  }
+}

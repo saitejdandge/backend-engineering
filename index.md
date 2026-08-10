@@ -3,7 +3,7 @@ title: Backend Engineering
 description: Notes on system design, distributed systems, databases, and staff engineering.
 ---
 
-Welcome to my backend engineering knowledge base. This site is generated from my Obsidian vault using [Quartz](https://quartz.jzhao.xyz/).
+Welcome to my backend engineering knowledge base — notes on system design, distributed systems, databases, caching, messaging, and staff-level engineering topics.
 
 ## Topics
 

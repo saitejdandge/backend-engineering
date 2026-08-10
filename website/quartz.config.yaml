@@ -168,6 +168,10 @@ plugins:
       position: left
       priority: 50
   - source: "@quartz-community/graph"
+    enabled: false
+  - source: "./quartz/plugins/graph"
+    enabled: false
+  - source: "./quartz/plugins/related-content"
     enabled: true
     layout:
       position: right
@@ -181,7 +185,7 @@ plugins:
       groupOptions:
         grow: true
   - source: "@quartz-community/backlinks"
-    enabled: true
+    enabled: false
     layout:
       position: right
       priority: 50
@@ -196,7 +200,7 @@ plugins:
       position: beforeBody
       priority: 20
   - source: "@quartz-community/tag-list"
-    enabled: true
+    enabled: false
     layout:
       position: beforeBody
       priority: 30
@@ -232,15 +236,24 @@ plugins:
       position: afterBody
       priority: 10
   - source: "@quartz-community/footer"
-    enabled: true
-    options:
-      links:
-        GitHub: https://github.com/saitejdandge/backend-engineering
+    enabled: false
     layout:
       position: footer
       priority: 50
+  - source: "./quartz/plugins/sidebar-footer"
+    enabled: true
+    layout:
+      position: left
+      priority: 100
   - source: "@quartz-community/recent-notes"
     enabled: false
+  - source: "@quartz-community/spacer"
+    enabled: true
+    options: {}
+    layout:
+      position: left
+      priority: 90
+      display: desktop-only
   - source: "@quartz-community/spacer"
     enabled: true
     options: {}
