@@ -22,9 +22,28 @@ body,
   max-width: calc(var(--file-line-width) + 640px);
 }
 
+// Reading column: centered with even left/right gutters inside the grid cell
+.page > #quartz-body {
+  column-gap: 1.25rem;
+}
+
+.page > #quartz-body .center {
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+}
+
 .page > #quartz-body .center > article,
 .page > #quartz-body .center > .page-header {
-  max-width: var(--file-line-width);
+  max-width: min(var(--file-line-width), 42rem);
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 1200px) {
+  .page > #quartz-body .center {
+    padding: 0 2.5rem;
+  }
 }
 
 // Sidebars
@@ -52,17 +71,35 @@ body,
     color: var(--tdd-body);
     font-weight: 400;
     opacity: 1;
+    display: block;
+    padding: 0.2rem 0.5rem 0.2rem 0.65rem;
+    border-radius: 0 2px 2px 0;
+    border-left: 2px solid transparent;
 
     &:hover {
       color: var(--tdd-ink);
+      background-color: var(--tdd-accent-soft);
     }
 
-    &.active {
-      color: var(--tdd-ink);
-      background-color: var(--tdd-accent-soft);
-      border-radius: 2px;
-      padding: 0 0.25rem;
+    &.active,
+    &.is-active {
+      color: var(--tdd-ink) !important;
+      background-color: var(--tdd-well) !important;
+      border-left-color: var(--tdd-accent);
+      font-weight: 600;
+      opacity: 1 !important;
     }
+  }
+
+  // Obsidian class names on Quartz explorer nodes
+  a.nav-file-title.active,
+  a.nav-file-title.is-active,
+  .tree-item-self.active,
+  .tree-item-self.is-active {
+    color: var(--tdd-ink) !important;
+    background-color: var(--tdd-well) !important;
+    border-left: 2px solid var(--tdd-accent);
+    font-weight: 600;
   }
 
   .folder-container {
