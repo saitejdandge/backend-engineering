@@ -360,10 +360,11 @@ a.internal.internal-link:not(.tag-link) {
   color: var(--tdd-accent) !important;
 }
 
-// Tags — shared pill style (page header, related content, body)
+// Tags — shared pill style (sidebar, body, tag pages, popovers)
 .markdown-preview-view a.internal.tag-link,
 .tag-list a.internal.tag-link,
 .related-content a.internal.tag-link,
+.section a.internal.tag-link,
 a.internal.tag-link {
   background: var(--tdd-surface-soft) !important;
   color: var(--tdd-ink) !important;
@@ -424,6 +425,239 @@ figure[data-rehype-pretty-code-figure] {
 
 html:not([saved-theme="dark"]) figure[data-rehype-pretty-code-figure] code span {
   color: var(--shiki-dark) !important;
+}
+
+@mixin mermaid-toolbar-button {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--mermaid-text) !important;
+  border: 1px solid var(--mermaid-border) !important;
+  background-color: var(--mermaid-surface) !important;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+
+  > svg {
+    fill: currentColor !important;
+    stroke: currentColor;
+    filter: none !important;
+  }
+
+  &:hover,
+  &.active {
+    border-color: var(--mermaid-accent) !important;
+    background-color: var(--mermaid-accent-soft) !important;
+    color: var(--mermaid-text) !important;
+  }
+
+  &:focus {
+    outline: 0;
+  }
+}
+
+// Mermaid — fixed dark palette (inline + expanded view); same in light and dark site themes
+:root {
+  --mermaid-bg: #1c1913;
+  --mermaid-surface: #2a2724;
+  --mermaid-text: #d9d0bd;
+  --mermaid-accent: #cc9a56;
+  --mermaid-accent-soft: rgba(204, 154, 86, 0.15);
+  --mermaid-border: rgba(217, 208, 189, 0.16);
+}
+
+.markdown-preview-view pre:has(> code.mermaid) {
+  background: var(--mermaid-bg) !important;
+  border: 1px solid var(--mermaid-border);
+  border-radius: 4px;
+  padding: 1em 1.15em;
+  margin: 1rem 0;
+  overflow: visible;
+
+  > code.mermaid {
+    display: block !important;
+    background: transparent !important;
+    color: var(--mermaid-text);
+    padding: 0 !important;
+    line-height: normal !important;
+    counter-reset: none !important;
+    overflow: visible !important;
+  }
+
+  svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    line-height: normal;
+
+    // Page typography line-height cascades into foreignObject labels and
+    // makes actor boxes taller than mermaid measured — text looks "split".
+    foreignObject {
+      line-height: normal;
+
+      div {
+        line-height: normal !important;
+      }
+    }
+  }
+
+  > .expand-button,
+  > .mermaid-code-button,
+  > .clipboard-button {
+    @include mermaid-toolbar-button;
+  }
+
+  code.mermaid[data-view="source"] {
+    display: block;
+    white-space: pre;
+    overflow-x: auto;
+    font-family: var(--tdd-font-mono);
+    font-size: 0.875em;
+    line-height: 1.5;
+    color: var(--mermaid-text);
+    background: transparent;
+  }
+}
+
+pre:has(> code.mermaid):hover {
+  > .expand-button,
+  > .mermaid-code-button,
+  > .clipboard-button {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+}
+
+.mermaid-source-panel {
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  white-space: pre;
+  overflow: auto;
+  max-height: 100%;
+  font-family: var(--tdd-font-mono);
+  font-size: 0.875em;
+  line-height: 1.5;
+  color: var(--mermaid-text);
+  background: transparent;
+  border: none;
+}
+
+#mermaid-container {
+  contain: layout;
+  z-index: 999;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.65) !important;
+
+  &.active {
+    display: block;
+  }
+
+  > #mermaid-space {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80vw;
+    height: 80vh;
+    overflow: hidden;
+    background-color: var(--mermaid-bg) !important;
+    border: 1px solid var(--mermaid-border) !important;
+    border-radius: 4px;
+
+    > .mermaid-content {
+      position: relative;
+      transform-origin: 0 0;
+      background-color: var(--mermaid-bg) !important;
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
+      box-sizing: border-box;
+      overflow: visible;
+
+      svg {
+        line-height: normal;
+        background-color: var(--mermaid-bg);
+
+        foreignObject div {
+          line-height: normal !important;
+        }
+      }
+    }
+
+    > .mermaid-controls {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.15rem;
+      padding: 0.2rem;
+      background: var(--mermaid-surface) !important;
+      border: 1px solid var(--mermaid-border) !important;
+      border-radius: 5px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+
+      .mermaid-control-divider {
+        width: 1px;
+        align-self: stretch;
+        margin: 0.2rem 0.1rem;
+        background: var(--mermaid-border);
+        flex-shrink: 0;
+      }
+
+      .mermaid-control-button {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        margin: 0;
+        border: none !important;
+        border-radius: 3px;
+        background: transparent !important;
+        color: var(--mermaid-text) !important;
+        cursor: pointer;
+        line-height: 1;
+
+        svg {
+          display: block;
+          fill: none !important;
+          stroke: currentColor;
+          filter: none !important;
+        }
+
+        &:hover,
+        &.active {
+          background: var(--mermaid-accent-soft) !important;
+          color: var(--mermaid-accent) !important;
+        }
+
+        &:focus {
+          outline: 0;
+        }
+
+        &:active {
+          transform: translateY(1px);
+        }
+      }
+    }
+  }
 }
 
 footer {

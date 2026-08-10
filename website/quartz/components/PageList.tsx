@@ -110,5 +110,10 @@ PageList.css = `
 
 .section > .tags {
   margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 `

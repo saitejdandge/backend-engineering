@@ -1,5 +1,15 @@
 import { StaticResources } from "../util/resources"
 import { BuildCtx } from "../util/ctx"
+// @ts-ignore — bundled inline script string
+import mermaidScript from "../components/scripts/mermaid.inline"
+
+function isMermaidInlineScript(script: string | undefined): boolean {
+  return !!script && script.includes("code.mermaid") && script.includes("mermaid.esm")
+}
+
+function isMermaidPluginCss(content: string | undefined): boolean {
+  return !!content && content.includes("#mermaid-container") && content.includes(".expand-button")
+}
 
 export function getStaticResourcesFromPlugins(ctx: BuildCtx) {
   const staticResources: StaticResources = {
@@ -20,6 +30,19 @@ export function getStaticResourcesFromPlugins(ctx: BuildCtx) {
       staticResources.additionalHead.push(...res.additionalHead)
     }
   }
+
+  // Mermaid always uses the dark palette (diagrams sit on code-block background).
+  for (const resource of staticResources.js) {
+    if (resource.contentType === "inline" && isMermaidInlineScript(resource.script)) {
+      resource.script = mermaidScript
+      resource.moduleType = "module"
+    }
+  }
+
+  // Drop plugin mermaid CSS — it loads after index.css and forces light modal controls.
+  staticResources.css = staticResources.css.filter(
+    (css) => !(css.inline && isMermaidPluginCss(css.content)),
+  )
 
   // if serving locally, listen for rebuilds and reload the page
   if (ctx.argv.serve) {
