@@ -1,0 +1,13 @@
+{
+  "name": "folder-page",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "index.ts",
+  "quartz": {
+    "name": "folder-page",
+    "displayName": "Folder Page",
+    "category": "pageType",
+    "version": "1.0.0"
+  }
+}

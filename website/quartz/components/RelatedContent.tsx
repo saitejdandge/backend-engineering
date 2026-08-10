@@ -64,52 +64,53 @@ export const RelatedContent: QuartzComponentConstructor<Options> = (opts = {}) =
 
     return (
       <div class={[displayClass, "related-content"].filter(Boolean).join(" ")}>
-        <h3>Related</h3>
         {tags.length > 0 && (
-          <ul class="tags">
-            {tags.map((tag) => {
-              const linkDest = resolveRelative(fileData.slug!, `tags/${tag}`)
-              return (
+          <section class="related-content-section related-content-section--tags">
+            <h3>Tags</h3>
+            <ul class="tags">
+              {tags.map((tag) => {
+                const linkDest = resolveRelative(fileData.slug!, `tags/${tag}`)
+                return (
+                  <li>
+                    <a href={linkDest} class="internal tag-link">
+                      {tag}
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        )}
+        {related.length > 0 && (
+          <section class="related-content-section related-content-section--links">
+            <h3>Related content</h3>
+            <ul class="related-links">
+              {related.map((file) => (
                 <li>
-                  <a href={linkDest} class="internal tag-link">
-                    {tag}
+                  <a href={resolveRelative(fileData.slug!, file.slug!)} class="internal">
+                    {pageTitle(file)}
                   </a>
                 </li>
-              )
-            })}
-          </ul>
+              ))}
+            </ul>
+          </section>
         )}
-        {tags.length > 0 && related.length > 0 && <hr class="related-content-divider" />}
-        {related.length > 0 && (
-          <ul class="related-links">
-            {related.map((file) => (
-              <li>
-                <a href={resolveRelative(fileData.slug!, file.slug!)} class="internal">
-                  {pageTitle(file)}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-        <hr class="related-content-divider related-content-divider--bottom" />
       </div>
     )
   }
 
   Component.css = `
-.related-content {
-  flex-direction: column;
-}
-.related-content > h3 {
+.related-content-section > h3 {
   font-size: 1rem;
+}
+
+.related-content-section > ul {
   margin: 0;
-}
-.related-content > ul.related-links {
-  list-style: none;
   padding: 0;
-  margin: 0.5rem 0 0;
+  list-style: none;
 }
-.related-content > ul.related-links > li {
+
+.related-content-section > ul.related-links > li {
   margin: 0.15rem 0;
 }
 `

@@ -2,6 +2,10 @@ import { StaticResources } from "../util/resources"
 import { BuildCtx } from "../util/ctx"
 // @ts-ignore — bundled inline script string
 import mermaidScript from "../components/scripts/mermaid.inline"
+// @ts-ignore — bundled inline script string
+import explorerAlwaysOpenScript from "../components/scripts/explorer-always-open.inline"
+// @ts-ignore — bundled inline script string
+import explorerActiveScript from "../components/scripts/explorer-active.inline"
 
 function isMermaidInlineScript(script: string | undefined): boolean {
   return !!script && script.includes("code.mermaid") && script.includes("mermaid.esm")
@@ -43,6 +47,18 @@ export function getStaticResourcesFromPlugins(ctx: BuildCtx) {
   staticResources.css = staticResources.css.filter(
     (css) => !(css.inline && isMermaidPluginCss(css.content)),
   )
+
+  staticResources.js.push({
+    loadTime: "afterDOMReady",
+    contentType: "inline",
+    script: explorerAlwaysOpenScript,
+  })
+
+  staticResources.js.push({
+    loadTime: "afterDOMReady",
+    contentType: "inline",
+    script: explorerActiveScript,
+  })
 
   // if serving locally, listen for rebuilds and reload the page
   if (ctx.argv.serve) {

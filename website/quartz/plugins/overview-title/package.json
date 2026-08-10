@@ -1,0 +1,12 @@
+{
+  "name": "overview-title",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "quartz": {
+    "name": "overview-title",
+    "displayName": "Overview Title",
+    "category": "component",
+    "version": "1.0.0"
+  }
+}

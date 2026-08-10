@@ -158,9 +158,9 @@ plugins:
     enabled: true
   - source: "@quartz-community/content-page"
     enabled: true
-  - source: "@quartz-community/folder-page"
+  - source: "./quartz/plugins/folder-page"
     enabled: true
-  - source: "@quartz-community/tag-page"
+  - source: "./quartz/plugins/tag-page"
     enabled: true
   - source: "@quartz-community/explorer"
     enabled: true
@@ -189,11 +189,11 @@ plugins:
     layout:
       position: right
       priority: 50
-  - source: "@quartz-community/article-title"
-    enabled: false
+  - source: "./quartz/plugins/overview-title"
+    enabled: true
     layout:
       position: beforeBody
-      priority: 10
+      priority: 8
   - source: "@quartz-community/content-meta"
     enabled: true
     layout:
