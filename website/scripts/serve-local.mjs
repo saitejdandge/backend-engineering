@@ -18,6 +18,13 @@ const server = http.createServer(async (req, res) => {
     return
   }
 
+  // /backend-engineering must redirect to /backend-engineering/ so relative CSS/JS paths resolve
+  if (baseDir && url === baseDir) {
+    res.writeHead(302, { Location: `${baseDir}/` })
+    res.end()
+    return
+  }
+
   if (baseDir && !req.url?.startsWith(baseDir)) {
     res.writeHead(404)
     res.end("Not found")
@@ -83,6 +90,6 @@ const server = http.createServer(async (req, res) => {
 })
 
 server.listen(port, () => {
-  console.log(`Quartz preview: http://localhost:${port}${baseDir}`)
+  console.log(`Quartz preview: http://localhost:${port}${baseDir}/`)
   console.log("Press Ctrl+C to stop")
 })
