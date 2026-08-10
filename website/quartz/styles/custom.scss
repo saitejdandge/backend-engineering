@@ -16,13 +16,21 @@
 html:not([saved-theme="dark"]),
 html[saved-theme="dark"] {
   background-color: var(--tdd-page) !important;
+  min-height: 100%;
 }
 
 body,
 .page,
+#quartz-body,
 #quartz-body .center {
   background-color: var(--tdd-canvas);
   color: var(--tdd-body);
+  min-height: 100vh;
+}
+
+// Breadcrumb already includes the current page — hide duplicate title before article h1
+.page-header .breadcrumb-container .breadcrumb-element:last-child {
+  display: none;
 }
 
 .page {

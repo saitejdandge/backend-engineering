@@ -364,4 +364,4 @@ kubectl exec -it pod-a -- cat /etc/resolv.conf
 
 ## Related
 
-[[05 - AWS Networking]]  [[07 - Custom Protocols]]  [[Kubernetes Deep Dive]]
+[[05 - AWS Networking]]  [[07 - Custom Protocols]]  [[../Staff Engineer/06 - Cloud & Infrastructure/Kubernetes Deep Dive]]

@@ -138,4 +138,4 @@ The distinction is minor at the infrastructure level — both use offset commits
 
 ## Related
 
-[[02 - How Kafka Works]]  [[3 - Intro to Message queues]]
+[[02 - How Kafka Works]]  [[../Course/3 - Intro to Message queues]]
