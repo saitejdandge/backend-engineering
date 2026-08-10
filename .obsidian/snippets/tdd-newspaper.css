@@ -180,7 +180,7 @@
 .HyperMD-header-1 {
   font-family: var(--tdd-font-display) !important;
   font-weight: 700 !important;
-  color: var(--tdd-ink) !important;
+  color: var(--tdd-accent) !important;
   letter-spacing: -0.01em;
   line-height: 1.15;
   border-bottom: 2px solid var(--tdd-rule);
@@ -228,7 +228,7 @@
 .markdown-source-view.mod-cm6 .inline-title {
   border-bottom: 2px solid var(--tdd-rule);
   padding-bottom: 0.35em;
-  color: var(--tdd-ink) !important;
+  color: var(--tdd-accent) !important;
 }
 
 .markdown-preview-view,

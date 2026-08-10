@@ -13,3 +13,9 @@
 /.idea/modules.xml
 /.idea/sqldialects.xml
 /.idea/vcs.xml
+
+# Quartz website
+/website/node_modules/
+/website/public/
+/website/.quartz/
+/website/index.css
